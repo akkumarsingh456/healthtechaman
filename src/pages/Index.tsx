@@ -53,18 +53,18 @@ const Index = () => {
           <StudentHomeDashboard />
         ) : (
           <>
-            {/* Highly Visible Custom 3D Image Blinking Pointer Bar */}
+            {/* Highly Visible Custom 3D Emoji Pointer Bar */}
             <div className="bg-primary/10 border-b border-primary/30 py-5 shadow-sm">
               <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-4">
                 
                 <div className="flex items-center gap-2">
-                  {/* Left 3D Hand Image (Rotated Right Horizontally) */}
+                  {/* Left Beautiful 3D Emoji Hand (Pointing Right) */}
                   <div className="animate-pulse" style={{ animationDuration: '0.8s' }}>
                     <img 
-                      src="/pointing-hand.png" 
+                      src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f449/512.webp" 
                       alt="Point Right" 
-                      className="w-10 h-10 md:w-12 md:h-12 rotate-90 object-contain" 
-                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.3))' }}
+                      className="w-10 h-10 md:w-12 md:h-12 object-contain" 
+                      style={{ filter: 'drop-shadow(0px 3px 5px rgba(0,0,0,0.25))' }}
                     />
                   </div>
                   <span className="text-base md:text-lg text-foreground font-bold ml-2">
@@ -74,19 +74,19 @@ const Index = () => {
                 
                 <Link 
                   to="/proposal" 
-                  className="text-base md:text-lg font-bold text-white bg-primary px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-md animate-pulse flex items-center gap-2"
+                  className="text-base md:text-lg font-bold text-white bg-primary px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-md hover:shadow-lg animate-pulse flex items-center gap-2"
                   style={{ animationDuration: '1.5s' }}
                 >
                   View Guide PDF 📄
                 </Link>
                 
-                {/* Right 3D Hand Image (Rotated Left Horizontally) */}
+                {/* Right Beautiful 3D Emoji Hand (Pointing Left) */}
                 <div className="hidden sm:flex animate-pulse" style={{ animationDuration: '0.8s' }}>
                   <img 
-                    src="/pointing-hand.png" 
+                    src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f448/512.webp" 
                     alt="Point Left" 
-                    className="w-10 h-10 md:w-12 md:h-12 -rotate-90 object-contain" 
-                    style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.3))' }}
+                    className="w-10 h-10 md:w-12 md:h-12 object-contain" 
+                    style={{ filter: 'drop-shadow(0px 3px 5px rgba(0,0,0,0.25))' }}
                   />
                 </div>
                 
