@@ -22,7 +22,7 @@ import {
 import { DEPARTMENTS, YEARS_OF_STUDY, PROGRAMMES } from "@/lib/validations/student-registration";
 
 type UserType = "student" | "doctor" | "mentor" | "lab_officer" | "pharmacy" | "medical_staff" | "admin";
-type AuthView = "select" | "signin" | "signup" | "forgot" | "staff_select";
+type AuthView = "select" | "signin" | "signup" | "forgot" | "staff_select" | "update_password";
 
 interface StudentFormData {
   rollNumber: string;
@@ -73,7 +73,15 @@ export default function Auth() {
   });
 
   useEffect(() => {
+    // 1. Manually intercept hash on load for password recovery
+    if (window.location.hash.includes('type=recovery')) {
+      setAuthView('update_password');
+    }
+
     const checkSessionAndRedirect = async () => {
+      // 2. Prevent dashboard redirect if user is recovering password
+      if (window.location.hash.includes('type=recovery')) return;
+      
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
@@ -90,7 +98,11 @@ export default function Auth() {
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+      if (event === 'PASSWORD_RECOVERY') {
+        setAuthView('update_password');
+      } else if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        // 3. Prevent redirect if user is recovering password
+        if (window.location.hash.includes('type=recovery')) return;
         await redirectBasedOnRole(session.user);
       }
     });
@@ -251,7 +263,7 @@ export default function Auth() {
     medical_staff: ["medicalstaff@nitw.ac.in"],
   };
 
-  // Roles that do NOT allow signup — signin only
+  // Roles that do NOT allow signup â€” signin only
   const signinOnlyRoles: UserType[] = ["doctor", "admin", "pharmacy", "lab_officer", "medical_staff"];
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -417,7 +429,7 @@ export default function Auth() {
       }).then(({ error }) => {
         if (error) console.log('Registration email could not be sent:', error.message);
       }).catch(() => {
-        // Silently ignore — email is non-critical
+        // Silently ignore â€” email is non-critical
       });
 
       setIsLoading(false);
@@ -485,6 +497,39 @@ export default function Auth() {
         title: "Reset Link Sent!",
         description: "Check your email for the password reset link.",
       });
+      setAuthView("signin");
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate new password
+    const newErrors: FormErrors = {};
+    try {
+      strongPasswordSchema.parse(password);
+    } catch (e) {
+      if (e instanceof z.ZodError) {
+        newErrors.password = e.errors[0].message;
+      }
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await supabase.auth.updateUser({ password });
+    setIsLoading(false);
+
+    if (error) {
+      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Password Updated", description: "Your password has been changed successfully!" });
+      window.history.replaceState(null, '', window.location.pathname); // clear the recovery hash from URL
+      setPassword("");
+      setErrors({});
       setAuthView("signin");
     }
   };
@@ -693,6 +738,56 @@ export default function Auth() {
           </Card>
         </main>
         
+      </div>
+    );
+  }
+
+  // Update password view (Triggered after clicking reset link from email)
+  if (authView === "update_password") {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        
+        <main className="flex-1 flex items-center justify-center py-12 px-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <KeyRound className="w-8 h-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Set New Password</CardTitle>
+              <CardDescription>
+                Enter your new strong password below
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="update-password">New Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="update-password"
+                      type="password"
+                      placeholder="Min 8 chars, uppercase, number, symbol"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <PasswordStrength password={password} />
+                  {errors.password && (
+                    <p className="text-sm text-destructive">{errors.password}</p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? "Updating..." : "Update Password"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </main>
+        
         <Footer />
       </div>
     );
@@ -751,7 +846,7 @@ export default function Auth() {
             </CardTitle>
             <CardDescription>
               {userType === "admin"
-                ? "Restricted access — Only authorized administrator"
+                ? "Restricted access â€” Only authorized administrator"
                 : userType === "doctor" 
                 ? "Sign in to access medical dashboard and patient records"
                 : userType === "mentor"
@@ -779,7 +874,7 @@ export default function Auth() {
             )}
 
             {userType && signinOnlyRoles.includes(userType) ? (
-              /* Sign-in only — no tabs */
+              /* Sign-in only â€” no tabs */
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
@@ -805,7 +900,7 @@ export default function Auth() {
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="signin-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" />
+                    <Input id="signin-password" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" />
                   </div>
                   {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
@@ -863,7 +958,7 @@ export default function Auth() {
                       <Input
                         id="signin-password"
                         type="password"
-                        placeholder="••••••••"
+                        placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="pl-10"
