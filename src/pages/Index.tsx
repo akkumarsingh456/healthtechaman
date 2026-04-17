@@ -53,15 +53,33 @@ const Index = () => {
           <StudentHomeDashboard />
         ) : (
           <>
-            {/* Proposal PDF Bar */}
-            <div className="bg-primary/10 border-b border-primary/20">
-              <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-3">
-                <span className="text-sm text-foreground font-medium">📄 View the project proposal & guide</span>
-                <Link to="/proposal" className="text-sm font-semibold text-primary hover:underline">
-                  View Guide PDF →
+            {/* Highly Visible Blinking Proposal PDF Bar (Completely Outside Disclaimer Box) */}
+            <div className="bg-primary/10 border-b border-primary/30 py-5 shadow-sm">
+              <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                
+                <div className="flex items-center gap-2">
+                  {/* Left Blinking Arrow */}
+                  <span className="text-red-500 text-4xl md:text-5xl animate-pulse font-extrabold" style={{ animationDuration: '0.8s' }}>👉</span>
+                  <span className="text-base md:text-lg text-foreground font-bold ml-2">
+                    Project Proposal & Guide:
+                  </span>
+                </div>
+                
+                <Link 
+                  to="/proposal" 
+                  className="text-base md:text-lg font-bold text-white bg-primary px-6 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-md animate-pulse flex items-center gap-2"
+                  style={{ animationDuration: '1.5s' }}
+                >
+                  View Guide PDF 📄
                 </Link>
+                
+                {/* Right Blinking Arrow */}
+                <span className="text-red-500 text-4xl md:text-5xl animate-pulse font-extrabold hidden sm:block" style={{ animationDuration: '0.8s' }}>👈</span>
+                
               </div>
             </div>
+
+            {/* Do NOT touch the Disclaimer Section or Contact Form Code below this line! */}
             <DisclaimerSection />
             <WelcomeBanner />
             <HeroSection />
