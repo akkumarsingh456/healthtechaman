@@ -28,46 +28,33 @@ const DisclaimerSection = () => {
     subject?: string; message: string; college_name?: string; branch?: string;
     year?: string; rating?: number;
   }) => {
-    // AI validation
+    // We do a direct insert here instead of an Edge Function to avoid 'Sending...' hangs
     try {
-      const { data: validation } = await supabase.functions.invoke("validate-contact-submission", {
-        body: data,
-      });
-      if (validation && !validation.valid) {
-        toast.error("Submission rejected: " + (validation.notes || "Please fill in genuine information."));
+      const { error } = await supabase.from("contact_submissions" as any).insert({
+        submission_type: data.submission_type,
+        sender_role: data.sender_role,
+        name: data.name,
+        email: data.email,
+        subject: data.subject || null,
+        message: data.message,
+        college_name: data.college_name || null,
+        branch: data.branch || null,
+        year: data.year || null,
+        rating: data.rating || null,
+        ai_validation_status: "valid",
+      } as any);
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        toast.error("Failed to submit. " + error.message);
         return false;
       }
-    } catch {
-      // If AI validation fails, still allow submission
-    }
-
-    const { error } = await supabase.from("contact_submissions" as any).insert({
-      submission_type: data.submission_type,
-      sender_role: data.sender_role,
-      name: data.name,
-      email: data.email,
-      subject: data.subject || null,
-      message: data.message,
-      college_name: data.college_name || null,
-      branch: data.branch || null,
-      year: data.year || null,
-      rating: data.rating || null,
-      ai_validation_status: "valid",
-    } as any);
-
-    if (error) {
-      toast.error("Failed to submit. Please try again.");
+      return true;
+    } catch (e: any) {
+      console.error("Exception during submission:", e);
+      toast.error("An error occurred. Please check your network.");
       return false;
     }
-
-    // Also send email
-    try {
-      await supabase.functions.invoke("send-contact-email", {
-        body: { name: data.name, email: data.email, subject: data.subject || "Contact Form", message: data.message },
-      });
-    } catch {}
-
-    return true;
   };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -164,15 +151,24 @@ const DisclaimerSection = () => {
                   <item.icon className={`w-4 h-4 ${item.color} shrink-0`} />
                   <span>{item.text}</span>
                 </div>
-
-))}
+              ))}
               <div className="flex items-start gap-2 text-sm">
-                                <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                                <div className="flex flex-col gap-1">
-                                                                    <a href="mailto:akkumarsingh456@gmail.com" className="text-primary hover:underline break-all font-medium">akkumarsingh456@gmail.com</a>
-                                                                                      <a href="mailto:ak25edi0022@student.nitw.ac.in" className="text-primary hover:underline break-all font-medium">ak25edi0022@student.nitw.ac.in</a>
-                                                                                                      </div>
-                                                                                                                    </div>
+                <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-1">
+                  <a
+                    href="mailto:akkumarsingh456@gmail.com"
+                    className="text-primary hover:underline break-all font-medium"
+                  >
+                    akkumarsingh456@gmail.com
+                  </a>
+                  <a
+                    href="mailto:ak25edi0022@student.nitw.ac.in"
+                    className="text-primary hover:underline break-all font-medium"
+                  >
+                    ak25edi0022@student.nitw.ac.in
+                  </a>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -220,7 +216,6 @@ const DisclaimerSection = () => {
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">Share your feedback! Select your role to see the relevant form.</p>
 
-                  {/* Role selector */}
                   <div className="flex gap-3 flex-wrap">
                     <Button
                       type="button" variant={reviewForm.role === "student" ? "default" : "outline"}
@@ -279,7 +274,6 @@ const DisclaimerSection = () => {
                         <Input placeholder="Subject / Department *" value={reviewForm.subject} onChange={(e) => setReviewForm(p => ({ ...p, subject: e.target.value }))} required maxLength={200} />
                       )}
 
-                      {/* Rating */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">How do you like this project?</label>
                         <div className="flex gap-1">
