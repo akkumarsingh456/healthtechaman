@@ -52,7 +52,7 @@ const DisclaimerSection = () => {
       return true;
     } catch (e: any) {
       console.error("Exception during submission:", e);
-      toast.error("An error occurred. Please check your network.");
+      toast.error("An error occurred. Check your network.");
       return false;
     }
   };
@@ -139,7 +139,33 @@ const DisclaimerSection = () => {
                 </p>
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-3">
+
+            {/* ---> NEW: Aman's Bio Section <--- */}
+            <div className="pt-6 border-t border-border/40 space-y-5">
+              <p className="text-center font-medium italic text-muted-foreground text-lg px-4 border-l-4 border-primary bg-primary/5 py-4 rounded-r-lg">
+                "Small daily improvements are the key to staggering long-term results."
+              </p>
+              
+              <div className="space-y-4 text-muted-foreground leading-relaxed px-1">
+                <h3 className="text-xl font-bold text-foreground mb-2">About Me & My Work:</h3>
+                
+                <p>
+                  I am <strong className="text-foreground">Aman Kumar</strong>, the owner and developer of this Health Centre project, and a first-year student of Integrated B.Sc. B.Ed. at NIT Warangal, Department of Education.
+                </p>
+                <p>
+                  I got the idea for this project six months ago while discussing with my classmate Preetham, and since then I have been continuously gathering information, maintaining daily notes, and working on the development from <strong>8th December 2025 till 18th April 2026</strong>.
+                </p>
+                <p>
+                  I have guided AI extensively on how to work and what to do for each and every task, working daily on this project since the very beginning. I have added almost everything required for the full functioning of a health centre website. For more details on how to use the website, please click on the Guide PDF.
+                </p>
+                <p>
+                  As of now, I have restricted a few features and am actively working for the betterment of the project.
+                </p>
+              </div>
+            </div>
+            {/* ---> END NEW Bio Section <--- */}
+
+            <div className="grid sm:grid-cols-2 gap-3 pt-4 border-t border-border/40">
               {[
                 { icon: CheckCircle, color: "text-primary", text: <>This is <strong>my own personal project</strong></> },
                 { icon: CheckCircle, color: "text-primary", text: <>Data = <strong>public data</strong> from NIT Warangal website</> },
