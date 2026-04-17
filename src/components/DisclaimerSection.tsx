@@ -164,7 +164,15 @@ const DisclaimerSection = () => {
                   <item.icon className={`w-4 h-4 ${item.color} shrink-0`} />
                   <span>{item.text}</span>
                 </div>
-              ))}
+
+))}
+              <div className="flex items-start gap-2 text-sm">
+                                <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                                <div className="flex flex-col gap-1">
+                                                                    <a href="mailto:akkumarsingh456@gmail.com" className="text-primary hover:underline break-all font-medium">akkumarsingh456@gmail.com</a>
+                                                                                      <a href="mailto:ak25edi0022@student.nitw.ac.in" className="text-primary hover:underline break-all font-medium">ak25edi0022@student.nitw.ac.in</a>
+                                                                                                      </div>
+                                                                                                                    </div>
             </div>
           </CardContent>
         </Card>
