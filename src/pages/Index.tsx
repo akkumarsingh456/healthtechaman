@@ -18,6 +18,8 @@ import DoctorHomeDashboard from "@/components/doctor/DoctorHomeDashboard";
 import LabOfficerHomeDashboard from "@/components/lab/LabOfficerHomeDashboard";
 import PharmacyHomeDashboard from "@/components/pharmacy/PharmacyHomeDashboard";
 import StudentHomeDashboard from "@/components/student/StudentHomeDashboard";
+// We import the professional Pointer vector icon here
+import { Pointer } from "lucide-react";
 
 const Index = () => {
   const { user, isDoctor, isStudent, isLabOfficer, isPharmacy, isMedicalStaff, isAdmin, isMentor, loading } = useUserRole();
@@ -53,13 +55,15 @@ const Index = () => {
           <StudentHomeDashboard />
         ) : (
           <>
-            {/* Highly Visible Blinking Proposal PDF Bar (Completely Outside Disclaimer Box) */}
+            {/* Highly Visible Professional SVG Blinking Pointer Bar (Outside Disclaimer Box) */}
             <div className="bg-primary/10 border-b border-primary/30 py-5 shadow-sm">
               <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-4">
                 
                 <div className="flex items-center gap-2">
-                  {/* Left Blinking Arrow */}
-                  <span className="text-red-500 text-4xl md:text-5xl animate-pulse font-extrabold" style={{ animationDuration: '0.8s' }}>👉</span>
+                  {/* Left Professional Blinking Hand (Rotated Right) */}
+                  <div className="animate-pulse" style={{ animationDuration: '0.8s' }}>
+                    <Pointer className="w-8 h-8 md:w-10 md:h-10 text-primary rotate-90 drop-shadow-md" fill="currentColor" />
+                  </div>
                   <span className="text-base md:text-lg text-foreground font-bold ml-2">
                     Project Proposal & Guide:
                   </span>
@@ -73,8 +77,10 @@ const Index = () => {
                   View Guide PDF 📄
                 </Link>
                 
-                {/* Right Blinking Arrow */}
-                <span className="text-red-500 text-4xl md:text-5xl animate-pulse font-extrabold hidden sm:block" style={{ animationDuration: '0.8s' }}>👈</span>
+                {/* Right Professional Blinking Hand (Rotated Left) */}
+                <div className="hidden sm:flex animate-pulse" style={{ animationDuration: '0.8s' }}>
+                  <Pointer className="w-8 h-8 md:w-10 md:h-10 text-primary -rotate-90 drop-shadow-md" fill="currentColor" />
+                </div>
                 
               </div>
             </div>
