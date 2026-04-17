@@ -18,8 +18,6 @@ import DoctorHomeDashboard from "@/components/doctor/DoctorHomeDashboard";
 import LabOfficerHomeDashboard from "@/components/lab/LabOfficerHomeDashboard";
 import PharmacyHomeDashboard from "@/components/pharmacy/PharmacyHomeDashboard";
 import StudentHomeDashboard from "@/components/student/StudentHomeDashboard";
-// We import the professional Pointer vector icon here
-import { Pointer } from "lucide-react";
 
 const Index = () => {
   const { user, isDoctor, isStudent, isLabOfficer, isPharmacy, isMedicalStaff, isAdmin, isMentor, loading } = useUserRole();
@@ -55,14 +53,19 @@ const Index = () => {
           <StudentHomeDashboard />
         ) : (
           <>
-            {/* Highly Visible Professional SVG Blinking Pointer Bar (Outside Disclaimer Box) */}
+            {/* Highly Visible Custom 3D Image Blinking Pointer Bar */}
             <div className="bg-primary/10 border-b border-primary/30 py-5 shadow-sm">
               <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-4">
                 
                 <div className="flex items-center gap-2">
-                  {/* Left Professional Blinking Hand (Rotated Right) */}
+                  {/* Left 3D Hand Image (Rotated Right Horizontally) */}
                   <div className="animate-pulse" style={{ animationDuration: '0.8s' }}>
-                    <Pointer className="w-8 h-8 md:w-10 md:h-10 text-primary rotate-90 drop-shadow-md" fill="currentColor" />
+                    <img 
+                      src="/pointing-hand.png" 
+                      alt="Point Right" 
+                      className="w-10 h-10 md:w-12 md:h-12 rotate-90 object-contain" 
+                      style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.3))' }}
+                    />
                   </div>
                   <span className="text-base md:text-lg text-foreground font-bold ml-2">
                     Project Proposal & Guide:
@@ -77,9 +80,14 @@ const Index = () => {
                   View Guide PDF 📄
                 </Link>
                 
-                {/* Right Professional Blinking Hand (Rotated Left) */}
+                {/* Right 3D Hand Image (Rotated Left Horizontally) */}
                 <div className="hidden sm:flex animate-pulse" style={{ animationDuration: '0.8s' }}>
-                  <Pointer className="w-8 h-8 md:w-10 md:h-10 text-primary -rotate-90 drop-shadow-md" fill="currentColor" />
+                  <img 
+                    src="/pointing-hand.png" 
+                    alt="Point Left" 
+                    className="w-10 h-10 md:w-12 md:h-12 -rotate-90 object-contain" 
+                    style={{ filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.3))' }}
+                  />
                 </div>
                 
               </div>
