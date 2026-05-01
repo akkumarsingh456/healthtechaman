@@ -75,17 +75,25 @@ export default function ContactSubmissionsTab() {
     const printWindow = window.open("", "", "width=900,height=700");
     if (!printWindow) return;
 
+    const escHtml = (s: unknown) =>
+      String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
     const rows = (reviews || []).map(r => `
       <tr>
-        <td style="padding:8px;border:1px solid #ddd">${r.name}</td>
-        <td style="padding:8px;border:1px solid #ddd">${r.email}</td>
-        <td style="padding:8px;border:1px solid #ddd">${r.sender_role}</td>
-        <td style="padding:8px;border:1px solid #ddd">${r.college_name || "-"}</td>
-        <td style="padding:8px;border:1px solid #ddd">${r.branch || r.subject || "-"}</td>
-        <td style="padding:8px;border:1px solid #ddd">${r.year || "-"}</td>
-        <td style="padding:8px;border:1px solid #ddd">${"★".repeat(r.rating || 0)}</td>
-        <td style="padding:8px;border:1px solid #ddd">${r.message}</td>
-        <td style="padding:8px;border:1px solid #ddd">${format(new Date(r.created_at), "PPp")}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.name)}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.email)}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.sender_role)}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.college_name || "-")}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.branch || r.subject || "-")}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.year || "-")}</td>
+        <td style="padding:8px;border:1px solid #ddd">${"★".repeat(Math.max(0, Math.min(5, r.rating || 0)))}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(r.message)}</td>
+        <td style="padding:8px;border:1px solid #ddd">${escHtml(format(new Date(r.created_at), "PPp"))}</td>
       </tr>
     `).join("");
 
