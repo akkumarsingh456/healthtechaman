@@ -1,0 +1,2 @@
+ALTER TABLE public.contact_submissions DROP CONSTRAINT IF EXISTS contact_submissions_sender_role_check;
+ALTER TABLE public.contact_submissions ADD CONSTRAINT contact_submissions_sender_role_check CHECK (sender_role = ANY (ARRAY['student'::text, 'alumni'::text, 'professor'::text, 'other'::text]));

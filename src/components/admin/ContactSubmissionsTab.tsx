@@ -64,6 +64,10 @@ export default function ContactSubmissionsTab() {
 
   const contacts = submissions?.filter(s => s.submission_type === "contact") || [];
   const reviews = submissions?.filter(s => s.submission_type === "review" || s.submission_type === "suggestion") || [];
+  const studentReviews = reviews.filter(r => r.sender_role === "student");
+  const alumniReviews = reviews.filter(r => r.sender_role === "alumni");
+  const professorReviews = reviews.filter(r => r.sender_role === "professor");
+  const otherReviews = reviews.filter(r => !["student", "alumni", "professor"].includes(r.sender_role));
   const unreadCount = submissions?.filter(s => !s.is_read).length || 0;
 
   const handleView = (sub: Submission) => {
@@ -140,46 +144,56 @@ export default function ContactSubmissionsTab() {
       </div>
 
       <Tabs defaultValue="reviews" className="w-full">
-        <TabsList>
-          <TabsTrigger value="reviews">Reviews ({reviews.length})</TabsTrigger>
+        <TabsList className="flex-wrap h-auto">
+          <TabsTrigger value="reviews">All Reviews ({reviews.length})</TabsTrigger>
+          <TabsTrigger value="students">Students ({studentReviews.length})</TabsTrigger>
+          <TabsTrigger value="alumni">Alumni ({alumniReviews.length})</TabsTrigger>
+          <TabsTrigger value="professors">Professors ({professorReviews.length})</TabsTrigger>
           <TabsTrigger value="contacts">Contact Messages ({contacts.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="reviews">
-          {reviews.length === 0 ? (
-            <Card><CardContent className="py-8 text-center text-muted-foreground">No reviews yet.</CardContent></Card>
-          ) : (
-            <div className="grid gap-4">
-              {reviews.map(r => (
-                <Card key={r.id} className={`transition-shadow hover:shadow-md ${!r.is_read ? "border-primary/30 bg-primary/5" : ""}`}>
-                  <CardContent className="pt-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-foreground">{r.name}</span>
-                          <Badge variant="outline" className="text-xs">{r.sender_role}</Badge>
-                          {!r.is_read && <Badge className="text-xs">New</Badge>}
+        {[
+          { value: "reviews", list: reviews, empty: "No reviews yet." },
+          { value: "students", list: studentReviews, empty: "No student reviews yet." },
+          { value: "alumni", list: alumniReviews, empty: "No alumni reviews yet." },
+          { value: "professors", list: professorReviews, empty: "No professor reviews yet." },
+        ].map(group => (
+          <TabsContent key={group.value} value={group.value}>
+            {group.list.length === 0 ? (
+              <Card><CardContent className="py-8 text-center text-muted-foreground">{group.empty}</CardContent></Card>
+            ) : (
+              <div className="grid gap-4">
+                {group.list.map(r => (
+                  <Card key={r.id} className={`transition-shadow hover:shadow-md ${!r.is_read ? "border-primary/30 bg-primary/5" : ""}`}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold text-foreground">{r.name}</span>
+                            <Badge variant="outline" className="text-xs capitalize">{r.sender_role}</Badge>
+                            {!r.is_read && <Badge className="text-xs">New</Badge>}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{r.email} • {r.college_name || "N/A"} • {r.branch || r.subject || "N/A"} • {r.year || ""}</p>
+                          <div className="flex gap-0.5 mt-1">
+                            {[1,2,3,4,5].map(s => (
+                              <Star key={s} className={`w-3.5 h-3.5 ${s <= (r.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/20"}`} />
+                            ))}
+                          </div>
+                          <p className="text-sm mt-2 line-clamp-2">{r.message}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{format(new Date(r.created_at), "PPp")}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground">{r.email} • {r.college_name || "N/A"} • {r.branch || r.subject || "N/A"} • {r.year || ""}</p>
-                        <div className="flex gap-0.5 mt-1">
-                          {[1,2,3,4,5].map(s => (
-                            <Star key={s} className={`w-3.5 h-3.5 ${s <= (r.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/20"}`} />
-                          ))}
+                        <div className="flex gap-1 shrink-0">
+                          <Button size="icon" variant="ghost" onClick={() => handleView(r)}><Eye className="w-4 h-4" /></Button>
+                          <Button size="icon" variant="ghost" className="text-destructive" onClick={() => deleteMutation.mutate(r.id)}><Trash2 className="w-4 h-4" /></Button>
                         </div>
-                        <p className="text-sm mt-2 line-clamp-2">{r.message}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{format(new Date(r.created_at), "PPp")}</p>
                       </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button size="icon" variant="ghost" onClick={() => handleView(r)}><Eye className="w-4 h-4" /></Button>
-                        <Button size="icon" variant="ghost" className="text-destructive" onClick={() => deleteMutation.mutate(r.id)}><Trash2 className="w-4 h-4" /></Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        ))}
 
         <TabsContent value="contacts">
           {contacts.length === 0 ? (
