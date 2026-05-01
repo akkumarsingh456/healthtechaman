@@ -29,8 +29,9 @@ export default function ContactOwnerForm() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('contact_reviews').insert({
-        form_type: 'contact',
+      const { error } = await supabase.from('contact_submissions').insert({
+        submission_type: 'contact',
+        sender_role: 'other',
         name: form.name.trim(),
         email: form.email.trim(),
         subject: form.subject.trim(),

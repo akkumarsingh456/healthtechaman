@@ -33,11 +33,12 @@ export default function ReviewForm() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('contact_reviews').insert({
-        form_type: 'review',
+      const { error } = await supabase.from('contact_submissions').insert({
+        submission_type: 'review',
+        sender_role: 'student',
         name: form.name.trim(),
         email: form.email.trim(),
-        college: form.college,
+        college_name: form.college,
         branch: form.branch,
         year: form.year,
         rating: form.rating,
