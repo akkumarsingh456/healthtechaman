@@ -114,7 +114,7 @@ export default function AdminHomeDashboard() {
       const { data } = await supabase
         .from("contact_submissions" as any)
         .select("submission_type, sender_role, is_read");
-      const list = (data || []) as Array<{ submission_type: string; sender_role: string; is_read: boolean }>;
+      const list = (data || []) as unknown as Array<{ submission_type: string; sender_role: string; is_read: boolean }>;
       return {
         total: list.length,
         unread: list.filter(s => !s.is_read).length,
