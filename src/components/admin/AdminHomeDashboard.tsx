@@ -22,6 +22,7 @@ import {
   FlaskConical,
   Pill,
   ShieldCheck,
+  MessageSquare,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,6 +104,23 @@ export default function AdminHomeDashboard() {
         .eq("success", false)
         .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
       return count || 0;
+    },
+  });
+
+  // Fetch contact / review submissions summary
+  const { data: submissionStats, isLoading: loadingSubmissions } = useQuery({
+    queryKey: ["admin-home-submissions"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("contact_submissions" as any)
+        .select("submission_type, sender_role, is_read");
+      const list = (data || []) as Array<{ submission_type: string; sender_role: string; is_read: boolean }>;
+      return {
+        total: list.length,
+        unread: list.filter(s => !s.is_read).length,
+        contacts: list.filter(s => s.submission_type === "contact").length,
+        reviews: list.filter(s => s.submission_type === "review" || s.submission_type === "suggestion").length,
+      };
     },
   });
 
@@ -224,6 +242,33 @@ export default function AdminHomeDashboard() {
                 <CardContent className="pt-3 pb-2 text-center">
                   <item.icon className={`w-5 h-5 ${item.iconColor} mx-auto mb-1`} />
                   {(item.loading || loadingStats) ? (
+                    <Skeleton className="h-7 w-10 mx-auto" />
+                  ) : (
+                    <p className="text-xl font-bold text-foreground">{item.value}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Submissions Summary */}
+          <h3 className="text-sm font-medium text-muted-foreground mt-4">Contact & Reviews</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Total Submissions", value: submissionStats?.total ?? 0, icon: MessageSquare, border: "border-primary/20", iconColor: "text-primary" },
+              { label: "Unread", value: submissionStats?.unread ?? 0, icon: AlertTriangle, border: "border-amber-500/30", iconColor: "text-amber-600" },
+              { label: "Contact Messages", value: submissionStats?.contacts ?? 0, icon: ClipboardList, border: "border-sky-500/20", iconColor: "text-sky-600" },
+              { label: "Reviews", value: submissionStats?.reviews ?? 0, icon: ShieldCheck, border: "border-emerald-500/20", iconColor: "text-emerald-600" },
+            ].map((item) => (
+              <Card
+                key={item.label}
+                className={`${item.border} cursor-pointer hover:shadow-md transition-shadow`}
+                onClick={() => navigate("/admin/dashboard?tab=submissions")}
+              >
+                <CardContent className="pt-3 pb-2 text-center">
+                  <item.icon className={`w-5 h-5 ${item.iconColor} mx-auto mb-1`} />
+                  {loadingSubmissions ? (
                     <Skeleton className="h-7 w-10 mx-auto" />
                   ) : (
                     <p className="text-xl font-bold text-foreground">{item.value}</p>
