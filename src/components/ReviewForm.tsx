@@ -33,7 +33,7 @@ export default function ReviewForm() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('contact_submissions').insert({
+      const payload = {
         submission_type: 'review',
         sender_role: 'student',
         name: form.name.trim(),
@@ -43,9 +43,14 @@ export default function ReviewForm() {
         year: form.year,
         rating: form.rating,
         message: form.message.trim(),
-      });
+      };
+
+      const { error } = await supabase.from('contact_submissions').insert(payload);
 
       if (error) throw error;
+
+      // Fire-and-forget admin email — never blocks the UI
+      supabase.functions.invoke('notify-admin-submission', { body: payload }).catch(() => {});
 
       setStatus('success');
       setForm({ name: '', email: '', college: '', branch: '', year: '', rating: 5, message: '' });

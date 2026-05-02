@@ -29,16 +29,21 @@ export default function ContactOwnerForm() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('contact_submissions').insert({
+      const payload = {
         submission_type: 'contact',
         sender_role: 'other',
         name: form.name.trim(),
         email: form.email.trim(),
         subject: form.subject.trim(),
         message: form.message.trim(),
-      });
+      };
+
+      const { error } = await supabase.from('contact_submissions').insert(payload);
 
       if (error) throw error;
+
+      // Fire-and-forget admin email — never blocks the UI
+      supabase.functions.invoke('notify-admin-submission', { body: payload }).catch(() => {});
 
       setStatus('success');
       setForm({ name: '', email: '', subject: '', message: '' });
