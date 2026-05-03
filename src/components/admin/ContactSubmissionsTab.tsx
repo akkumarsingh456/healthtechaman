@@ -32,6 +32,7 @@ interface Submission {
 export default function ContactSubmissionsTab() {
   const queryClient = useQueryClient();
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [expandedGroup, setExpandedGroup] = useState(false);
 
   const { data: submissions, isLoading } = useQuery({
     queryKey: ["admin-contact-submissions"],
@@ -199,7 +200,13 @@ export default function ContactSubmissionsTab() {
           {contacts.length === 0 ? (
             <Card><CardContent className="py-8 text-center text-muted-foreground">No contact messages yet.</CardContent></Card>
           ) : (
-            <Table>
+            (() => {
+              const GROUPED_EMAIL = "akprojectconnect2025@gmail.com";
+              const grouped = contacts.filter(c => c.email?.toLowerCase() === GROUPED_EMAIL);
+              const others = contacts.filter(c => c.email?.toLowerCase() !== GROUPED_EMAIL);
+              const groupUnread = grouped.filter(g => !g.is_read).length;
+              return (
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
@@ -210,7 +217,39 @@ export default function ContactSubmissionsTab() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {contacts.map(c => (
+                {grouped.length > 0 && (
+                  <>
+                    <TableRow className={`cursor-pointer ${groupUnread > 0 ? "bg-primary/5" : ""}`} onClick={() => setExpandedGroup(v => !v)}>
+                      <TableCell className="font-medium">
+                        Test submissions (Aman) <Badge variant="secondary" className="ml-1 text-xs">{grouped.length}</Badge>
+                        {groupUnread > 0 && <Badge className="ml-1 text-xs">{groupUnread} new</Badge>}
+                      </TableCell>
+                      <TableCell className="text-sm">{GROUPED_EMAIL}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground italic">Grouped — click to {expandedGroup ? "collapse" : "view all"}</TableCell>
+                      <TableCell className="text-sm">{format(new Date(grouped[0].created_at), "PPp")}</TableCell>
+                      <TableCell>
+                        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); setExpandedGroup(v => !v); }}>
+                          {expandedGroup ? "Hide" : "View all"}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    {expandedGroup && grouped.map(c => (
+                      <TableRow key={c.id} className={`bg-muted/30 ${!c.is_read ? "bg-primary/5" : ""}`}>
+                        <TableCell className="font-medium pl-8">↳ {c.name} {!c.is_read && <Badge className="ml-1 text-xs">New</Badge>}</TableCell>
+                        <TableCell className="text-sm">{c.email}</TableCell>
+                        <TableCell className="text-sm">{c.subject}</TableCell>
+                        <TableCell className="text-sm">{format(new Date(c.created_at), "PPp")}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button size="icon" variant="ghost" onClick={() => handleView(c)}><Eye className="w-4 h-4" /></Button>
+                            <Button size="icon" variant="ghost" className="text-destructive" onClick={() => deleteMutation.mutate(c.id)}><Trash2 className="w-4 h-4" /></Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                )}
+                {others.map(c => (
                   <TableRow key={c.id} className={!c.is_read ? "bg-primary/5" : ""}>
                     <TableCell className="font-medium">{c.name} {!c.is_read && <Badge className="ml-1 text-xs">New</Badge>}</TableCell>
                     <TableCell className="text-sm">{c.email}</TableCell>
@@ -225,7 +264,9 @@ export default function ContactSubmissionsTab() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+              </Table>
+              );
+            })()
           )}
         </TabsContent>
       </Tabs>
