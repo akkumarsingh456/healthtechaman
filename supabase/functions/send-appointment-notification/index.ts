@@ -35,20 +35,51 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify JWT token
+    // Verify JWT token — must be a real, valid user token
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      console.error("Missing or invalid authorization header");
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+    const token = authHeader.replace('Bearer ', '');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
+
+    // Validate user identity with anon client
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    });
+    const { data: userData, error: userErr } = await userClient.auth.getUser(token);
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Service-role client for DB lookups
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Caller must be doctor or admin
+    const { data: roleRows } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userData.user.id);
+    const roles = (roleRows ?? []).map((r: any) => r.role);
+    if (!roles.includes('doctor') && !roles.includes('admin')) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // HTML escape helper for any user-controlled string interpolated into email HTML
+    const esc = (s: unknown) =>
+      String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 
     const body = await req.json();
     const { appointmentId, action, reason, newDate, newTime }: AppointmentNotificationRequest = body;
@@ -169,7 +200,7 @@ const handler = async (req: Request): Promise<Response> => {
             <h3 style="margin: 0 0 8px 0; color: #991b1b;">Original Request</h3>
             <p style="margin: 4px 0;"><strong>Requested Date:</strong> ${appointmentDate}</p>
             <p style="margin: 4px 0;"><strong>Requested Time:</strong> ${formatTime(appointment.appointment_time)}</p>
-            ${reason ? `<p style="margin: 12px 0 4px 0;"><strong>Reason for Denial:</strong></p><p style="margin: 4px 0; color: #dc2626;">${reason}</p>` : ''}
+            ${reason ? `<p style="margin: 12px 0 4px 0;"><strong>Reason for Denial:</strong></p><p style="margin: 4px 0; color: #dc2626;">${esc(reason)}</p>` : ''}
           </div>
           <p>You may book a new appointment for a different date/time through the Health Portal.</p>
         `;
@@ -188,10 +219,10 @@ const handler = async (req: Request): Promise<Response> => {
         additionalInfo = `
           <div style="background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; padding: 16px; margin: 16px 0;">
             <h3 style="margin: 0 0 8px 0; color: #92400e;">New Appointment Details</h3>
-            <p style="margin: 4px 0;"><strong>New Date:</strong> ${newFormattedDate}</p>
-            <p style="margin: 4px 0;"><strong>New Time:</strong> ${newTime ? formatTime(newTime) : formatTime(appointment.appointment_time)}</p>
+            <p style="margin: 4px 0;"><strong>New Date:</strong> ${esc(newFormattedDate)}</p>
+            <p style="margin: 4px 0;"><strong>New Time:</strong> ${esc(newTime ? formatTime(newTime) : formatTime(appointment.appointment_time))}</p>
             <p style="margin: 4px 0;"><strong>Location:</strong> NIT Warangal Health Centre</p>
-            ${reason ? `<p style="margin: 12px 0 4px 0;"><strong>Reason:</strong></p><p style="margin: 4px 0;">${reason}</p>` : ''}
+            ${reason ? `<p style="margin: 12px 0 4px 0;"><strong>Reason:</strong></p><p style="margin: 4px 0;">${esc(reason)}</p>` : ''}
           </div>
           <p style="color: #d97706; font-weight: 500;">Please note the updated schedule and arrive 10 minutes early.</p>
         `;
@@ -213,7 +244,7 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div style="background: white; padding: 32px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <p style="font-size: 16px; color: #374151;">Dear <strong>${student.full_name}</strong>,</p>
+            <p style="font-size: 16px; color: #374151;">Dear <strong>${esc(student.full_name)}</strong>,</p>
             
             <p style="font-size: 16px; color: #374151; line-height: 1.6;">
               ${mainMessage}
@@ -224,8 +255,8 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
               <p style="font-size: 14px; color: #6b7280; margin: 0;">
                 <strong>Student Details:</strong><br>
-                Roll Number: ${student.roll_number}<br>
-                Program: ${student.program}${student.branch ? ` - ${student.branch}` : ''}
+                Roll Number: ${esc(student.roll_number)}<br>
+                Program: ${esc(student.program)}${student.branch ? ` - ${esc(student.branch)}` : ''}
               </p>
             </div>
             
