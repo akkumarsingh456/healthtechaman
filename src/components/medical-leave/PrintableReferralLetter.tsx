@@ -58,6 +58,8 @@ interface PrintableReferralLetterProps {
 
 const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
   const handlePrint = async () => {
+    const esc = (s: unknown) =>
+      String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
     const documentId = `REF-${Date.now().toString(36).toUpperCase()}`;
     const verificationUrl = getVerificationUrl(documentId, 'referral');
     const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
@@ -83,7 +85,7 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Medical Referral Letter - ${data.studentName}</title>
+          <title>Medical Referral Letter - ${esc(data.studentName)}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
@@ -353,34 +355,34 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
             <div class="info-grid">
               <div class="info-item">
                 <span class="info-label">Name:</span>
-                <span>${data.studentName}</span>
+                <span>${esc(data.studentName)}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Roll Number:</span>
-                <span>${data.rollNumber}</span>
+                <span>${esc(data.rollNumber)}</span>
               </div>
               ${data.aadharNumber ? `
               <div class="info-item">
                 <span class="info-label">Aadhaar No:</span>
-                <span>${data.aadharNumber}</span>
+                <span>${esc(data.aadharNumber)}</span>
               </div>
               ` : ''}
               ${data.fatherName ? `
               <div class="info-item">
                 <span class="info-label">Father's Name:</span>
-                <span>${data.fatherName}</span>
+                <span>${esc(data.fatherName)}</span>
               </div>
               ` : ''}
               ${data.program ? `
               <div class="info-item">
                 <span class="info-label">Program:</span>
-                <span>${data.program}</span>
+                <span>${esc(data.program)}</span>
               </div>
               ` : ''}
               ${data.branch ? `
               <div class="info-item">
                 <span class="info-label">Branch:</span>
-                <span>${data.branch}</span>
+                <span>${esc(data.branch)}</span>
               </div>
               ` : ''}
             </div>
@@ -393,31 +395,31 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
               ${data.mentorDetails?.name ? `
               <div class="info-item">
                 <span class="info-label">Mentor Name:</span>
-                <span>${data.mentorDetails.name}</span>
+                <span>${esc(data.mentorDetails.name)}</span>
               </div>
               ` : ''}
               ${data.mentorDetails?.department ? `
               <div class="info-item">
                 <span class="info-label">Department:</span>
-                <span>${data.mentorDetails.department}</span>
+                <span>${esc(data.mentorDetails.department)}</span>
               </div>
               ` : ''}
               ${data.mentorDetails?.phone ? `
               <div class="info-item">
                 <span class="info-label">Mentor Contact:</span>
-                <span>${data.mentorDetails.phone}</span>
+                <span>${esc(data.mentorDetails.phone)}</span>
               </div>
               ` : ''}
               ${data.academicDetails?.hodName ? `
               <div class="info-item">
                 <span class="info-label">HOD:</span>
-                <span>${data.academicDetails.hodName}</span>
+                <span>${esc(data.academicDetails.hodName)}</span>
               </div>
               ` : ''}
               ${data.academicDetails?.yearOfStudy ? `
               <div class="info-item">
                 <span class="info-label">Year of Study:</span>
-                <span>${data.academicDetails.yearOfStudy}</span>
+                <span>${esc(data.academicDetails.yearOfStudy)}</span>
               </div>
               ` : ''}
             </div>
@@ -429,7 +431,7 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
             <div class="info-grid">
               <div class="info-item full-width">
                 <span class="info-label">Illness/Condition:</span>
-                <span>${data.illnessDescription}</span>
+                <span>${esc(data.illnessDescription)}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Leave Duration:</span>
@@ -442,7 +444,7 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
               ${data.doctorDetails?.designation ? `
               <div class="info-item">
                 <span class="info-label">Referring Doctor:</span>
-                <span>${data.doctorDetails.name || data.doctorName || "Medical Officer"} (${data.doctorDetails.designation})</span>
+                <span>${esc(data.doctorDetails.name || data.doctorName || "Medical Officer")} (${esc(data.doctorDetails.designation)})</span>
               </div>
               ` : ''}
             </div>
@@ -451,34 +453,34 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
           <div class="section">
             <div class="section-title">Referred Hospital</div>
             <div class="hospital-box">
-              <div class="hospital-name">${data.hospital.name}</div>
-              ${data.hospital.address ? `<div class="hospital-detail"><strong>Address:</strong> ${data.hospital.address}</div>` : ''}
+              <div class="hospital-name">${esc(data.hospital.name)}</div>
+              ${data.hospital.address ? `<div class="hospital-detail"><strong>Address:</strong> ${esc(data.hospital.address)}</div>` : ''}
               <div class="hospital-detail">
-                ${data.hospital.phone ? `<strong>Phone:</strong> ${data.hospital.phone}` : ''}
-                ${data.hospital.emergency ? ` | <span class="emergency-number"><strong>Emergency:</strong> ${data.hospital.emergency}</span>` : ''}
+                ${data.hospital.phone ? `<strong>Phone:</strong> ${esc(data.hospital.phone)}` : ''}
+                ${data.hospital.emergency ? ` | <span class="emergency-number"><strong>Emergency:</strong> ${esc(data.hospital.emergency)}</span>` : ''}
               </div>
-              ${data.hospital.specialties?.length ? `<div class="hospital-detail"><strong>Specialties:</strong> ${data.hospital.specialties.join(', ')}</div>` : ''}
+              ${data.hospital.specialties?.length ? `<div class="hospital-detail"><strong>Specialties:</strong> ${esc(data.hospital.specialties.join(', '))}</div>` : ''}
             </div>
             ${data.hospital.directions ? `
             <div class="directions-box">
               <div class="directions-title">📍 Directions from NIT Warangal:</div>
-              ${data.hospital.directions}
+              ${esc(data.hospital.directions)}
             </div>
             ` : ''}
           </div>
 
           ${data.doctorNotes ? `
           <div class="notes-box">
-            <strong>Doctor's Notes:</strong> ${data.doctorNotes}
+            <strong>Doctor's Notes:</strong> ${esc(data.doctorNotes)}
           </div>
           ` : ''}
 
           <div class="body-text">
             <p>To Whom It May Concern,</p>
             <p>
-              This is to certify that <strong>${data.studentName}</strong> (Roll No: <strong>${data.rollNumber}</strong>), 
-              a student of NIT Warangal, is being referred to <strong>${data.hospital.name}</strong> 
-              for treatment of <strong>${data.illnessDescription}</strong>.
+              This is to certify that <strong>${esc(data.studentName)}</strong> (Roll No: <strong>${esc(data.rollNumber)}</strong>), 
+              a student of NIT Warangal, is being referred to <strong>${esc(data.hospital.name)}</strong> 
+              for treatment of <strong>${esc(data.illnessDescription)}</strong>.
             </p>
             <p>
               The student is granted medical leave for <strong>${data.leaveDays} days</strong> starting from 
