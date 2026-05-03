@@ -405,16 +405,18 @@ const PrintableHospitalCard = ({
             ` : ''}
           </div>
           
-          ${studentName || studentRollNumber ? `
+          ${(() => {
+            const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+            return (studentName || studentRollNumber) ? `
             <div class="student-info">
               <h4>👤 Student Details</h4>
-              ${studentName ? `<p><strong>Name:</strong> ${studentName}</p>` : ''}
-              ${studentRollNumber ? `<p><strong>Roll No:</strong> ${studentRollNumber}</p>` : ''}
-              ${emergencyContacts?.aadharNumber ? `<p><strong>Aadhaar No:</strong> ${emergencyContacts.aadharNumber}</p>` : ''}
-              ${emergencyContacts?.fatherName ? `<p><strong>Father's Name:</strong> ${emergencyContacts.fatherName}</p>` : ''}
-              ${studentProgram ? `<p><strong>Program:</strong> ${studentProgram}</p>` : ''}
-              ${studentBranch ? `<p><strong>Branch:</strong> ${studentBranch}</p>` : ''}
-              ${emergencyContacts?.personalPhone ? `<p><strong>Student Phone:</strong> ${emergencyContacts.personalPhone}</p>` : ''}
+              ${studentName ? `<p><strong>Name:</strong> ${esc(studentName)}</p>` : ''}
+              ${studentRollNumber ? `<p><strong>Roll No:</strong> ${esc(studentRollNumber)}</p>` : ''}
+              ${emergencyContacts?.aadharNumber ? `<p><strong>Aadhaar No:</strong> ${esc(emergencyContacts.aadharNumber)}</p>` : ''}
+              ${emergencyContacts?.fatherName ? `<p><strong>Father's Name:</strong> ${esc(emergencyContacts.fatherName)}</p>` : ''}
+              ${studentProgram ? `<p><strong>Program:</strong> ${esc(studentProgram)}</p>` : ''}
+              ${studentBranch ? `<p><strong>Branch:</strong> ${esc(studentBranch)}</p>` : ''}
+              ${emergencyContacts?.personalPhone ? `<p><strong>Student Phone:</strong> ${esc(emergencyContacts.personalPhone)}</p>` : ''}
               <p><strong>Referral Date:</strong> ${currentDate}</p>
             </div>
           ` : `
@@ -422,7 +424,8 @@ const PrintableHospitalCard = ({
               <h4>Referral Date</h4>
               <p>${currentDate}</p>
             </div>
-          `}
+          `;
+          })()}
           
           ${illnessDescription || doctorNotes ? `
             <div class="medical-details">
@@ -430,13 +433,13 @@ const PrintableHospitalCard = ({
               ${illnessDescription ? `
                 <div class="detail-item">
                   <div class="detail-label">Illness / Condition</div>
-                  <div class="detail-value">${illnessDescription}</div>
+                  <div class="detail-value">${String(illnessDescription).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>
                 </div>
               ` : ''}
               ${doctorNotes ? `
                 <div class="detail-item">
                   <div class="detail-label">Doctor's Notes</div>
-                  <div class="detail-value doctor-notes-value">${doctorNotes}</div>
+                  <div class="detail-value doctor-notes-value">${String(doctorNotes).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>
                 </div>
               ` : ''}
             </div>
@@ -448,32 +451,32 @@ const PrintableHospitalCard = ({
               <div class="contact-grid">
                 ${emergencyContacts.emergencyContact ? `
                   <div class="contact-item primary-contact">
-                    <div class="contact-label">Primary Emergency Contact${emergencyContacts.emergencyRelationship ? ` (${emergencyContacts.emergencyRelationship})` : ''}</div>
-                    <div class="contact-phone">📞 ${emergencyContacts.emergencyContact}</div>
+                    <div class="contact-label">Primary Emergency Contact${emergencyContacts.emergencyRelationship ? ` (${String(emergencyContacts.emergencyRelationship).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))})` : ''}</div>
+                    <div class="contact-phone">📞 ${String(emergencyContacts.emergencyContact).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>
                   </div>
                 ` : ''}
                 
                 ${emergencyContacts.fatherName || emergencyContacts.fatherContact ? `
                   <div class="contact-item">
                     <div class="contact-label">Father</div>
-                    ${emergencyContacts.fatherName ? `<div class="contact-name">${emergencyContacts.fatherName}</div>` : ''}
-                    ${emergencyContacts.fatherContact ? `<div class="contact-phone">📞 ${emergencyContacts.fatherContact}</div>` : ''}
+                    ${emergencyContacts.fatherName ? `<div class="contact-name">${String(emergencyContacts.fatherName).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>` : ''}
+                    ${emergencyContacts.fatherContact ? `<div class="contact-phone">📞 ${String(emergencyContacts.fatherContact).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>` : ''}
                   </div>
                 ` : ''}
                 
                 ${emergencyContacts.motherName || emergencyContacts.motherContact ? `
                   <div class="contact-item">
                     <div class="contact-label">Mother</div>
-                    ${emergencyContacts.motherName ? `<div class="contact-name">${emergencyContacts.motherName}</div>` : ''}
-                    ${emergencyContacts.motherContact ? `<div class="contact-phone">📞 ${emergencyContacts.motherContact}</div>` : ''}
+                    ${emergencyContacts.motherName ? `<div class="contact-name">${String(emergencyContacts.motherName).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>` : ''}
+                    ${emergencyContacts.motherContact ? `<div class="contact-phone">📞 ${String(emergencyContacts.motherContact).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>` : ''}
                   </div>
                 ` : ''}
                 
                 ${emergencyContacts.mentorName || emergencyContacts.mentorContact ? `
                   <div class="contact-item">
                     <div class="contact-label">Faculty Mentor</div>
-                    ${emergencyContacts.mentorName ? `<div class="contact-name">${emergencyContacts.mentorName}</div>` : ''}
-                    ${emergencyContacts.mentorContact ? `<div class="contact-phone">📞 ${emergencyContacts.mentorContact}</div>` : ''}
+                    ${emergencyContacts.mentorName ? `<div class="contact-name">${String(emergencyContacts.mentorName).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>` : ''}
+                    ${emergencyContacts.mentorContact ? `<div class="contact-phone">📞 ${String(emergencyContacts.mentorContact).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!))}</div>` : ''}
                   </div>
                 ` : ''}
               </div>
