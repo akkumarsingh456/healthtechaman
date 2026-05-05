@@ -363,7 +363,7 @@ const AdminPanel = () => {
       <div className="max-w-7xl mx-auto p-8 space-y-8">
         {/* Header with Profile */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-6">
-          <div className="flex items-center gap-4">
+          <div className="flex-1 w-full space-y-6">
             <div>
               <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
                 <Shield className="h-8 w-8 text-primary" />
@@ -371,9 +371,37 @@ const AdminPanel = () => {
               </h1>
               <p className="text-muted-foreground">Manage users, doctors, and system settings</p>
             </div>
+
+            {/* Stats Cards — beside the profile so the area never looks empty */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Total Users</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{users.length}</div></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Admins</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{users.filter(u => u.roles.includes('admin')).length}</div></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Doctor Roles</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{users.filter(u => u.roles.includes('doctor')).length}</div></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('medical-officers')}>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Medical Officers</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{medicalOfficers.length}</div></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('visiting-doctors')}>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Visiting Doctors</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{visitingDoctors.length}</div></CardContent>
+              </Card>
+              <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('mentors')}>
+                <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Mentors</CardTitle></CardHeader>
+                <CardContent><div className="text-2xl font-bold">{allMentors.length}</div></CardContent>
+              </Card>
+            </div>
           </div>
           {/* Admin Profile Card */}
-          <div className="w-full lg:w-96">
+          <div className="w-full lg:w-96 shrink-0">
             <AdminProfileCard 
               profile={{
                 email: user?.email || '',
@@ -390,58 +418,6 @@ const AdminPanel = () => {
               }}
             />
           </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{users.length}</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Admins</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{users.filter(u => u.roles.includes('admin')).length}</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Doctor Roles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{users.filter(u => u.roles.includes('doctor')).length}</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('medical-officers')}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Medical Officers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{medicalOfficers.length}</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('visiting-doctors')}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Visiting Doctors</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{visitingDoctors.length}</div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('mentors')}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Mentors</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{allMentors.length}</div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Medical Leave Students Overview */}
