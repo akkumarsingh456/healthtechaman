@@ -8,6 +8,8 @@ const corsHeaders = {
 };
 
 const ADMIN_EMAIL = "akkumarsingh456@gmail.com";
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 interface Payload {
   submission_type?: string;
@@ -79,38 +81,79 @@ Deno.serve(async (req) => {
 
   try {
     const apiKey = Deno.env.get("RESEND_API_KEY");
-    if (!apiKey) {
-      console.warn("RESEND_API_KEY missing — skipping admin email");
-      return new Response(JSON.stringify({ ok: true, skipped: "no_api_key" }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const payload: Payload = await req.json().catch(() => ({}));
     const isContact = payload.submission_type === "contact";
     const subjectLine = isContact
       ? `📨 New contact: ${payload.subject || payload.name || "Message"}`
       : `⭐ New ${payload.sender_role || "user"} review from ${payload.name || "anonymous"}`;
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "NITW Health Portal <onboarding@resend.dev>",
-        to: [ADMIN_EMAIL],
-        reply_to: payload.email || undefined,
-        subject: subjectLine,
-        html: buildHtml(payload),
-      }),
-    });
+    // 1) In-app notification — insert one row per admin user.
+    try {
+      const adminRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/user_roles?role=eq.admin&select=user_id`,
+        {
+          headers: {
+            apikey: SERVICE_ROLE_KEY,
+            Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+          },
+        },
+      );
+      const admins: Array<{ user_id: string }> = adminRes.ok ? await adminRes.json() : [];
+      if (admins.length > 0) {
+        const notifTitle = isContact
+          ? `📨 New contact message from ${payload.name || "user"}`
+          : `⭐ New ${payload.sender_role || "user"} review from ${payload.name || "anonymous"}`;
+        const stars = payload.rating ? ` (${payload.rating}/5)` : "";
+        const notifMessage = isContact
+          ? `${payload.subject ? `"${payload.subject}" — ` : ""}${(payload.message || "").slice(0, 140)}`
+          : `${stars ? `Rating${stars}. ` : ""}${(payload.message || "").slice(0, 140)}`;
+        const rows = admins.map((a) => ({
+          user_id: a.user_id,
+          title: notifTitle,
+          message: notifMessage,
+          type: "contact_submission",
+          read: false,
+        }));
+        const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/notifications`, {
+          method: "POST",
+          headers: {
+            apikey: SERVICE_ROLE_KEY,
+            Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify(rows),
+        });
+        if (!insertRes.ok) {
+          console.error("notification insert failed:", insertRes.status, await insertRes.text());
+        }
+      }
+    } catch (e) {
+      console.error("admin notification error:", e);
+    }
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      console.error("Resend error:", res.status, errText);
+    // 2) Email — best effort.
+    if (apiKey) {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "NITW Health Portal <onboarding@resend.dev>",
+          to: [ADMIN_EMAIL],
+          reply_to: payload.email || undefined,
+          subject: subjectLine,
+          html: buildHtml(payload),
+        }),
+      });
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        console.error("Resend error:", res.status, errText);
+      }
+    } else {
+      console.warn("RESEND_API_KEY missing — skipped email, in-app notification still sent");
     }
 
     return new Response(JSON.stringify({ ok: true }), {
