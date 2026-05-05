@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Stethoscope, ArrowRight, CheckCircle2, XCircle, Calendar, ArrowLeft } from "lucide-react";
+import { Bell, Stethoscope, ArrowRight, CheckCircle2, XCircle, Calendar, ArrowLeft, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -137,6 +137,8 @@ const NotificationBell = () => {
         return 'border-l-amber-500 bg-amber-50 dark:bg-amber-950/20';
       case 'lab_report':
         return 'border-l-cyan-500 bg-cyan-50 dark:bg-cyan-950/20';
+      case 'contact_submission':
+        return 'border-l-sky-500 bg-sky-50 dark:bg-sky-950/20';
       default:
         return 'border-l-primary bg-primary/5';
     }
@@ -153,6 +155,8 @@ const NotificationBell = () => {
         return <CheckCircle2 className="h-3.5 w-3.5 text-amber-600 flex-shrink-0" />;
       case 'lab_report':
         return <Bell className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0" />;
+      case 'contact_submission':
+        return <MessageSquare className="h-3.5 w-3.5 text-sky-600 flex-shrink-0" />;
       case 'medical_leave_referral':
       case 'medical_leave_on_leave':
       case 'medical_leave_returned':
@@ -170,6 +174,7 @@ const NotificationBell = () => {
     if (type === 'prescription') return 'View Prescription';
     if (type === 'certificate_issued') return 'View Certificate';
     if (type === 'lab_report') return 'View Lab Reports';
+    if (type === 'contact_submission') return 'Open Submission';
     if (type.startsWith('medical_leave_') || type.startsWith('mentee_leave_') || type.startsWith('referral_')) {
       return 'Open Medical Leave';
     }
@@ -242,6 +247,8 @@ const NotificationBell = () => {
                         navigate("/student/profile?tab=certificates");
                       } else if (notification.type === 'lab_report') {
                         navigate("/student/profile?tab=labtests");
+                      } else if (notification.type === 'contact_submission') {
+                        navigate("/admin/dashboard?tab=submissions");
                       } else if (isMedicalLeave) {
                         navigate("/medical-leave");
                       } else if (notification.type === 'approved' || notification.type === 'rejected') {
