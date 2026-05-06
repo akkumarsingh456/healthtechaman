@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import VisitPatternAnalysis from '@/components/health/VisitPatternAnalysis';
 import { notifyStudentOfStatusUpdate, getStudentUserId } from '@/lib/notifications/medical-leave-notifications';
 import LabReportViewer, { printLabReport } from '@/components/lab/LabReportViewer';
+import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
+import DoctorWorkflowActions from '@/components/medical-leave/DoctorWorkflowActions';
 
 interface Student {
   id: string;
@@ -145,6 +147,7 @@ const StudentProfile = () => {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [labReports, setLabReports] = useState<LabReport[]>([]);
   const [medicalLeaves, setMedicalLeaves] = useState<MedicalLeaveRecord[]>([]);
+  const [workflowsByLeave, setWorkflowsByLeave] = useState<Record<string, ApprovalWorkflowRow>>({});
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [clearanceDialogOpen, setClearanceDialogOpen] = useState<string | null>(null);
@@ -340,12 +343,36 @@ const StudentProfile = () => {
       setPrescriptions((prescriptionsRes.data as unknown as Prescription[]) || []);
       setLabReports((labReportsRes.data as unknown as LabReport[]) || []);
       setMedicalLeaves((medicalLeavesRes.data as unknown as MedicalLeaveRecord[]) || []);
+
+      // Fetch approval workflows for these medical leave requests
+      const leaveIds = ((medicalLeavesRes.data as any[]) || []).map((l) => l.id);
+      if (leaveIds.length > 0) {
+        const { data: wfRows } = await supabase
+          .from('leave_approval_workflow')
+          .select('*')
+          .in('medical_leave_request_id', leaveIds);
+        const map: Record<string, ApprovalWorkflowRow> = {};
+        (wfRows || []).forEach((w: any) => { map[w.medical_leave_request_id] = w as ApprovalWorkflowRow; });
+        setWorkflowsByLeave(map);
+      }
     } catch (error) {
       console.error('Error fetching student data:', error);
       setNotFound(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refetchWorkflows = async () => {
+    const leaveIds = medicalLeaves.map((l) => l.id);
+    if (leaveIds.length === 0) return;
+    const { data: wfRows } = await supabase
+      .from('leave_approval_workflow')
+      .select('*')
+      .in('medical_leave_request_id', leaveIds);
+    const map: Record<string, ApprovalWorkflowRow> = {};
+    (wfRows || []).forEach((w: any) => { map[w.medical_leave_request_id] = w as ApprovalWorkflowRow; });
+    setWorkflowsByLeave(map);
   };
 
   const formatReasonCategory = (category: string) => {
@@ -1006,6 +1033,25 @@ const StudentProfile = () => {
                               <span className="font-medium">Cleared on {format(parseISO(leave.doctor_clearance_date), 'MMM d, yyyy')}</span>
                             </div>
                           )}
+
+                          {/* Approval Workflow Timeline + Doctor Actions */}
+                          <div className="pt-3 mt-2 border-t space-y-3">
+                            <LeaveApprovalWorkflowTimeline
+                              workflow={workflowsByLeave[leave.id] || null}
+                              approverNames={{
+                                doctor: leave.medical_officers?.name ? `Dr. ${leave.medical_officers.name}` : undefined,
+                                mentor: student?.mentors?.name || student?.mentor_name || undefined,
+                              }}
+                            />
+                            {isDoctor && (
+                              <DoctorWorkflowActions
+                                leaveRequestId={leave.id}
+                                doctorId={doctorId}
+                                workflow={workflowsByLeave[leave.id] || null}
+                                onUpdated={refetchWorkflows}
+                              />
+                            )}
+                          </div>
 
                           {/* Grant Clearance action for doctors */}
                           {isDoctor && doctorId && !isCleared && (leave.status === 'returned' || leave.status === 'on_leave' || leave.status === 'return_pending' || leave.status === 'student_form_pending' || leave.status === 'doctor_referred') && (

@@ -28,6 +28,7 @@ import LabReportViewer, { openLabReport, printLabReport } from '@/components/lab
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
+import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
 
 interface StudentData {
   id: string;
@@ -197,6 +198,7 @@ export default function StudentProfilePage() {
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([]);
   const [previewCertificate, setPreviewCertificate] = useState<MedicalCertificate | null>(null);
   const [viewingLabReport, setViewingLabReport] = useState<LabReport | null>(null);
+  const [workflowsByLeave, setWorkflowsByLeave] = useState<Record<string, ApprovalWorkflowRow>>({});
   const [loading, setLoading] = useState(true);
 
   // Edit state
@@ -302,6 +304,18 @@ export default function StudentProfilePage() {
             referral_date: r.referral_date || r.created_at,
             doctor_name: r.referring_doctor_id ? doctorMap[r.referring_doctor_id] || 'Doctor' : 'Health Centre',
           })));
+
+          // Fetch approval workflows for all referrals (RLS scoped to this student)
+          const referralIds = referralData.map(r => r.id);
+          if (referralIds.length > 0) {
+            const { data: wfData } = await supabase
+              .from('leave_approval_workflow')
+              .select('*')
+              .in('medical_leave_request_id', referralIds);
+            const map: Record<string, ApprovalWorkflowRow> = {};
+            (wfData || []).forEach((w: any) => { map[w.medical_leave_request_id] = w as ApprovalWorkflowRow; });
+            setWorkflowsByLeave(map);
+          }
 
 
           // Build certificates from medical leave requests with doctor details
@@ -1509,6 +1523,16 @@ export default function StudentProfilePage() {
                               ))}
                             </div>
                           )}
+                          {/* Approval Workflow Timeline */}
+                          <div className="pt-3 mt-2 border-t">
+                            <LeaveApprovalWorkflowTimeline
+                              workflow={workflowsByLeave[ref.id] || null}
+                              approverNames={{
+                                doctor: `Dr. ${ref.doctor_name}`,
+                                mentor: student?.mentors?.name || student?.mentor_name || undefined,
+                              }}
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
