@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import VisitPatternAnalysis from '@/components/health/VisitPatternAnalysis';
 import { notifyStudentOfStatusUpdate, getStudentUserId } from '@/lib/notifications/medical-leave-notifications';
 import LabReportViewer, { printLabReport } from '@/components/lab/LabReportViewer';
+import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
+import DoctorWorkflowActions from '@/components/medical-leave/DoctorWorkflowActions';
 
 interface Student {
   id: string;
@@ -145,6 +147,7 @@ const StudentProfile = () => {
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [labReports, setLabReports] = useState<LabReport[]>([]);
   const [medicalLeaves, setMedicalLeaves] = useState<MedicalLeaveRecord[]>([]);
+  const [workflowsByLeave, setWorkflowsByLeave] = useState<Record<string, ApprovalWorkflowRow>>({});
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [clearanceDialogOpen, setClearanceDialogOpen] = useState<string | null>(null);
