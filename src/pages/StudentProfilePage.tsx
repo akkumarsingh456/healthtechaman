@@ -1523,6 +1523,16 @@ export default function StudentProfilePage() {
                               ))}
                             </div>
                           )}
+                          {/* Approval Workflow Timeline */}
+                          <div className="pt-3 mt-2 border-t">
+                            <LeaveApprovalWorkflowTimeline
+                              workflow={workflowsByLeave[ref.id] || null}
+                              approverNames={{
+                                doctor: `Dr. ${ref.doctor_name}`,
+                                mentor: student?.mentors?.name || student?.mentor_name || undefined,
+                              }}
+                            />
+                          </div>
                         </div>
                       ))}
                     </div>
