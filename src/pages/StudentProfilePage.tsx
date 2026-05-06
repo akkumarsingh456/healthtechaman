@@ -305,6 +305,18 @@ export default function StudentProfilePage() {
             doctor_name: r.referring_doctor_id ? doctorMap[r.referring_doctor_id] || 'Doctor' : 'Health Centre',
           })));
 
+          // Fetch approval workflows for all referrals (RLS scoped to this student)
+          const referralIds = referralData.map(r => r.id);
+          if (referralIds.length > 0) {
+            const { data: wfData } = await supabase
+              .from('leave_approval_workflow')
+              .select('*')
+              .in('medical_leave_request_id', referralIds);
+            const map: Record<string, ApprovalWorkflowRow> = {};
+            (wfData || []).forEach((w: any) => { map[w.medical_leave_request_id] = w as ApprovalWorkflowRow; });
+            setWorkflowsByLeave(map);
+          }
+
 
           // Build certificates from medical leave requests with doctor details
           const certDoctorIds = [...new Set(referralData.filter(r => r.referring_doctor_id || r.approved_by_doctor_id).flatMap(r => [r.referring_doctor_id, r.approved_by_doctor_id].filter(Boolean) as string[]))];
