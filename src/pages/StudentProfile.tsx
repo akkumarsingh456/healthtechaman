@@ -343,12 +343,36 @@ const StudentProfile = () => {
       setPrescriptions((prescriptionsRes.data as unknown as Prescription[]) || []);
       setLabReports((labReportsRes.data as unknown as LabReport[]) || []);
       setMedicalLeaves((medicalLeavesRes.data as unknown as MedicalLeaveRecord[]) || []);
+
+      // Fetch approval workflows for these medical leave requests
+      const leaveIds = ((medicalLeavesRes.data as any[]) || []).map((l) => l.id);
+      if (leaveIds.length > 0) {
+        const { data: wfRows } = await supabase
+          .from('leave_approval_workflow')
+          .select('*')
+          .in('medical_leave_request_id', leaveIds);
+        const map: Record<string, ApprovalWorkflowRow> = {};
+        (wfRows || []).forEach((w: any) => { map[w.medical_leave_request_id] = w as ApprovalWorkflowRow; });
+        setWorkflowsByLeave(map);
+      }
     } catch (error) {
       console.error('Error fetching student data:', error);
       setNotFound(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const refetchWorkflows = async () => {
+    const leaveIds = medicalLeaves.map((l) => l.id);
+    if (leaveIds.length === 0) return;
+    const { data: wfRows } = await supabase
+      .from('leave_approval_workflow')
+      .select('*')
+      .in('medical_leave_request_id', leaveIds);
+    const map: Record<string, ApprovalWorkflowRow> = {};
+    (wfRows || []).forEach((w: any) => { map[w.medical_leave_request_id] = w as ApprovalWorkflowRow; });
+    setWorkflowsByLeave(map);
   };
 
   const formatReasonCategory = (category: string) => {
