@@ -28,6 +28,7 @@ import LabReportViewer, { openLabReport, printLabReport } from '@/components/lab
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
+import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
 
 interface StudentData {
   id: string;
@@ -197,6 +198,7 @@ export default function StudentProfilePage() {
   const [certificates, setCertificates] = useState<MedicalCertificate[]>([]);
   const [previewCertificate, setPreviewCertificate] = useState<MedicalCertificate | null>(null);
   const [viewingLabReport, setViewingLabReport] = useState<LabReport | null>(null);
+  const [workflowsByLeave, setWorkflowsByLeave] = useState<Record<string, ApprovalWorkflowRow>>({});
   const [loading, setLoading] = useState(true);
 
   // Edit state
