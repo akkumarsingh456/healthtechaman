@@ -1034,6 +1034,25 @@ const StudentProfile = () => {
                             </div>
                           )}
 
+                          {/* Approval Workflow Timeline + Doctor Actions */}
+                          <div className="pt-3 mt-2 border-t space-y-3">
+                            <LeaveApprovalWorkflowTimeline
+                              workflow={workflowsByLeave[leave.id] || null}
+                              approverNames={{
+                                doctor: leave.medical_officers?.name ? `Dr. ${leave.medical_officers.name}` : undefined,
+                                mentor: student?.mentors?.name || student?.mentor_name || undefined,
+                              }}
+                            />
+                            {isDoctor && (
+                              <DoctorWorkflowActions
+                                leaveRequestId={leave.id}
+                                doctorId={doctorId}
+                                workflow={workflowsByLeave[leave.id] || null}
+                                onUpdated={refetchWorkflows}
+                              />
+                            )}
+                          </div>
+
                           {/* Grant Clearance action for doctors */}
                           {isDoctor && doctorId && !isCleared && (leave.status === 'returned' || leave.status === 'on_leave' || leave.status === 'return_pending' || leave.status === 'student_form_pending' || leave.status === 'doctor_referred') && (
                             <Dialog open={clearanceDialogOpen === leave.id} onOpenChange={(open) => {
