@@ -29,6 +29,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
 import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
+import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
 
 interface StudentData {
   id: string;
@@ -424,6 +425,8 @@ export default function StudentProfilePage() {
       setIsEditing(false);
       setShowSaveConfirmation(true);
       toast({ title: '✅ Profile Saved Successfully', description: `Email: ${editEmail || '—'} | Phone: ${editPhone || '—'}` });
+      // Fire-and-forget long-term backup to Google Drive
+      triggerStudentBackup(student.id);
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to update profile.', variant: 'destructive' });
     } finally {
