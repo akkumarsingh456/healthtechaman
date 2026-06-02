@@ -29,6 +29,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
 import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
+import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
 
 interface StudentData {
   id: string;
@@ -424,6 +425,8 @@ export default function StudentProfilePage() {
       setIsEditing(false);
       setShowSaveConfirmation(true);
       toast({ title: '✅ Profile Saved Successfully', description: `Email: ${editEmail || '—'} | Phone: ${editPhone || '—'}` });
+      // Fire-and-forget long-term backup to Google Drive
+      triggerStudentBackup(student.id);
     } catch (err) {
       toast({ title: 'Error', description: 'Failed to update profile.', variant: 'destructive' });
     } finally {
@@ -1087,6 +1090,46 @@ export default function StudentProfilePage() {
                     <div className="mt-3 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
                       <p className="text-xs font-medium text-destructive mb-1">⚠ Known Allergies</p>
                       <p className="text-sm">{healthProfile.known_allergies}</p>
+                    </div>
+                  )}
+                  {healthProfile.current_medications && (
+                    <div className="mt-3 p-3 rounded-lg bg-muted/40 border">
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Current Medications</p>
+                      <p className="text-sm">{healthProfile.current_medications}</p>
+                    </div>
+                  )}
+                  {healthProfile.previous_health_details && (
+                    <div className="mt-3 p-3 rounded-lg bg-muted/40 border">
+                      <p className="text-xs font-medium text-muted-foreground mb-1">Previous Health Details</p>
+                      <p className="text-sm">{healthProfile.previous_health_details}</p>
+                    </div>
+                  )}
+                  {(healthProfile.father_name || healthProfile.mother_name || healthProfile.emergency_relationship) && (
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {healthProfile.father_name && (
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <p className="text-xs text-muted-foreground">Father</p>
+                          <p className="text-sm font-medium">{healthProfile.father_name}</p>
+                          {healthProfile.father_contact && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{healthProfile.father_contact}</p>
+                          )}
+                        </div>
+                      )}
+                      {healthProfile.mother_name && (
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <p className="text-xs text-muted-foreground">Mother</p>
+                          <p className="text-sm font-medium">{healthProfile.mother_name}</p>
+                          {healthProfile.mother_contact && (
+                            <p className="text-xs text-muted-foreground mt-0.5">{healthProfile.mother_contact}</p>
+                          )}
+                        </div>
+                      )}
+                      {healthProfile.emergency_relationship && (
+                        <div className="p-3 rounded-lg bg-muted/30 border">
+                          <p className="text-xs text-muted-foreground">Emergency Relationship</p>
+                          <p className="text-sm font-medium">{healthProfile.emergency_relationship}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                   <Button asChild variant="outline" size="sm" className="mt-3">

@@ -57,12 +57,13 @@ export function useStudentAutoFill(): UseStudentAutoFillReturn {
         setLoading(true);
         setError(null);
 
-        // Fetch from students table
+        // Fetch from students table — use maybeSingle so a transient empty
+        // result never throws and wipes previously loaded data.
         const { data: studentRecord, error: studentError } = await supabase
           .from('students')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (studentError && studentError.code !== 'PGRST116') {
           throw studentError;

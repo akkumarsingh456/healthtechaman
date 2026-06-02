@@ -29,10 +29,45 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import AdminProfileCard from "@/components/profile/AdminProfileCard";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { CloudUpload, Loader2 } from "lucide-react";
+import { triggerStudentBackup } from "@/lib/backup/triggerStudentBackup";
 
 export default function AdminHomeDashboard() {
   const navigate = useNavigate();
   const { user } = useUserRole();
+  const { toast } = useToast();
+  const [backingUp, setBackingUp] = useState(false);
+
+  const handleBackupAllStudents = async () => {
+    if (backingUp) return;
+    setBackingUp(true);
+    try {
+      const { data: students, error } = await supabase
+        .from("students")
+        .select("id, roll_number");
+      if (error) throw error;
+      const total = students?.length ?? 0;
+      toast({
+        title: "Backup started",
+        description: `Sending ${total} student record${total === 1 ? "" : "s"} to Google Drive.`,
+      });
+      (students ?? []).forEach((s) => triggerStudentBackup(s.id));
+      toast({
+        title: "✅ Backup queued",
+        description: "All student snapshots are uploading to Google Drive in the background.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Backup failed to start",
+        description: err?.message || "Could not enumerate students.",
+        variant: "destructive",
+      });
+    } finally {
+      setBackingUp(false);
+    }
+  };
 
   // Fetch system stats
   const { data: stats, isLoading: loadingStats } = useQuery({
@@ -342,6 +377,21 @@ export default function AdminHomeDashboard() {
           <ClipboardList className="w-5 h-5 text-primary" />
           Quick Actions
         </h2>
+        <div className="mb-4 flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+          <div>
+            <p className="font-medium text-sm text-foreground flex items-center gap-2">
+              <CloudUpload className="w-4 h-4 text-primary" /> Long-term backup
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Snapshot every student's full record to your Google Drive folder
+              <span className="font-medium"> NITW Health Portal Backups</span>.
+            </p>
+          </div>
+          <Button size="sm" onClick={handleBackupAllStudents} disabled={backingUp}>
+            {backingUp ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <CloudUpload className="w-3 h-3 mr-1" />}
+            {backingUp ? "Queuing..." : "Backup all students now"}
+          </Button>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((action) => (
             <Card

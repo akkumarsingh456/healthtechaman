@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
+import { triggerStudentBackup } from "@/lib/backup/triggerStudentBackup";
 import { RegistrationProgress } from "@/components/registration/RegistrationProgress";
 import { PersonalInfoStep } from "@/components/registration/PersonalInfoStep";
 import { AcademicInfoStep } from "@/components/registration/AcademicInfoStep";
@@ -254,52 +255,70 @@ export default function StudentRegistration() {
         }
       }
 
-      // Now save medical info to student_profiles
-      const medicalData = {
-        student_id: studentId,
-        blood_group: data.bloodGroup || null,
-        has_previous_health_issues: data.hasPreviousHealthIssues === "yes",
-        previous_health_details: data.previousHealthDetails || null,
-        current_medications: data.currentMedications || null,
-        known_allergies: data.knownAllergies || null,
-        covid_vaccination_status: data.covidVaccinationStatus || null,
-        has_disability: data.hasDisability === "yes",
-        disability_details: data.disabilityDetails || null,
-        emergency_contact: data.emergencyContact || null,
-        emergency_relationship: data.emergencyRelationship || null,
-        aadhar_number: data.aadharNumber || null,
-        father_name: data.fatherName || null,
-        father_contact: data.fatherContact || null,
-        mother_name: data.motherName || null,
-        mother_contact: data.motherContact || null,
-        accuracy_confirmation: data.accuracyConfirmation || false,
-        code_of_conduct: data.codeOfConduct || false,
-        photo_video_consent: data.photoVideoConsent || false,
-        medical_authorization: data.medicalAuthorization || false,
-        updated_at: new Date().toISOString(),
-      };
-
-      // Check if student_profile exists
+      // Now save medical info to student_profiles.
+      // 1) Fetch existing row so we can MERGE — never wipe previously-saved
+      //    fields just because the user re-submitted without re-entering them.
       const { data: existingProfile } = await supabase
         .from('student_profiles')
-        .select('id')
+        .select('*')
         .eq('student_id', studentId)
         .maybeSingle();
 
-      if (existingProfile) {
-        const { error: profileUpdateError } = await supabase
-          .from('student_profiles')
-          .update(medicalData)
-          .eq('student_id', studentId);
-        
-        if (profileUpdateError) throw profileUpdateError;
-      } else {
-        const { error: profileInsertError } = await supabase
-          .from('student_profiles')
-          .insert(medicalData);
-        
-        if (profileInsertError) throw profileInsertError;
+      // 2) Build a partial payload that only includes fields the user
+      //    actually provided. Empty strings and `undefined` are treated as
+      //    "no change" so the saved value survives.
+      const setIfPresent = <T,>(value: T | undefined | null): T | undefined => {
+        if (value === undefined || value === null) return undefined;
+        if (typeof value === 'string' && value.trim() === '') return undefined;
+        return value;
+      };
+      const partial: Record<string, unknown> = {
+        blood_group: setIfPresent(data.bloodGroup),
+        previous_health_details: setIfPresent(data.previousHealthDetails),
+        current_medications: setIfPresent(data.currentMedications),
+        known_allergies: setIfPresent(data.knownAllergies),
+        covid_vaccination_status: setIfPresent(data.covidVaccinationStatus),
+        disability_details: setIfPresent(data.disabilityDetails),
+        emergency_contact: setIfPresent(data.emergencyContact),
+        emergency_relationship: setIfPresent(data.emergencyRelationship),
+        aadhar_number: setIfPresent(data.aadharNumber),
+        father_name: setIfPresent(data.fatherName),
+        father_contact: setIfPresent(data.fatherContact),
+        mother_name: setIfPresent(data.motherName),
+        mother_contact: setIfPresent(data.motherContact),
+      };
+      if (data.hasPreviousHealthIssues === 'yes' || data.hasPreviousHealthIssues === 'no') {
+        partial.has_previous_health_issues = data.hasPreviousHealthIssues === 'yes';
       }
+      if (data.hasDisability === 'yes' || data.hasDisability === 'no') {
+        partial.has_disability = data.hasDisability === 'yes';
+      }
+      // Booleans: never flip an already-true consent back to false on resubmit.
+      const keepTrue = (next?: boolean, prev?: boolean | null) =>
+        next === true ? true : prev ?? false;
+      partial.accuracy_confirmation = keepTrue(data.accuracyConfirmation, existingProfile?.accuracy_confirmation);
+      partial.code_of_conduct = keepTrue(data.codeOfConduct, existingProfile?.code_of_conduct);
+      partial.photo_video_consent = keepTrue(data.photoVideoConsent, existingProfile?.photo_video_consent);
+      partial.medical_authorization = keepTrue(data.medicalAuthorization, existingProfile?.medical_authorization);
+
+      // Drop undefined keys so they don't reach Postgres as nulls
+      Object.keys(partial).forEach((k) => partial[k] === undefined && delete partial[k]);
+
+      const upsertPayload = {
+        student_id: studentId,
+        ...(existingProfile ?? {}),
+        ...partial,
+        updated_at: new Date().toISOString(),
+      } as Record<string, unknown>;
+
+      const { error: upsertError } = await supabase
+        .from('student_profiles')
+        .upsert(upsertPayload as any, { onConflict: 'student_id' });
+
+      if (upsertError) throw upsertError;
+
+      // Fire-and-forget Google Drive backup of the full student record
+      triggerStudentBackup(studentId);
       
       toast({
         title: "Registration Successful!",
