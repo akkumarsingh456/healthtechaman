@@ -313,7 +313,7 @@ export default function StudentRegistration() {
 
       const { error: upsertError } = await supabase
         .from('student_profiles')
-        .upsert(upsertPayload, { onConflict: 'student_id' });
+        .upsert(upsertPayload as any, { onConflict: 'student_id' });
 
       if (upsertError) throw upsertError;
 
