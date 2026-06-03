@@ -30,6 +30,8 @@ import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
 import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
 import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
+import RecipientEmailsCard from '@/components/student/RecipientEmailsCard';
+import StudentLeaveHistoryCard from '@/components/student/StudentLeaveHistoryCard';
 
 interface StudentData {
   id: string;
