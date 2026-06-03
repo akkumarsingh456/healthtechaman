@@ -30,6 +30,8 @@ import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
 import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
 import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
+import RecipientEmailsCard from '@/components/student/RecipientEmailsCard';
+import StudentLeaveHistoryCard from '@/components/student/StudentLeaveHistoryCard';
 
 interface StudentData {
   id: string;
@@ -850,6 +852,43 @@ export default function StudentProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Recipients + Leave History */}
+        {student && user && (
+          <>
+            <RecipientEmailsCard
+              studentId={student.id}
+              fallbackMentorName={mentorName}
+              fallbackMentorEmail={mentorEmail}
+            />
+            <StudentLeaveHistoryCard
+              studentId={student.id}
+              userId={user.id}
+              mentorName={mentorName}
+              leaves={referralLetters.map(r => ({
+                id: r.id,
+                referral_hospital: r.referral_hospital,
+                illness_description: r.illness_description,
+                expected_duration: r.expected_duration,
+                leave_start_date: r.leave_start_date,
+                expected_return_date: r.expected_return_date,
+                status: r.status,
+                referral_date: r.referral_date,
+                doctor_name: r.doctor_name,
+                doctor_clearance: certificates.find(c => c.id === r.id)?.doctor_clearance ?? null,
+              }))}
+              workflowsByLeave={workflowsByLeave}
+              onPrintReferral={(id) => {
+                const ref = referralLetters.find(r => r.id === id);
+                if (ref) handlePrintReferralLetter(ref);
+              }}
+              onPrintLeaveCertificate={(id) => {
+                const cert = certificates.find(c => c.id === id);
+                if (cert) handlePrintCertificate(cert);
+              }}
+            />
+          </>
+        )}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>

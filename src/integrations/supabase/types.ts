@@ -497,6 +497,57 @@ export type Database = {
         }
         Relationships: []
       }
+      health_share_recipients: {
+        Row: {
+          created_at: string
+          email_error: string | null
+          email_status: string
+          files: Json
+          id: string
+          include_leave_certificate: boolean
+          include_referral: boolean
+          medical_leave_request_id: string | null
+          message: string | null
+          recipient_email: string
+          recipient_name: string | null
+          recipient_role: string
+          sender_user_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_error?: string | null
+          email_status?: string
+          files?: Json
+          id?: string
+          include_leave_certificate?: boolean
+          include_referral?: boolean
+          medical_leave_request_id?: string | null
+          message?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          recipient_role: string
+          sender_user_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          email_error?: string | null
+          email_status?: string
+          files?: Json
+          id?: string
+          include_leave_certificate?: boolean
+          include_referral?: boolean
+          medical_leave_request_id?: string | null
+          message?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          recipient_role?: string
+          sender_user_id?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
       health_visits: {
         Row: {
           created_at: string
@@ -1453,6 +1504,8 @@ export type Database = {
           covid_vaccination_status: string | null
           created_at: string
           current_medications: string | null
+          dean_email: string | null
+          dean_name: string | null
           disability_details: string | null
           emergency_contact: string | null
           emergency_relationship: string | null
@@ -1460,9 +1513,12 @@ export type Database = {
           father_name: string | null
           has_disability: boolean | null
           has_previous_health_issues: boolean | null
+          hod_email: string | null
+          hod_name: string | null
           id: string
           known_allergies: string | null
           medical_authorization: boolean | null
+          mentor_email: string | null
           mother_contact: string | null
           mother_name: string | null
           photo_video_consent: boolean | null
@@ -1478,6 +1534,8 @@ export type Database = {
           covid_vaccination_status?: string | null
           created_at?: string
           current_medications?: string | null
+          dean_email?: string | null
+          dean_name?: string | null
           disability_details?: string | null
           emergency_contact?: string | null
           emergency_relationship?: string | null
@@ -1485,9 +1543,12 @@ export type Database = {
           father_name?: string | null
           has_disability?: boolean | null
           has_previous_health_issues?: boolean | null
+          hod_email?: string | null
+          hod_name?: string | null
           id?: string
           known_allergies?: string | null
           medical_authorization?: boolean | null
+          mentor_email?: string | null
           mother_contact?: string | null
           mother_name?: string | null
           photo_video_consent?: boolean | null
@@ -1503,6 +1564,8 @@ export type Database = {
           covid_vaccination_status?: string | null
           created_at?: string
           current_medications?: string | null
+          dean_email?: string | null
+          dean_name?: string | null
           disability_details?: string | null
           emergency_contact?: string | null
           emergency_relationship?: string | null
@@ -1510,9 +1573,12 @@ export type Database = {
           father_name?: string | null
           has_disability?: boolean | null
           has_previous_health_issues?: boolean | null
+          hod_email?: string | null
+          hod_name?: string | null
           id?: string
           known_allergies?: string | null
           medical_authorization?: boolean | null
+          mentor_email?: string | null
           mother_contact?: string | null
           mother_name?: string | null
           photo_video_consent?: boolean | null
