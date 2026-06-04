@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import QuickBookCard from "@/components/appointments/QuickBookCard";
+import StudentDataSyncBanner from "@/components/student/StudentDataSyncBanner";
 import {
   Calendar,
   ClipboardList,
@@ -172,6 +173,9 @@ const StudentHomeDashboard = () => {
         </div>
 
         {/* Alert Banners */}
+        {student && (
+          <StudentDataSyncBanner rollNumberHint={student.roll_number} compact />
+        )}
         {activeLeave && (
           <Card className="border-warning/50 bg-warning/5">
             <CardContent className="py-4 flex items-center gap-4">
