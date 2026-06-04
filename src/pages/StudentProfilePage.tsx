@@ -32,6 +32,7 @@ import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/compo
 import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
 import RecipientEmailsCard from '@/components/student/RecipientEmailsCard';
 import StudentLeaveHistoryCard from '@/components/student/StudentLeaveHistoryCard';
+import StudentDataSyncBanner from '@/components/student/StudentDataSyncBanner';
 
 interface StudentData {
   id: string;
