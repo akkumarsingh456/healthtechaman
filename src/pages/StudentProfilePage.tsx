@@ -857,6 +857,7 @@ export default function StudentProfilePage() {
         {/* Recipients + Leave History */}
         {student && user && (
           <>
+            <StudentDataSyncBanner rollNumberHint={student.roll_number} />
             <RecipientEmailsCard
               studentId={student.id}
               fallbackMentorName={mentorName}
