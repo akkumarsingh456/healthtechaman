@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Send, Loader2, Upload, Trash2, FileText, ShieldCheck, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface Recipient { role: string; name?: string; email: string; checked: boolean }
 interface UploadedFile { name: string; path: string }
@@ -40,6 +41,7 @@ export default function ShareHealthReportDialog({
   const [includeReferral, setIncludeReferral] = useState(!!hasReferral);
   const [includeLeaveCert, setIncludeLeaveCert] = useState(!!hasLeaveCertificate);
   const [composing, setComposing] = useState(false);
+  const [gmailUrl, setGmailUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -119,9 +121,15 @@ export default function ShareHealthReportDialog({
     // Open the window SYNCHRONOUSLY in the click handler so the browser
     // treats it as a user gesture and does not block the popup. We point
     // it at about:blank first, then redirect to Gmail once the AI draft
-    // returns. If the user blocks popups anyway we fall back to mailto:.
-    const gmailWindow = window.open("about:blank", "_blank", "noopener,noreferrer");
+    // returns. NOTE: do NOT pass "noopener" — it forces window.open to
+    // return null, which would break the redirect. We open Gmail on a
+    // named tab, on the user's own gesture, so there is no security risk
+    // (Gmail cannot reach back into this app via window.opener anyway).
+    const gmailWindow = window.open("about:blank", "_blank");
     if (gmailWindow) {
+      // Sever the opener link manually so the new tab cannot script back
+      // into this app — this is the safe equivalent of `noopener`.
+      try { gmailWindow.opener = null; } catch (_) { /* ignore */ }
       try {
         gmailWindow.document.write(
           '<!doctype html><title>Preparing Gmail…</title>' +
@@ -148,6 +156,7 @@ export default function ShareHealthReportDialog({
       const subject = encodeURIComponent(data?.subject || "Health Report");
       const body = encodeURIComponent(data?.body || "");
       const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
+      setGmailUrl(url);
       if (gmailWindow && !gmailWindow.closed) {
         gmailWindow.location.href = url;
         toast({
@@ -155,12 +164,20 @@ export default function ShareHealthReportDialog({
           description: "AI-drafted email is prefilled. Attach the referral/leave PDFs from the links in the body.",
         });
       } else {
-        // Popup blocked — fall back to a mailto: link the browser will allow.
-        const mailto = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
-        window.location.href = mailto;
+        // Popup blocked. Give the user a button to open Gmail from a
+        // fresh user gesture (this always works), and keep the Compose
+        // button in the dialog footer as a second chance.
         toast({
-          title: "Opening default mail app",
-          description: "Popup was blocked, so we opened your default mail app instead. Allow popups for this site to use Gmail directly.",
+          title: "Click to open Gmail",
+          description: "Your browser blocked the auto-popup. Tap the button to open Gmail in a new tab.",
+          action: (
+            <ToastAction
+              altText="Open Gmail"
+              onClick={() => window.open(url, "_blank")}
+            >
+              Open Gmail
+            </ToastAction>
+          ),
         });
       }
     } catch (e: any) {
