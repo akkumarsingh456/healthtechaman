@@ -19,31 +19,40 @@ export default function ContactOwnerForm() {
   const handleNotificationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setStatus('idle');
 
     const formData = new FormData(e.currentTarget);
     
     // Inject Web3Forms credentials
     formData.append("access_key", "3044b988-d5b0-4b39-831f-65d86533035b");
     formData.append("from_name", "Campus Care Health Portal");
-    formData.append("subject", "New Contact Form Submission");
+    formData.append("to_email", "ak25edi0022@student.nitw.ac.in");
+    formData.append("subject", form.subject || "New Contact Form Submission");
+    formData.append("redirect", "false");
 
     try {
-      await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         body: formData
       });
+
+      const result = await response.json();
       
-      // Clear form after successful submission
-      e.currentTarget.reset();
-      setForm({ name: '', email: '', subject: '', message: '' });
-      setStatus('success');
-      toast.success('Message sent successfully!');
-      
-      setTimeout(() => setStatus('idle'), 3000);
-    } catch (error) {
+      if (result.success) {
+        // Clear form after successful submission
+        e.currentTarget.reset();
+        setForm({ name: '', email: '', subject: '', message: '' });
+        setStatus('success');
+        toast.success('Message sent successfully! Check your email.');
+        
+        setTimeout(() => setStatus('idle'), 3000);
+      } else {
+        throw new Error(result.message || 'Submission failed');
+      }
+    } catch (error: any) {
       console.error("Submission error:", error);
       setStatus('error');
-      toast.error('Failed to send message');
+      toast.error(error.message || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -60,14 +69,14 @@ export default function ContactOwnerForm() {
         {status === 'success' && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mb-4">
             <Check className="w-5 h-5 text-green-600" />
-            <span className="text-sm text-green-800">✅ Message sent successfully!</span>
+            <span className="text-sm text-green-800">✅ Message sent successfully! Check your email.</span>
           </div>
         )}
 
         {status === 'error' && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 mb-4">
             <AlertCircle className="w-5 h-5 text-red-600" />
-            <span className="text-sm text-red-800">❌ Failed to send message</span>
+            <span className="text-sm text-red-800">❌ Failed to send message. Please try again.</span>
           </div>
         )}
 
