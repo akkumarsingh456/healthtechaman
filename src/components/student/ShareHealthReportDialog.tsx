@@ -116,6 +116,20 @@ export default function ShareHealthReportDialog({
       toast({ title: "No recipients", description: "Select at least one recipient.", variant: "destructive" });
       return;
     }
+    // Open the window SYNCHRONOUSLY in the click handler so the browser
+    // treats it as a user gesture and does not block the popup. We point
+    // it at about:blank first, then redirect to Gmail once the AI draft
+    // returns. If the user blocks popups anyway we fall back to mailto:.
+    const gmailWindow = window.open("about:blank", "_blank", "noopener,noreferrer");
+    if (gmailWindow) {
+      try {
+        gmailWindow.document.write(
+          '<!doctype html><title>Preparing Gmail…</title>' +
+          '<div style="font-family:system-ui;padding:24px;color:#334">' +
+          'Drafting your email with AI… this window will redirect to Gmail shortly.</div>'
+        );
+      } catch (_) { /* cross-origin write may fail, that\'s fine */ }
+    }
     setComposing(true);
     try {
       const { data, error } = await supabase.functions.invoke("compose-gmail-share", {
@@ -134,16 +148,23 @@ export default function ShareHealthReportDialog({
       const subject = encodeURIComponent(data?.subject || "Health Report");
       const body = encodeURIComponent(data?.body || "");
       const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
-      const win = window.open(url, "_blank", "noopener,noreferrer");
-      if (!win) {
-        toast({ title: "Popup blocked", description: "Allow popups to open Gmail compose.", variant: "destructive" });
-      } else {
+      if (gmailWindow && !gmailWindow.closed) {
+        gmailWindow.location.href = url;
         toast({
           title: "Gmail compose opened",
           description: "AI-drafted email is prefilled. Attach the referral/leave PDFs from the links in the body.",
         });
+      } else {
+        // Popup blocked — fall back to a mailto: link the browser will allow.
+        const mailto = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+        window.location.href = mailto;
+        toast({
+          title: "Opening default mail app",
+          description: "Popup was blocked, so we opened your default mail app instead. Allow popups for this site to use Gmail directly.",
+        });
       }
     } catch (e: any) {
+      if (gmailWindow && !gmailWindow.closed) gmailWindow.close();
       toast({ title: "Compose failed", description: e.message, variant: "destructive" });
     } finally {
       setComposing(false);
