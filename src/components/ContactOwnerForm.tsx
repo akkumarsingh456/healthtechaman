@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,40 +16,32 @@ export default function ContactOwnerForm() {
     message: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleNotificationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!form.name.trim() || !form.email.trim() || !form.subject.trim() || !form.message.trim()) {
-      setStatus('error');
-      setTimeout(() => setStatus('idle'), 3000);
-      return;
-    }
-
     setLoading(true);
 
+    const formData = new FormData(e.currentTarget);
+    
+    // Inject Web3Forms credentials
+    formData.append("access_key", "3044b988-d5b0-4b39-831f-65d86533035b");
+    formData.append("from_name", "Campus Care Health Portal");
+    formData.append("subject", "New Contact Form Submission");
+
     try {
-      const payload = {
-        submission_type: 'contact',
-        sender_role: 'other',
-        name: form.name.trim(),
-        email: form.email.trim(),
-        subject: form.subject.trim(),
-        message: form.message.trim(),
-      };
-
-      const { error } = await supabase.from('contact_submissions').insert(payload);
-
-      if (error) throw error;
-
-      // Fire-and-forget admin email — never blocks the UI
-      supabase.functions.invoke('notify-admin-submission', { body: payload }).catch(() => {});
-
-      setStatus('success');
+      await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData
+      });
+      
+      // Clear form after successful submission
+      e.currentTarget.reset();
       setForm({ name: '', email: '', subject: '', message: '' });
+      setStatus('success');
       toast.success('Message sent successfully!');
-
+      
       setTimeout(() => setStatus('idle'), 3000);
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Submission error:", error);
       setStatus('error');
       toast.error('Failed to send message');
     } finally {
@@ -76,18 +67,20 @@ export default function ContactOwnerForm() {
         {status === 'error' && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 mb-4">
             <AlertCircle className="w-5 h-5 text-red-600" />
-            <span className="text-sm text-red-800">❌ Please fill all fields</span>
+            <span className="text-sm text-red-800">❌ Failed to send message</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleNotificationSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1.5">Your Name *</label>
             <Input
               placeholder="Your full name"
+              name="name"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               disabled={loading}
+              required
             />
           </div>
 
@@ -96,9 +89,11 @@ export default function ContactOwnerForm() {
             <Input
               type="email"
               placeholder="your.email@example.com"
+              name="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               disabled={loading}
+              required
             />
           </div>
 
@@ -106,9 +101,11 @@ export default function ContactOwnerForm() {
             <label className="block text-sm font-medium mb-1.5">Subject *</label>
             <Input
               placeholder="What is this about?"
+              name="subject"
               value={form.subject}
               onChange={(e) => setForm({ ...form, subject: e.target.value })}
               disabled={loading}
+              required
             />
           </div>
 
@@ -116,11 +113,13 @@ export default function ContactOwnerForm() {
             <label className="block text-sm font-medium mb-1.5">Message *</label>
             <Textarea
               placeholder="Please describe your question or concern in detail..."
+              name="message"
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               disabled={loading}
               rows={5}
               className="resize-none"
+              required
             />
           </div>
 
