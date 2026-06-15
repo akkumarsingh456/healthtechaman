@@ -1500,6 +1500,8 @@ export type Database = {
           aadhar_number: string | null
           accuracy_confirmation: boolean | null
           blood_group: string | null
+          cmo_email: string | null
+          cmo_name: string | null
           code_of_conduct: boolean | null
           covid_vaccination_status: string | null
           created_at: string
@@ -1530,6 +1532,8 @@ export type Database = {
           aadhar_number?: string | null
           accuracy_confirmation?: boolean | null
           blood_group?: string | null
+          cmo_email?: string | null
+          cmo_name?: string | null
           code_of_conduct?: boolean | null
           covid_vaccination_status?: string | null
           created_at?: string
@@ -1560,6 +1564,8 @@ export type Database = {
           aadhar_number?: string | null
           accuracy_confirmation?: boolean | null
           blood_group?: string | null
+          cmo_email?: string | null
+          cmo_name?: string | null
           code_of_conduct?: boolean | null
           covid_vaccination_status?: string | null
           created_at?: string
