@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Users, GraduationCap, Building2, Save, Loader2 } from "lucide-react";
+import { Users, GraduationCap, Building2, Save, Loader2, Stethoscope } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
@@ -24,13 +24,15 @@ export default function RecipientEmailsCard({ studentId, fallbackMentorName, fal
   const [hodEmail, setHodEmail] = useState("");
   const [deanName, setDeanName] = useState("");
   const [deanEmail, setDeanEmail] = useState("");
+  const [cmoName, setCmoName] = useState("");
+  const [cmoEmail, setCmoEmail] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("student_profiles")
-        .select("mentor_email, hod_name, hod_email, dean_name, dean_email")
+        .select("mentor_email, hod_name, hod_email, dean_name, dean_email, cmo_name, cmo_email")
         .eq("student_id", studentId)
         .maybeSingle();
       if (cancelled) return;
@@ -39,6 +41,8 @@ export default function RecipientEmailsCard({ studentId, fallbackMentorName, fal
       setHodEmail((data as any)?.hod_email || "");
       setDeanName((data as any)?.dean_name || "");
       setDeanEmail((data as any)?.dean_email || "");
+      setCmoName((data as any)?.cmo_name || "");
+      setCmoEmail((data as any)?.cmo_email || "");
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -47,7 +51,7 @@ export default function RecipientEmailsCard({ studentId, fallbackMentorName, fal
   const validate = (email: string) => !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSave = async () => {
-    if (![mentorEmail, hodEmail, deanEmail].every(validate)) {
+    if (![mentorEmail, hodEmail, deanEmail, cmoEmail].every(validate)) {
       toast({ title: "Invalid email", description: "Please enter valid email addresses.", variant: "destructive" });
       return;
     }
@@ -66,6 +70,8 @@ export default function RecipientEmailsCard({ studentId, fallbackMentorName, fal
         hod_email: hodEmail || null,
         dean_name: deanName || null,
         dean_email: deanEmail || null,
+        cmo_name: cmoName || null,
+        cmo_email: cmoEmail || null,
         updated_at: new Date().toISOString(),
       };
       let error;
@@ -116,6 +122,13 @@ export default function RecipientEmailsCard({ studentId, fallbackMentorName, fal
                 <div className="grid md:grid-cols-2 gap-2 mt-1">
                   <Input value={deanName} onChange={e => setDeanName(e.target.value)} placeholder="Dean Name" />
                   <Input type="email" value={deanEmail} onChange={e => setDeanEmail(e.target.value)} placeholder="dean.academic@nitw.ac.in" />
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <Label className="text-xs flex items-center gap-1"><Stethoscope className="w-3 h-3" /> Chief Medical Officer</Label>
+                <div className="grid md:grid-cols-2 gap-2 mt-1">
+                  <Input value={cmoName} onChange={e => setCmoName(e.target.value)} placeholder="CMO Name" />
+                  <Input type="email" value={cmoEmail} onChange={e => setCmoEmail(e.target.value)} placeholder="cmo@nitw.ac.in" />
                 </div>
               </div>
             </div>
