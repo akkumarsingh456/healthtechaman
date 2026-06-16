@@ -311,5 +311,52 @@ export default function ShareHealthReportDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <Dialog open={editOpen} onOpenChange={setEditOpen}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Pencil className="w-4 h-4 text-primary" /> Review & Edit AI-drafted Email
+          </DialogTitle>
+          <DialogDescription>
+            Make any tweaks below. When you're happy, open it in Gmail to send.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">To</Label>
+            <Input
+              value={draftTo.join(", ")}
+              onChange={e => setDraftTo(e.target.value.split(",").map(s => s.trim()).filter(Boolean))}
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Subject</Label>
+            <Input value={draftSubject} onChange={e => setDraftSubject(e.target.value)} />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Body</Label>
+            <Textarea
+              value={draftBody}
+              onChange={e => setDraftBody(e.target.value)}
+              rows={16}
+              className="font-mono text-xs leading-relaxed"
+            />
+          </div>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="ghost" onClick={() => setEditOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={handleCopyDraft}>Copy</Button>
+          <Button variant="outline" onClick={handleComposeGmail} disabled={composing}>
+            {composing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Mail className="w-4 h-4 mr-2" />}
+            Re-draft with AI
+          </Button>
+          <Button onClick={handleOpenGmailFromEdit}>
+            <ExternalLink className="w-4 h-4 mr-2" /> Open in Gmail
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
