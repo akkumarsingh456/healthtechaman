@@ -26,7 +26,22 @@ export interface StudentSyncResult {
  */
 export function useStudentDataSync(opts?: { rollNumberHint?: string; auto?: boolean }) {
   const { rollNumberHint, auto = true } = opts || {};
-  const [result, setResult] = useState<StudentSyncResult | null>(null);
+  const cacheKey = `student-sync-cache:${rollNumberHint || "self"}`;
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 min — instant on subsequent pages
+
+  const readCache = (): StudentSyncResult | null => {
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed?.ts || Date.now() - parsed.ts > CACHE_TTL_MS) return null;
+      return parsed.data as StudentSyncResult;
+    } catch {
+      return null;
+    }
+  };
+
+  const [result, setResult] = useState<StudentSyncResult | null>(() => readCache());
   const [loading, setLoading] = useState(false);
   const ranRef = useRef(false);
 
@@ -39,18 +54,26 @@ export function useStudentDataSync(opts?: { rollNumberHint?: string; auto?: bool
       if (error) {
         setResult({ ok: false, error: error.message });
       } else {
-        setResult(data as StudentSyncResult);
+        const res = data as StudentSyncResult;
+        setResult(res);
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify({ ts: Date.now(), data: res }));
+        } catch {}
       }
     } catch (err: any) {
       setResult({ ok: false, error: err?.message || "sync failed" });
     } finally {
       setLoading(false);
     }
-  }, [rollNumberHint]);
+  }, [rollNumberHint, cacheKey]);
 
   useEffect(() => {
     if (!auto || ranRef.current) return;
     ranRef.current = true;
+    // If we have a fresh cached result, skip the network call entirely —
+    // banner appears in a fraction of a second on every page navigation.
+    const cached = readCache();
+    if (cached) return;
     run();
   }, [auto, run]);
 
