@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Send, Loader2, Upload, Trash2, FileText, ShieldCheck, Mail } from "lucide-react";
+import { Send, Loader2, Upload, Trash2, FileText, ShieldCheck, Mail, Pencil, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
@@ -42,6 +42,10 @@ export default function ShareHealthReportDialog({
   const [includeLeaveCert, setIncludeLeaveCert] = useState(!!hasLeaveCertificate);
   const [composing, setComposing] = useState(false);
   const [gmailUrl, setGmailUrl] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [draftSubject, setDraftSubject] = useState("");
+  const [draftBody, setDraftBody] = useState("");
+  const [draftTo, setDraftTo] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) return;
@@ -118,26 +122,6 @@ export default function ShareHealthReportDialog({
       toast({ title: "No recipients", description: "Select at least one recipient.", variant: "destructive" });
       return;
     }
-    // Open the window SYNCHRONOUSLY in the click handler so the browser
-    // treats it as a user gesture and does not block the popup. We point
-    // it at about:blank first, then redirect to Gmail once the AI draft
-    // returns. NOTE: do NOT pass "noopener" — it forces window.open to
-    // return null, which would break the redirect. We open Gmail on a
-    // named tab, on the user's own gesture, so there is no security risk
-    // (Gmail cannot reach back into this app via window.opener anyway).
-    const gmailWindow = window.open("about:blank", "_blank");
-    if (gmailWindow) {
-      // Sever the opener link manually so the new tab cannot script back
-      // into this app — this is the safe equivalent of `noopener`.
-      try { gmailWindow.opener = null; } catch (_) { /* ignore */ }
-      try {
-        gmailWindow.document.write(
-          '<!doctype html><title>Preparing Gmail…</title>' +
-          '<div style="font-family:system-ui;padding:24px;color:#334">' +
-          'Drafting your email with AI… this window will redirect to Gmail shortly.</div>'
-        );
-      } catch (_) { /* cross-origin write may fail, that\'s fine */ }
-    }
     setComposing(true);
     try {
       const { data, error } = await supabase.functions.invoke("compose-gmail-share", {
@@ -152,39 +136,46 @@ export default function ShareHealthReportDialog({
         },
       });
       if (error) throw error;
-      const to = (data?.to || []).join(",");
-      const subject = encodeURIComponent(data?.subject || "Health Report");
-      const body = encodeURIComponent(data?.body || "");
-      const url = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
-      setGmailUrl(url);
-      if (gmailWindow && !gmailWindow.closed) {
-        gmailWindow.location.href = url;
-        toast({
-          title: "Gmail compose opened",
-          description: "AI-drafted email is prefilled. Attach the referral/leave PDFs from the links in the body.",
-        });
-      } else {
-        // Popup blocked. Give the user a button to open Gmail from a
-        // fresh user gesture (this always works), and keep the Compose
-        // button in the dialog footer as a second chance.
-        toast({
-          title: "Click to open Gmail",
-          description: "Your browser blocked the auto-popup. Tap the button to open Gmail in a new tab.",
-          action: (
-            <ToastAction
-              altText="Open Gmail"
-              onClick={() => window.open(url, "_blank")}
-            >
-              Open Gmail
-            </ToastAction>
-          ),
-        });
-      }
+      setDraftSubject(data?.subject || "Health Report");
+      setDraftBody(data?.body || "");
+      setDraftTo(data?.to || selected.map(r => r.email));
+      setEditOpen(true);
     } catch (e: any) {
-      if (gmailWindow && !gmailWindow.closed) gmailWindow.close();
       toast({ title: "Compose failed", description: e.message, variant: "destructive" });
     } finally {
       setComposing(false);
+    }
+  };
+
+  const buildGmailUrl = () => {
+    const to = draftTo.join(",");
+    const subject = encodeURIComponent(draftSubject);
+    const body = encodeURIComponent(draftBody);
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
+  };
+
+  const handleOpenGmailFromEdit = () => {
+    const url = buildGmailUrl();
+    setGmailUrl(url);
+    const w = window.open(url, "_blank");
+    if (w) {
+      try { w.opener = null; } catch (_) { /* ignore */ }
+      setEditOpen(false);
+    } else {
+      toast({
+        title: "Popup blocked",
+        description: "Allow popups for this site, or use the link below.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyDraft = async () => {
+    try {
+      await navigator.clipboard.writeText(`Subject: ${draftSubject}\n\n${draftBody}`);
+      toast({ title: "Copied", description: "Draft copied to clipboard." });
+    } catch {
+      toast({ title: "Copy failed", variant: "destructive" });
     }
   };
 
