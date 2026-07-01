@@ -70,11 +70,16 @@ export function useStudentDataSync(opts?: { rollNumberHint?: string; auto?: bool
   useEffect(() => {
     if (!auto || ranRef.current) return;
     ranRef.current = true;
-    // If we have a fresh cached result, skip the network call entirely —
-    // banner appears in a fraction of a second on every page navigation.
-    const cached = readCache();
-    if (cached) return;
-    run();
+    // Always trigger a silent background scan on mount so data stays fresh
+    // on every page load. If a cached result exists, the UI shows it
+    // instantly (from useState initializer) while this runs in the background.
+    // Defer to idle time so it never blocks first paint.
+    const kick = () => { run(); };
+    if (typeof (window as any).requestIdleCallback === "function") {
+      (window as any).requestIdleCallback(kick, { timeout: 800 });
+    } else {
+      setTimeout(kick, 0);
+    }
   }, [auto, run]);
 
   return { result, loading, run };
