@@ -601,10 +601,170 @@ export default function Appointments() {
             </div>
           )}
 
-          {/* Step 2: Select Date & Time */}
+          {/* Step 2: AI Symptom Triage */}
           {step === 2 && (
             <div className="space-y-6">
               <Button variant="ghost" onClick={() => setStep(1)} className="mb-4">
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+              </Button>
+
+              <div className="text-center mb-4">
+                <h1 className="text-3xl font-bold mb-2 flex items-center justify-center gap-2">
+                  <Sparkles className="w-6 h-6 text-primary" /> AI Symptom Triage
+                </h1>
+                <p className="text-muted-foreground">
+                  Answer a few quick questions so we can prioritise your slot correctly.
+                </p>
+              </div>
+
+              <Card>
+                <CardContent className="pt-6 space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="symptoms">What are your symptoms? *</Label>
+                    <Textarea
+                      id="symptoms"
+                      placeholder="e.g. throat pain since 2 days, mild fever"
+                      value={symptoms}
+                      onChange={(e) => setSymptoms(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="duration">Duration</Label>
+                      <Input
+                        id="duration"
+                        placeholder="e.g. 2 days"
+                        value={duration}
+                        onChange={(e) => setDuration(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="severity">Severity (1-10)</Label>
+                      <Input
+                        id="severity"
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={severity}
+                        onChange={(e) => setSeverity(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Fever?</Label>
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={fever ? 'default' : 'outline'}
+                          onClick={() => setFever(true)}
+                        >Yes</Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={!fever ? 'default' : 'outline'}
+                          onClick={() => setFever(false)}
+                        >No</Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="additional">Anything else the doctor should know? (optional)</Label>
+                    <Textarea
+                      id="additional"
+                      placeholder="Allergies, ongoing medicines, injury details…"
+                      value={additional}
+                      onChange={(e) => setAdditional(e.target.value)}
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>When are you free today (outside classes)?</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {FREE_WINDOWS.map((w) => (
+                        <Button
+                          key={w.id}
+                          type="button"
+                          size="sm"
+                          variant={freeWindow === w.id ? 'default' : 'outline'}
+                          onClick={() => setFreeWindow(w.id)}
+                        >
+                          {w.label}
+                        </Button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Time slots will be filtered to this window.</p>
+                  </div>
+
+                  {triage && (
+                    <div className="rounded-lg border p-4 bg-muted/30 space-y-3">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 font-semibold">
+                          <Sparkles className="w-4 h-4 text-primary" /> AI Assessment
+                        </div>
+                        {priorityBadge(triage.priority)}
+                      </div>
+                      <p className="text-sm">{triage.summary}</p>
+                      {triage.recommendedSpecialty && triage.recommendedSpecialty !== 'General' && (
+                        <p className="text-xs text-muted-foreground">
+                          Suggested specialty: <strong>{triage.recommendedSpecialty}</strong>
+                        </p>
+                      )}
+                      {triage.followUp?.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          <p className="font-medium mb-1">Doctor may also ask:</p>
+                          <ul className="list-disc list-inside space-y-0.5">
+                            {triage.followUp.map((q, i) => <li key={i}>{q}</li>)}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {triageError && (
+                    <div className="flex items-start gap-2 text-sm text-destructive">
+                      <AlertTriangle className="w-4 h-4 mt-0.5" />
+                      <span>{triageError}</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-3 pt-2">
+                    <Button
+                      type="button"
+                      onClick={runTriage}
+                      disabled={triageLoading || symptoms.trim().length < 3}
+                      variant={triage ? 'outline' : 'default'}
+                    >
+                      {triageLoading ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Analysing…</>
+                      ) : triage ? 'Re-run AI triage' : (
+                        <><Sparkles className="w-4 h-4 mr-2" /> Run AI triage</>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="flex justify-between pt-2">
+                <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
+                <Button
+                  onClick={() => setStep(3)}
+                  disabled={!triage}
+                  size="lg"
+                >
+                  Continue <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Select Date & Time */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <Button variant="ghost" onClick={() => setStep(2)} className="mb-4">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
 
@@ -613,6 +773,9 @@ export default function Appointments() {
                 <p className="text-muted-foreground">
                   Choose your preferred appointment slot
                 </p>
+                {triage && (
+                  <div className="flex justify-center mt-3">{priorityBadge(triage.priority)}</div>
+                )}
               </div>
 
               <div className="grid md:grid-cols-2 gap-8">
@@ -623,7 +786,13 @@ export default function Appointments() {
                       <CalendarIcon className="w-5 h-5" />
                       Select Date
                     </CardTitle>
-                    {doctorType === 'visiting_doctor' && visitingDoctorSchedule && (
+                    {triage && (triage.priority === 'high' || triage.priority === 'medium') ? (
+                      <CardDescription className="text-amber-600 dark:text-amber-400">
+                        {triage.priority === 'high'
+                          ? 'Urgent — only today available.'
+                          : 'Moderate — restricted to today only.'}
+                      </CardDescription>
+                    ) : doctorType === 'visiting_doctor' && visitingDoctorSchedule && (
                       <CardDescription>
                         Available on {visitingDoctorSchedule.is_monthly && visitingDoctorSchedule.month_week === 1 ? '1st ' : ''}
                         {visitingDoctorSchedule.visit_day}s
@@ -638,11 +807,13 @@ export default function Appointments() {
                       disabled={(date) => {
                         const today = startOfDay(new Date());
                         if (date < today) return true;
-                        
+                        // High or Medium priority → today only
+                        if (triage && (triage.priority === 'high' || triage.priority === 'medium')) {
+                          return !isSameDay(date, today);
+                        }
                         if (doctorType === 'visiting_doctor' && availableDates) {
                           return !availableDates.some(d => isSameDay(d, date));
                         }
-                        
                         // For medical officers, only disable past dates
                         return false;
                       }}
@@ -658,6 +829,11 @@ export default function Appointments() {
                       <Clock className="w-5 h-5" />
                       Select Time
                     </CardTitle>
+                    {freeWindow && freeWindow !== 'any' && (
+                      <CardDescription>
+                        Showing your free window: {FREE_WINDOWS.find(w => w.id === freeWindow)?.label}
+                      </CardDescription>
+                    )}
                     {visitingDoctorSchedule && (
                       <CardDescription>
                         {formatTime(visitingDoctorSchedule.visit_time_start)} - {formatTime(visitingDoctorSchedule.visit_time_end)}
@@ -673,7 +849,9 @@ export default function Appointments() {
                           const now = new Date();
                           const [slotH, slotM] = time.split(':').map(Number);
                           const isPast = isToday && (slotH < now.getHours() || (slotH === now.getHours() && slotM <= now.getMinutes()));
-                          const isDisabled = isBooked || isPast;
+                          const win = FREE_WINDOWS.find(w => w.id === freeWindow);
+                          const inWindow = !win || win.id === 'any' || (slotH >= win.startH && slotH < win.endH);
+                          const isDisabled = isBooked || isPast || !inWindow;
                           return (
                             <Button
                               key={time}
@@ -682,7 +860,7 @@ export default function Appointments() {
                               onClick={() => setSelectedTime(time)}
                               className={`text-sm ${isDisabled ? 'opacity-40 line-through' : ''}`}
                               disabled={isDisabled}
-                              title={isPast ? 'This time has already passed' : isBooked ? 'This slot is already booked' : ''}
+                              title={isPast ? 'This time has already passed' : isBooked ? 'This slot is already booked' : !inWindow ? 'Outside your free window' : ''}
                             >
                               {formatTime(time)}
                             </Button>
@@ -699,11 +877,11 @@ export default function Appointments() {
               </div>
 
               <div className="flex justify-between pt-6">
-                <Button variant="outline" onClick={() => setStep(1)}>
+                <Button variant="outline" onClick={() => setStep(2)}>
                   Back
                 </Button>
                 <Button 
-                  onClick={() => setStep(3)} 
+                  onClick={() => setStep(4)} 
                   disabled={!selectedDate || !selectedTime}
                   size="lg"
                 >
@@ -713,10 +891,10 @@ export default function Appointments() {
             </div>
           )}
 
-          {/* Step 3: Confirm */}
-          {step === 3 && (
+          {/* Step 4: Confirm */}
+          {step === 4 && (
             <div className="space-y-6">
-              <Button variant="ghost" onClick={() => setStep(2)} className="mb-4">
+              <Button variant="ghost" onClick={() => setStep(3)} className="mb-4">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
 
@@ -725,6 +903,9 @@ export default function Appointments() {
                 <p className="text-muted-foreground">
                   Review your appointment details
                 </p>
+                {triage && (
+                  <div className="flex justify-center mt-3">{priorityBadge(triage.priority)}</div>
+                )}
               </div>
 
               <Card className="max-w-xl mx-auto">
@@ -775,7 +956,7 @@ export default function Appointments() {
                       <Textarea
                         id="reason"
                         placeholder="Briefly describe your health concern..."
-                        value={reason}
+                        value={reason || (triage?.summary ?? '')}
                         onChange={(e) => setReason(e.target.value)}
                         rows={3}
                       />
@@ -787,7 +968,7 @@ export default function Appointments() {
                   </Badge>
 
                   <div className="flex gap-4">
-                    <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
+                    <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
                       Back
                     </Button>
                     <Button 
