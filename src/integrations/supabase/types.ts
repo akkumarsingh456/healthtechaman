@@ -165,6 +165,8 @@ export type Database = {
       }
       appointments: {
         Row: {
+          ai_priority: string | null
+          ai_summary: string | null
           appointment_date: string
           appointment_time: string
           approved_at: string | null
@@ -172,6 +174,7 @@ export type Database = {
           denial_reason: string | null
           denied_at: string | null
           doctor_type: string
+          free_time_window: string | null
           health_priority: string | null
           id: string
           medical_officer_id: string | null
@@ -180,10 +183,13 @@ export type Database = {
           patient_id: string
           reason: string | null
           status: Database["public"]["Enums"]["appointment_status"] | null
+          triage_details: Json | null
           updated_at: string | null
           visiting_doctor_id: string | null
         }
         Insert: {
+          ai_priority?: string | null
+          ai_summary?: string | null
           appointment_date: string
           appointment_time: string
           approved_at?: string | null
@@ -191,6 +197,7 @@ export type Database = {
           denial_reason?: string | null
           denied_at?: string | null
           doctor_type: string
+          free_time_window?: string | null
           health_priority?: string | null
           id?: string
           medical_officer_id?: string | null
@@ -199,10 +206,13 @@ export type Database = {
           patient_id: string
           reason?: string | null
           status?: Database["public"]["Enums"]["appointment_status"] | null
+          triage_details?: Json | null
           updated_at?: string | null
           visiting_doctor_id?: string | null
         }
         Update: {
+          ai_priority?: string | null
+          ai_summary?: string | null
           appointment_date?: string
           appointment_time?: string
           approved_at?: string | null
@@ -210,6 +220,7 @@ export type Database = {
           denial_reason?: string | null
           denied_at?: string | null
           doctor_type?: string
+          free_time_window?: string | null
           health_priority?: string | null
           id?: string
           medical_officer_id?: string | null
@@ -218,6 +229,7 @@ export type Database = {
           patient_id?: string
           reason?: string | null
           status?: Database["public"]["Enums"]["appointment_status"] | null
+          triage_details?: Json | null
           updated_at?: string | null
           visiting_doctor_id?: string | null
         }

@@ -59,7 +59,9 @@ const DoctorAppointmentsList = ({ doctorId }: DoctorAppointmentsListProps) => {
           health_priority,
           denial_reason,
           approved_at,
-          denied_at
+          denied_at,
+          ai_priority,
+          ai_summary
         `)
         .eq("medical_officer_id", doctorId)
         .order("appointment_date", { ascending: true })
