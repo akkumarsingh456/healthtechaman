@@ -20,8 +20,12 @@ import {
   Stethoscope,
   ChevronRight,
   CheckCircle,
-  ArrowLeft
+  ArrowLeft,
+  Sparkles,
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface MedicalOfficer {
@@ -51,6 +55,25 @@ const DAY_MAP: { [key: string]: number } = {
   'Friday': 5,
   'Saturday': 6
 };
+
+type Priority = 'high' | 'medium' | 'low';
+
+interface TriageResult {
+  priority: Priority;
+  summary: string;
+  followUp: string[];
+  recommendedSpecialty?: string;
+}
+
+// Free-window chips represent times the student is FREE from classes today
+const FREE_WINDOWS: { id: string; label: string; startH: number; endH: number }[] = [
+  { id: 'early',    label: 'Before 9 AM',   startH: 0,  endH: 9 },
+  { id: 'morning',  label: '9 AM – 12 PM',  startH: 9,  endH: 12 },
+  { id: 'lunch',    label: '12 – 1 PM',     startH: 12, endH: 13 },
+  { id: 'afternoon',label: '1 – 4 PM',      startH: 13, endH: 16 },
+  { id: 'evening',  label: 'After 4 PM',    startH: 16, endH: 24 },
+  { id: 'any',      label: 'Any time',      startH: 0,  endH: 24 },
+];
 
 const generateTimeSlots = (startTime: string, endTime: string) => {
   const slots: string[] = [];
@@ -96,6 +119,17 @@ export default function Appointments() {
   const [bookingComplete, setBookingComplete] = useState(false);
   const [profileComplete, setProfileComplete] = useState<boolean | null>(null);
   const [checkingProfile, setCheckingProfile] = useState(false);
+
+  // AI Triage state (Step 2)
+  const [symptoms, setSymptoms] = useState('');
+  const [duration, setDuration] = useState('');
+  const [severity, setSeverity] = useState('');
+  const [fever, setFever] = useState(false);
+  const [additional, setAdditional] = useState('');
+  const [freeWindow, setFreeWindow] = useState<string>('any');
+  const [triage, setTriage] = useState<TriageResult | null>(null);
+  const [triageLoading, setTriageLoading] = useState(false);
+  const [triageError, setTriageError] = useState<string | null>(null);
 
   // Check auth state
   useEffect(() => {
@@ -262,8 +296,22 @@ export default function Appointments() {
         visiting_doctor_id: doctorType === 'visiting_doctor' ? selectedDoctor : null,
         appointment_date: format(selectedDate, 'yyyy-MM-dd'),
         appointment_time: selectedTime,
-        reason: reason || null,
-        status: 'pending' as const
+        reason: reason || triage?.summary || null,
+        status: 'pending' as const,
+        ai_priority: triage?.priority ?? null,
+        ai_summary: triage?.summary ?? null,
+        free_time_window: freeWindow || null,
+        triage_details: triage
+          ? {
+              symptoms,
+              duration,
+              severity,
+              fever,
+              additional,
+              followUp: triage.followUp,
+              recommendedSpecialty: triage.recommendedSpecialty,
+            }
+          : null,
       };
 
       const { error } = await supabase.from('appointments').insert(appointmentData);
@@ -285,6 +333,46 @@ export default function Appointments() {
       });
     }
   });
+
+  const runTriage = async () => {
+    setTriageLoading(true);
+    setTriageError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke('symptom-triage', {
+        body: {
+          symptoms,
+          duration,
+          severity,
+          fever,
+          additional,
+          freeTimeWindow: FREE_WINDOWS.find(w => w.id === freeWindow)?.label,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const result = data as TriageResult;
+      setTriage(result);
+      // High/medium force today only — pre-select today
+      if (result.priority === 'high' || result.priority === 'medium') {
+        setSelectedDate(startOfDay(new Date()));
+      }
+    } catch (e: any) {
+      setTriageError(e?.message || 'AI triage failed. You can continue without it.');
+    } finally {
+      setTriageLoading(false);
+    }
+  };
+
+  const priorityBadge = (p?: Priority | null) => {
+    if (!p) return null;
+    const map: Record<Priority, { label: string; cls: string }> = {
+      high:   { label: 'High priority — see today', cls: 'bg-destructive/10 text-destructive border-destructive/30' },
+      medium: { label: 'Medium priority — today only', cls: 'bg-amber-500/10 text-amber-700 border-amber-500/30 dark:text-amber-400' },
+      low:    { label: 'Low priority — schedule anytime', cls: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30 dark:text-emerald-400' },
+    };
+    const m = map[p];
+    return <Badge variant="outline" className={m.cls}>{m.label}</Badge>;
+  };
 
   if (!user) {
     return (
@@ -391,14 +479,14 @@ export default function Appointments() {
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Progress Steps */}
           <div className="flex items-center justify-center mb-8">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4].map((s) => (
               <div key={s} className="flex items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
                   step >= s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                 }`}>
                   {s}
                 </div>
-                {s < 3 && (
+                {s < 4 && (
                   <div className={`w-16 md:w-24 h-1 ${step > s ? 'bg-primary' : 'bg-muted'}`} />
                 )}
               </div>
