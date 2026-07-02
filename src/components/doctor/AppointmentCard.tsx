@@ -51,6 +51,8 @@ interface Appointment {
   denial_reason?: string | null;
   approved_at?: string | null;
   denied_at?: string | null;
+  ai_priority?: string | null;
+  ai_summary?: string | null;
   student?: Student;
 }
 
@@ -357,8 +359,32 @@ const AppointmentCard = ({ appointment, doctorId }: AppointmentCardProps) => {
                 {formatTime(appointment.appointment_time)}
               </p>
               {getStatusBadge(appointment.status)}
+              {appointment.ai_priority && (
+                <div>
+                  <Badge
+                    variant="outline"
+                    className={
+                      appointment.ai_priority === 'high'
+                        ? 'border-destructive text-destructive'
+                        : appointment.ai_priority === 'medium'
+                        ? 'border-amber-500 text-amber-600'
+                        : 'border-emerald-500 text-emerald-600'
+                    }
+                    title={appointment.ai_summary || undefined}
+                  >
+                    AI: {appointment.ai_priority.toUpperCase()}
+                  </Badge>
+                </div>
+              )}
             </div>
           </div>
+
+          {appointment.ai_summary && (
+            <div className="mt-3 rounded-md border bg-muted/30 p-2 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">AI triage: </span>
+              {appointment.ai_summary}
+            </div>
+          )}
 
           {/* Actions Row */}
           <div className="mt-4 pt-4 border-t flex items-center justify-between gap-4">
