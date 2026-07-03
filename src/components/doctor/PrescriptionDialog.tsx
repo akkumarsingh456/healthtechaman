@@ -493,6 +493,11 @@ export default function PrescriptionDialog({
                       }
                       placeholder="e.g., Paracetamol 500mg"
                     />
+                    <MedicineRowGuardrail
+                      medicineName={med.medicine_name}
+                      patientId={patientId}
+                      onUseAlternative={(name) => updateMedicine(med.id, "medicine_name", name)}
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs text-muted-foreground">Dosage *</Label>
