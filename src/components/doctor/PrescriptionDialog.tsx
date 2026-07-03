@@ -38,6 +38,8 @@ import {
 } from "@/components/ui/select";
 import { printDocument, getNitwHeaderHtml } from "@/lib/print/printDocument";
 import { MedicineCombobox } from "./MedicineCombobox";
+import PrescriptionGuardrailAlert from "./PrescriptionGuardrailAlert";
+import { usePrescriptionGuardrail } from "@/hooks/usePrescriptionGuardrail";
 
 interface MedicineItem {
   id: string;
@@ -107,6 +109,19 @@ const createEmptyMedicine = (): MedicineItem => ({
   instructions: "",
   meal_timing: "after_meal",
 });
+
+function MedicineRowGuardrail({
+  medicineName,
+  patientId,
+  onUseAlternative,
+}: {
+  medicineName: string;
+  patientId: string;
+  onUseAlternative: (name: string) => void;
+}) {
+  const result = usePrescriptionGuardrail(medicineName, patientId);
+  return <PrescriptionGuardrailAlert result={result} onUseAlternative={onUseAlternative} />;
+}
 
 export default function PrescriptionDialog({
   open,
