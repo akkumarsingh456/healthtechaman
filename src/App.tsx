@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 // BackNavigation is now integrated into the Header component
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Skeleton } from "@/components/ui/skeleton";
+import AutoScanIndicator from "./components/AutoScanIndicator";
 
 // Auto-retry dynamic imports on chunk load failure (stale deploy)
 function lazyRetry(importFn: () => Promise<any>) {
@@ -133,6 +134,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        <AutoScanIndicator />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
