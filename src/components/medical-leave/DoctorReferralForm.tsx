@@ -21,6 +21,7 @@ import { z } from "zod";
 import PrintableHospitalCard from "./PrintableHospitalCard";
 import PrintableReferralLetter from "./PrintableReferralLetter";
 import { notifyStudentOfReferral, getStudentUserId } from "@/lib/notifications/medical-leave-notifications";
+import HospitalRecommendation from "./HospitalRecommendation";
 
 // Hospital contact information type
 interface HospitalInfo {
@@ -1254,6 +1255,12 @@ const DoctorReferralForm = () => {
                     <Building2 className="h-4 w-4" />
                     Referral Details
                   </Label>
+
+                  <HospitalRecommendation
+                    priority={(form.watch("healthPriority") as "high" | "medium" | "low") || "medium"}
+                    selectedHospital={selectedHospitalName || undefined}
+                    onSelect={(name) => form.setValue("referralHospital", name)}
+                  />
 
                   <FormField
                     control={form.control}
