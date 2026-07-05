@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { renderHook, act } from "@testing-library/react";
 import { useAutoScanOnLoad } from "./useAutoScanOnLoad";
 
 vi.mock("sonner", () => ({
@@ -12,8 +12,7 @@ describe("useAutoScanOnLoad", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     fetchMock = vi.fn();
-    // @ts-expect-error override
-    global.fetch = fetchMock;
+    (global as unknown as { fetch: typeof fetch }).fetch = fetchMock as unknown as typeof fetch;
     Object.defineProperty(navigator, "onLine", { value: true, configurable: true, writable: true });
   });
 
