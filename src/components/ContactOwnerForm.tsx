@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { AlertCircle, Check, Loader2, Send } from 'lucide-react';
+import { AlertCircle, Check, Loader2, Save, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ContactOwnerForm() {
   const [loading, setLoading] = useState(false);
+  const [mailLoading, setMailLoading] = useState(false);
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [form, setForm] = useState({
     name: '',
@@ -55,6 +56,63 @@ export default function ContactOwnerForm() {
       toast.error(error.message || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // AI-verified mail redirect: validates the entered fields, then opens the user's
+  // default mail client with the EXACT same name/subject/message prefilled and sent
+  // to the project owner (akkumarsingh456@gmail.com).
+  const handleSendMail = async () => {
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const subject = form.subject.trim();
+    const message = form.message.trim();
+
+    if (!name || !email || !subject || !message) {
+      toast.error('Please fill in your name, email, subject, and message before sending mail.');
+      return;
+    }
+    // Basic email sanity check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address.');
+      return;
+    }
+
+    setMailLoading(true);
+    try {
+      // AI/content validation via existing edge function (spam/abuse check).
+      // Non-blocking: if the function is unavailable we still allow the mail.
+      try {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data, error } = await supabase.functions.invoke('validate-contact-submission', {
+          body: { name, email, subject, message },
+        });
+        if (!error && data && data.valid === false) {
+          toast.error(data.reason || 'Message failed validation. Please revise and try again.');
+          setMailLoading(false);
+          return;
+        }
+      } catch {
+        // ignore validation transport errors — proceed to open mail client
+      }
+
+      const OWNER_EMAIL = 'akkumarsingh456@gmail.com';
+      const bodyLines = [
+        `Name: ${name}`,
+        `Email: ${email}`,
+        '',
+        message,
+      ];
+      const mailtoUrl =
+        `mailto:${encodeURIComponent(OWNER_EMAIL)}` +
+        `?subject=${encodeURIComponent(subject)}` +
+        `&body=${encodeURIComponent(bodyLines.join('\r\n'))}`;
+
+      // Open the user's default mail inbox with fields prefilled.
+      window.location.href = mailtoUrl;
+      toast.success('Opening your mail inbox with the message prefilled…');
+    } finally {
+      setMailLoading(false);
     }
   };
 
@@ -132,19 +190,42 @@ export default function ContactOwnerForm() {
             />
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full" size="lg">
-            {loading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Send className="w-5 h-5 mr-2" />
-                Send Message
-              </>
-            )}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button type="submit" disabled={loading || mailLoading} className="w-full" size="lg">
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Save Message
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleSendMail}
+              disabled={loading || mailLoading}
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
+              {mailLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Preparing…
+                </>
+              ) : (
+                <>
+                  <Mail className="w-5 h-5 mr-2" />
+                  Send Mail
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
