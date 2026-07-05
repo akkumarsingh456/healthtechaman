@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Mail, Send, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen } from "lucide-react";
+import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -22,6 +22,54 @@ const DisclaimerSection = () => {
     college_name: "", branch: "", year: "", subject: "", rating: 5,
   });
   const [sending, setSending] = useState(false);
+  const [preparingMail, setPreparingMail] = useState(false);
+
+  // AI-verified mail redirect: validates the exact fields the user typed, then
+  // opens their default mail inbox pre-filled with the SAME name / subject /
+  // message and addressed to the project owner (akkumarsingh456@gmail.com).
+  const handleSendMail = async () => {
+    const name = contactForm.name.trim();
+    const email = contactForm.email.trim();
+    const subject = contactForm.subject.trim();
+    const message = contactForm.message.trim();
+
+    if (!name || !email || !subject || !message) {
+      toast.error("Please fill in your name, email, subject, and message before sending mail.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    setPreparingMail(true);
+    try {
+      // Non-blocking AI/spam validation via existing edge function.
+      try {
+        const { data, error } = await supabase.functions.invoke("validate-contact-submission", {
+          body: { name, email, subject, message },
+        });
+        if (!error && data && data.valid === false) {
+          toast.error(data.reason || "Message failed validation. Please revise and try again.");
+          return;
+        }
+      } catch {
+        // ignore transport errors — still allow opening mail client
+      }
+
+      const OWNER_EMAIL = "akkumarsingh456@gmail.com";
+      const body = [`Name: ${name}`, `Email: ${email}`, "", message].join("\r\n");
+      const mailtoUrl =
+        `mailto:${encodeURIComponent(OWNER_EMAIL)}` +
+        `?subject=${encodeURIComponent(subject)}` +
+        `&body=${encodeURIComponent(body)}`;
+
+      window.location.href = mailtoUrl;
+      toast.success("Opening your mail inbox with the message pre-filled…");
+    } finally {
+      setPreparingMail(false);
+    }
+  };
 
   const submitToDb = async (data: {
     submission_type: string; sender_role: string; name: string; email: string;
@@ -227,10 +275,20 @@ const DisclaimerSection = () => {
                     <div className="sm:col-span-2">
                       <Textarea placeholder="Your Message" value={contactForm.message} onChange={(e) => setContactForm(p => ({ ...p, message: e.target.value }))} required maxLength={1000} rows={4} />
                     </div>
-                    <div className="sm:col-span-2">
-                      <Button type="submit" disabled={sending} className="gap-2">
+                    <div className="sm:col-span-2 flex flex-col sm:flex-row gap-3">
+                      <Button type="submit" disabled={sending || preparingMail} className="gap-2">
+                        <Save className="w-4 h-4" />
+                        {sending ? "Saving..." : "Save Message"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={sending || preparingMail}
+                        onClick={handleSendMail}
+                        className="gap-2"
+                      >
                         <Send className="w-4 h-4" />
-                        {sending ? "Sending..." : "Send Message"}
+                        {preparingMail ? "Preparing…" : "Send Mail"}
                       </Button>
                     </div>
                   </form>
