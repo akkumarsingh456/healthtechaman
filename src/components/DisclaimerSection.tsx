@@ -24,9 +24,9 @@ const DisclaimerSection = () => {
   const [sending, setSending] = useState(false);
   const [preparingMail, setPreparingMail] = useState(false);
 
-  // AI-verified mail redirect: validates the exact fields the user typed, then
-  // opens their default mail inbox pre-filled with the SAME name / subject /
-  // message and addressed to the project owner (akkumarsingh456@gmail.com).
+  // Gemini-drafted mail redirect: sends the exact fields the user typed to the
+  // AI composer, then opens their mail inbox (phone or laptop) pre-filled and
+  // addressed to the project owner (akkumarsingh456@gmail.com).
   const handleSendMail = async () => {
     const name = contactForm.name.trim();
     const email = contactForm.email.trim();
@@ -43,30 +43,37 @@ const DisclaimerSection = () => {
     }
 
     setPreparingMail(true);
+    const OWNER_EMAIL = "akkumarsingh456@gmail.com";
+    let mailSubject = subject;
+    let mailBody = [`Name: ${name}`, `Email: ${email}`, "", message].join("\r\n");
     try {
-      // Non-blocking AI/spam validation via existing edge function.
-      try {
-        const { data, error } = await supabase.functions.invoke("validate-contact-submission", {
+      // Gemini drafts the mail. Hard 10s cap so the button never hangs.
+      const draft = await Promise.race([
+        supabase.functions.invoke("compose-contact-mail", {
           body: { name, email, subject, message },
-        });
-        if (!error && data && data.valid === false) {
-          toast.error(data.reason || "Message failed validation. Please revise and try again.");
-          return;
-        }
-      } catch {
-        // ignore transport errors — still allow opening mail client
+        }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000)),
+      ]);
+
+      const data: any = draft && (draft as any).data;
+      if (data?.body) {
+        mailSubject = data.subject || subject;
+        mailBody = data.body;
       }
-
-      const OWNER_EMAIL = "akkumarsingh456@gmail.com";
-      const body = [`Name: ${name}`, `Email: ${email}`, "", message].join("\r\n");
-      const mailtoUrl =
-        `mailto:${encodeURIComponent(OWNER_EMAIL)}` +
-        `?subject=${encodeURIComponent(subject)}` +
-        `&body=${encodeURIComponent(body)}`;
-
-      window.location.href = mailtoUrl;
-      toast.success("Opening your mail inbox with the message pre-filled…");
     } finally {
+      const mailtoUrl =
+        `mailto:${OWNER_EMAIL}` +
+        `?subject=${encodeURIComponent(mailSubject)}` +
+        `&body=${encodeURIComponent(mailBody)}`;
+
+      const a = document.createElement("a");
+      a.href = mailtoUrl;
+      a.rel = "noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      toast.success("Opening your mail app with the message ready to send…");
       setPreparingMail(false);
     }
   };
