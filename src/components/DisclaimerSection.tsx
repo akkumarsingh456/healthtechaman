@@ -208,11 +208,25 @@ const DisclaimerSection = () => {
                   I am <strong className="text-foreground">Aman Kumar</strong>, the owner and developer of this Health Centre project, and a first-year student of Integrated B.Sc. B.Ed. at NIT Warangal, Department of Education.
                 </p>
                 <p>
-                  I got the idea for this project six months ago while discussing with my classmate Preetham, and since then I have been continuously gathering information, maintaining daily notes, and working on the development from <strong>8th December 2025 till 18th April 2026</strong>.
+                  I got the idea for this project six months ago while discussing with my classmate Preetham, and since then I have been continuously gathering information, maintaining daily notes, and working on the development till <strong>1 August 2026</strong>.
                 </p>
                 <p>
                   I have guided AI extensively on how to work and what to do for each and every task, working daily on this project since the very beginning. I have added almost everything required for the full functioning of a health centre website. For more details on how to use the website, please click on the Guide PDF.
                 </p>
+
+                <div className="p-4 rounded-lg bg-primary/5 border border-primary/20 space-y-3">
+                  <p className="font-semibold text-foreground">Note:</p>
+                  <p>
+                    Our institute has also developed a similar health centre system, but it mainly includes simple features like appointment booking, doctor listing, and pharmacy. In that system, login and appointment are handled by a person sitting at the health centre.
+                  </p>
+                  <p>
+                    I have not contributed to that institute system because the ERP technical officer I met and shared my project details with did not contact me further about the features I had added as per students' needs.
+                  </p>
+                  <p>
+                    That is why I have shared all the information about my project here — so that the actual needs of students can be understood and better features can be considered.
+                  </p>
+                </div>
+
                 <p>
                   As of now, I have restricted a few features and am actively working for the betterment of the project.
                 </p>
