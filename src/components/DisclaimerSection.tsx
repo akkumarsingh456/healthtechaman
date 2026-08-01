@@ -51,7 +51,7 @@ const DisclaimerSection = () => {
       const draft = await Promise.race([
         supabase.functions.invoke("compose-contact-mail", {
           body: { name, email, subject, message },
-        }),
+        }).catch(() => null),
         new Promise<null>((resolve) => setTimeout(() => resolve(null), 10000)),
       ]);
 
