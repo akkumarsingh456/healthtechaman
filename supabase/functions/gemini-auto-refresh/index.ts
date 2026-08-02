@@ -25,7 +25,11 @@ function json(body: unknown, status = 200) {
   });
 }
 
-const GEMINI_MODELS = ["gemini-2.0-flash", "gemini-flash-latest"];
+const GEMINI_MODELS: { model: string; noThinking: boolean }[] = [
+  { model: "gemini-2.5-flash", noThinking: true },
+  { model: "gemini-2.0-flash", noThinking: false },
+  { model: "gemini-flash-latest", noThinking: false },
+];
 
 async function geminiDiagnose(payload: unknown): Promise<string | null> {
   const key = Deno.env.get("GEMINI_API_KEY");
@@ -36,7 +40,7 @@ async function geminiDiagnose(payload: unknown): Promise<string | null> {
     "stating whether the user's data is fully fetched and correct, or what is missing. " +
     "No markdown, no preamble.\n\n" + JSON.stringify(payload);
 
-  for (const model of GEMINI_MODELS) {
+  for (const { model, noThinking } of GEMINI_MODELS) {
     try {
       const ctrl = new AbortController();
       const to = setTimeout(() => ctrl.abort(), 6000);
@@ -47,7 +51,11 @@ async function geminiDiagnose(payload: unknown): Promise<string | null> {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 512, thinkingConfig: { thinkingBudget: 0 } },
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 512,
+              ...(noThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+            },
           }),
           signal: ctrl.signal,
         },
