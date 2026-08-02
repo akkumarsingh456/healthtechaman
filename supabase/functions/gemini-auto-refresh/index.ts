@@ -47,7 +47,7 @@ async function geminiDiagnose(payload: unknown): Promise<string | null> {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 200 },
+            generationConfig: { temperature: 0.1, maxOutputTokens: 512, thinkingConfig: { thinkingBudget: 0 } },
           }),
           signal: ctrl.signal,
         },
