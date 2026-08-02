@@ -47,7 +47,7 @@ async function geminiDiagnose(payload: unknown): Promise<string | null> {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 60 },
+            generationConfig: { temperature: 0.1, maxOutputTokens: 200 },
           }),
           signal: ctrl.signal,
         },
@@ -59,7 +59,8 @@ async function geminiDiagnose(payload: unknown): Promise<string | null> {
       }
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.map((p: any) => p?.text).join(" ")?.trim();
-      if (text) return text;
+      const clean = text?.replace(/^[\s"',.:;-]+|[\s"']+$/g, "");
+      if (clean && clean.length >= 8) return clean;
     } catch (e) {
       console.error(`gemini ${model} error:`, (e as Error).message);
     }
