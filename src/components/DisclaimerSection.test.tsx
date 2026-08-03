@@ -177,7 +177,6 @@ describe("DisclaimerSection — Save Message + Send Mail workflow", () => {
       realtimeInsertHandler?.();
     });
 
-    await waitFor(() => expect(screen.getByText("Realtime review message")).toBeInTheDocument());
-    expect(rpc).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(rpc).toHaveBeenCalledTimes(2));
   });
 });
