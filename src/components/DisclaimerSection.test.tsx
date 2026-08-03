@@ -4,11 +4,13 @@ import userEvent from "@testing-library/user-event";
 
 const invoke = vi.fn();
 const insert = vi.fn();
+const rpc = vi.fn();
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     functions: { invoke: (...a: unknown[]) => invoke(...a) },
     from: () => ({ insert: (...a: unknown[]) => insert(...a) }),
+    rpc: (...a: unknown[]) => rpc(...a),
   },
 }));
 
@@ -30,7 +32,9 @@ beforeEach(() => {
   clickedHrefs = [];
   invoke.mockReset();
   insert.mockReset();
+  rpc.mockReset();
   insert.mockResolvedValue({ error: null });
+  rpc.mockResolvedValue({ data: [], error: null });
   clickSpy = vi
     .spyOn(HTMLAnchorElement.prototype, "click")
     .mockImplementation(function (this: HTMLAnchorElement) {
