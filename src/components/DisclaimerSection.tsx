@@ -48,8 +48,23 @@ const DisclaimerSection = () => {
 
   useEffect(() => {
     void fetchPublicReviews(true);
-    const refreshTimer = window.setInterval(() => void fetchPublicReviews(), 30000);
-    return () => window.clearInterval(refreshTimer);
+
+    const reviewsChannel = supabase
+      .channel("public-new-reviews")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "public_review_events" },
+        () => void fetchPublicReviews(),
+      )
+      .subscribe();
+
+    // Keep a low-frequency fallback for temporary realtime connection losses.
+    const refreshTimer = window.setInterval(() => void fetchPublicReviews(), 120000);
+
+    return () => {
+      window.clearInterval(refreshTimer);
+      void supabase.removeChannel(reviewsChannel);
+    };
   }, []);
 
   // Gemini-drafted mail redirect: sends the exact fields the user typed to the
