@@ -1885,6 +1885,21 @@ export type Database = {
       check_login_rate_limit: { Args: { p_email: string }; Returns: boolean }
       cleanup_old_login_attempts: { Args: never; Returns: undefined }
       get_health_centre_stats: { Args: never; Returns: Json }
+      get_public_reviews: {
+        Args: never
+        Returns: {
+          branch: string
+          college_name: string
+          created_at: string
+          id: string
+          message: string
+          name: string
+          rating: number
+          sender_role: string
+          subject: string
+          year: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
