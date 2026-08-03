@@ -5,12 +5,23 @@ import userEvent from "@testing-library/user-event";
 const invoke = vi.fn();
 const insert = vi.fn();
 const rpc = vi.fn();
+const removeChannel = vi.fn();
+let realtimeInsertHandler: (() => void) | undefined;
+const realtimeChannel = {
+  on: vi.fn((_event: string, _filter: unknown, handler: () => void) => {
+    realtimeInsertHandler = handler;
+    return realtimeChannel;
+  }),
+  subscribe: vi.fn(() => realtimeChannel),
+};
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     functions: { invoke: (...a: unknown[]) => invoke(...a) },
     from: () => ({ insert: (...a: unknown[]) => insert(...a) }),
     rpc: (...a: unknown[]) => rpc(...a),
+    channel: () => realtimeChannel,
+    removeChannel: (...a: unknown[]) => removeChannel(...a),
   },
 }));
 
@@ -33,6 +44,10 @@ beforeEach(() => {
   invoke.mockReset();
   insert.mockReset();
   rpc.mockReset();
+  removeChannel.mockReset();
+  realtimeChannel.on.mockClear();
+  realtimeChannel.subscribe.mockClear();
+  realtimeInsertHandler = undefined;
   insert.mockResolvedValue({ error: null });
   rpc.mockResolvedValue({ data: [], error: null });
   clickSpy = vi
@@ -133,5 +148,34 @@ describe("DisclaimerSection — Save Message + Send Mail workflow", () => {
       subject: SUBJECT,
       message: MESSAGE,
     });
+  });
+
+  it("refreshes public reviews immediately after a realtime review event", async () => {
+    rpc
+      .mockResolvedValueOnce({ data: [], error: null })
+      .mockResolvedValueOnce({
+        data: [{
+          id: "review-1",
+          name: "New Reviewer",
+          sender_role: "student",
+          college_name: "NIT Warangal",
+          branch: "Education",
+          year: "2026",
+          subject: null,
+          rating: 5,
+          message: "Realtime review message",
+          created_at: "2026-08-03T17:00:00Z",
+        }],
+        error: null,
+      });
+
+    render(<DisclaimerSection />);
+    await waitFor(() => expect(rpc).toHaveBeenCalledTimes(1));
+    expect(realtimeChannel.subscribe).toHaveBeenCalledTimes(1);
+
+    realtimeInsertHandler?.();
+
+    await waitFor(() => expect(screen.getByText("Realtime review message")).toBeInTheDocument());
+    expect(rpc).toHaveBeenCalledTimes(2);
   });
 });
