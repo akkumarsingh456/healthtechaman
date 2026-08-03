@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen } from "lucide-react";
+import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,6 +15,19 @@ const BRANCHES = [
   "Metallurgical & Materials Engineering", "Mathematics", "Physics", "Chemistry", "Other"
 ];
 
+type PublicReview = {
+  id: string;
+  name: string;
+  sender_role: string;
+  college_name: string | null;
+  branch: string | null;
+  year: string | null;
+  subject: string | null;
+  rating: number | null;
+  message: string;
+  created_at: string;
+};
+
 const DisclaimerSection = () => {
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [reviewForm, setReviewForm] = useState({
@@ -23,6 +36,21 @@ const DisclaimerSection = () => {
   });
   const [sending, setSending] = useState(false);
   const [preparingMail, setPreparingMail] = useState(false);
+  const [publicReviews, setPublicReviews] = useState<PublicReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  const fetchPublicReviews = async (showLoader = false) => {
+    if (showLoader) setReviewsLoading(true);
+    const { data, error } = await (supabase.rpc as any)("get_public_reviews");
+    if (!error && Array.isArray(data)) setPublicReviews(data as PublicReview[]);
+    if (showLoader) setReviewsLoading(false);
+  };
+
+  useEffect(() => {
+    void fetchPublicReviews(true);
+    const refreshTimer = window.setInterval(() => void fetchPublicReviews(), 30000);
+    return () => window.clearInterval(refreshTimer);
+  }, []);
 
   // Gemini-drafted mail redirect: sends the exact fields the user typed to the
   // AI composer, then opens their mail inbox (phone or laptop) pre-filled and
@@ -161,6 +189,7 @@ const DisclaimerSection = () => {
     if (ok) {
       toast.success("Review submitted successfully! Thank you!");
       setReviewForm({ name: "", email: "", message: "", role: "", college_name: "", branch: "", year: "", subject: "", rating: 5 });
+      await fetchPublicReviews();
     }
     setSending(false);
   };
@@ -404,6 +433,77 @@ const DisclaimerSection = () => {
                       </Button>
                     </form>
                   )}
+
+                  <div className="pt-8 mt-8 border-t border-border" aria-live="polite">
+                    <div className="flex items-start justify-between gap-4 mb-5">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Quote className="w-5 h-5 text-primary" aria-hidden="true" />
+                          <h3 className="text-xl font-bold text-foreground">New reviews</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Feedback shared by our community. Email addresses remain private.
+                        </p>
+                      </div>
+                      {publicReviews.length > 0 && (
+                        <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                          {publicReviews.length} {publicReviews.length === 1 ? "review" : "reviews"}
+                        </span>
+                      )}
+                    </div>
+
+                    {reviewsLoading ? (
+                      <div className="flex min-h-28 items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                        Loading new reviews…
+                      </div>
+                    ) : publicReviews.length === 0 ? (
+                      <div className="min-h-28 flex flex-col items-center justify-center border border-dashed border-border bg-muted/30 px-5 py-7 text-center animate-fade-in">
+                        <MessageSquare className="w-6 h-6 text-primary mb-2" aria-hidden="true" />
+                        <p className="font-medium text-foreground">Be the first new reviewer</p>
+                        <p className="text-sm text-muted-foreground mt-1">New reviews submitted above will appear here.</p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {publicReviews.map((review, index) => (
+                          <article
+                            key={review.id}
+                            className="group border border-border bg-background p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md animate-fade-in"
+                            style={{ animationDelay: `${Math.min(index, 5) * 70}ms`, animationFillMode: "both" }}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-foreground truncate">{review.name}</p>
+                                <p className="text-xs text-muted-foreground capitalize mt-0.5">
+                                  {review.sender_role}{review.college_name ? ` · ${review.college_name}` : ""}
+                                </p>
+                              </div>
+                              <div className="flex shrink-0 gap-0.5" aria-label={`${review.rating ?? 5} out of 5 stars`}>
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-4 h-4 ${star <= (review.rating ?? 5) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/25"}`}
+                                    aria-hidden="true"
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            {(review.branch || review.year || review.subject) && (
+                              <p className="text-xs font-medium text-primary mt-3">
+                                {[review.branch, review.year, review.subject].filter(Boolean).join(" · ")}
+                              </p>
+                            )}
+                            <p className="text-sm leading-relaxed text-muted-foreground mt-3 whitespace-pre-wrap break-words">
+                              “{review.message}”
+                            </p>
+                            <time className="block text-xs text-muted-foreground/70 mt-4" dateTime={review.created_at}>
+                              {new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(new Date(review.created_at))}
+                            </time>
+                          </article>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </TabsContent>
             </Tabs>
