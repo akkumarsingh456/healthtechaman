@@ -1405,6 +1405,32 @@ export type Database = {
           },
         ]
       }
+      public_review_events: {
+        Row: {
+          created_at: string
+          id: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_review_events_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "contact_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_log: {
         Row: {
           action: string
