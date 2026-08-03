@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const invoke = vi.fn();
@@ -173,7 +173,9 @@ describe("DisclaimerSection — Save Message + Send Mail workflow", () => {
     await waitFor(() => expect(rpc).toHaveBeenCalledTimes(1));
     expect(realtimeChannel.subscribe).toHaveBeenCalledTimes(1);
 
-    realtimeInsertHandler?.();
+    await act(async () => {
+      realtimeInsertHandler?.();
+    });
 
     await waitFor(() => expect(screen.getByText("Realtime review message")).toBeInTheDocument());
     expect(rpc).toHaveBeenCalledTimes(2);
