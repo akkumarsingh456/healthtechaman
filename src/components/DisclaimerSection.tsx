@@ -28,6 +28,18 @@ type PublicReview = {
   created_at: string;
 };
 
+const getReviewRolePresentation = (role: string) => {
+  const normalizedRole = role.trim().toLowerCase();
+  if (normalizedRole === "student") return { icon: GraduationCap, label: "Student" };
+  if (normalizedRole === "alumni" || normalizedRole === "alumnus" || normalizedRole === "alumna") {
+    return { icon: Award, label: "Alumni" };
+  }
+  if (normalizedRole === "professor" || normalizedRole === "faculty" || normalizedRole === "teacher") {
+    return { icon: Presentation, label: "Professor or faculty" };
+  }
+  return { icon: UserRound, label: "Community member" };
+};
+
 const DisclaimerSection = () => {
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [reviewForm, setReviewForm] = useState({
@@ -513,7 +525,8 @@ const DisclaimerSection = () => {
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
                 {publicReviews.map((review, index) => {
-                  const RoleIcon = review.sender_role === "professor" ? Presentation : review.sender_role === "alumni" ? Award : UserRound;
+                  const rolePresentation = getReviewRolePresentation(review.sender_role);
+                  const RoleIcon = rolePresentation.icon;
                   return (
                     <article
                       key={review.id}
@@ -522,8 +535,12 @@ const DisclaimerSection = () => {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20">
-                            <RoleIcon className="h-5 w-5" aria-hidden="true" />
+                          <div
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary ring-1 ring-primary/20 transition-transform duration-200 group-hover:scale-105"
+                            aria-label={`${rolePresentation.label} profile icon`}
+                            title={rolePresentation.label}
+                          >
+                            <RoleIcon className="h-6 w-6" aria-hidden="true" />
                           </div>
                           <div className="min-w-0">
                             <p className="font-semibold text-foreground truncate">{review.name}</p>
