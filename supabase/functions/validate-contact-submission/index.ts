@@ -30,11 +30,7 @@ serve(async (req) => {
     }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ valid: !isReview, notes: isReview ? "Review moderation is temporarily unavailable. Please try again shortly." : "AI validation skipped" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     const prompt = `You are a form submission validator for a university health portal contact form. Analyze this submission and determine if it's valid or spam/random/gibberish.
 
@@ -65,36 +61,86 @@ Rules:
 
 Return only compact JSON in this exact shape: {"valid":true,"reason":"brief reason"}`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0, maxOutputTokens: 120, responseMimeType: "application/json" },
-      }),
-    });
+    const parseVerdict = (raw: string | undefined) => {
+      if (!raw) return null;
+      const cleaned = raw.replace(/^```json\s*|\s*```$/g, "").trim();
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (!match) return null;
+      try {
+        const parsed = JSON.parse(match[0]);
+        if (typeof parsed?.valid !== "boolean") return null;
+        return { valid: parsed.valid as boolean, reason: String(parsed.reason ?? "") };
+      } catch {
+        return null;
+      }
+    };
 
-    if (!response.ok) {
-      return new Response(JSON.stringify({ valid: !isReview, notes: isReview ? "Review moderation is temporarily unavailable. Please try again shortly." : "AI validation unavailable" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // 1) Direct Gemini (free key, independent of Lovable credits)
+    if (GEMINI_API_KEY) {
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0, maxOutputTokens: 120, responseMimeType: "application/json" },
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("").trim();
+          const verdict = parseVerdict(text);
+          if (verdict) {
+            return new Response(JSON.stringify({ valid: verdict.valid, notes: verdict.reason }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          console.error("Gemini returned unparsable moderation output");
+        } else {
+          console.error(`Gemini moderation failed [${res.status}]: ${await res.text()}`);
+        }
+      } catch (err) {
+        console.error("Gemini moderation request error:", err);
+      }
+    } else {
+      console.error("GEMINI_API_KEY is not configured");
     }
 
-    const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text ?? "").join("").trim();
-    if (text) {
-      const result = JSON.parse(text.replace(/^```json\s*|\s*```$/g, ""));
-      return new Response(JSON.stringify({ valid: result.valid, notes: result.reason }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // 2) Fallback: Lovable AI Gateway
+    if (LOVABLE_API_KEY) {
+      try {
+        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-3.6-flash",
+            messages: [{ role: "user", content: prompt }],
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const verdict = parseVerdict(data?.choices?.[0]?.message?.content);
+          if (verdict) {
+            return new Response(JSON.stringify({ valid: verdict.valid, notes: verdict.reason }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        } else {
+          console.error(`Gateway moderation failed [${res.status}]: ${await res.text()}`);
+        }
+      } catch (err) {
+        console.error("Gateway moderation request error:", err);
+      }
     }
 
-    return new Response(JSON.stringify({ valid: !isReview, notes: isReview ? "Review moderation could not be completed. Please try again." : "Could not parse AI response" }), {
+    // 3) Both AI paths unavailable: the deterministic profanity filter above already ran,
+    // so allow the submission instead of blocking legitimate users.
+    return new Response(JSON.stringify({ valid: true, notes: "AI moderation unavailable; basic checks passed" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("Validation error:", e);
-    return new Response(JSON.stringify({ valid: false, notes: "Review moderation could not be completed. Please try again." }), {
+    return new Response(JSON.stringify({ valid: false, notes: "Could not process this submission. Please try again." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
