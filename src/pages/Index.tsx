@@ -18,6 +18,7 @@ import DoctorHomeDashboard from "@/components/doctor/DoctorHomeDashboard";
 import LabOfficerHomeDashboard from "@/components/lab/LabOfficerHomeDashboard";
 import PharmacyHomeDashboard from "@/components/pharmacy/PharmacyHomeDashboard";
 import StudentHomeDashboard from "@/components/student/StudentHomeDashboard";
+import CampusCareChatbot from "@/components/chatbot/CampusCareChatbot";
 
 const Index = () => {
   const { user, isDoctor, isStudent, isLabOfficer, isPharmacy, isMedicalStaff, isAdmin, isMentor, loading } = useUserRole();
@@ -107,6 +108,7 @@ const Index = () => {
         )}
       </main>
       <Footer />
+      <CampusCareChatbot />
     </BackgroundWrapper>
   );
 };
