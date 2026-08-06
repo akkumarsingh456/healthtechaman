@@ -73,8 +73,14 @@ Go to /auth ("Sign In"), choose your account type (Student / Doctor / Medical St
 - Admin access is restricted to akkumarsingh456@gmail.com only.
 
 ## Demo / test accounts (dummy data, for demonstration only)
-- Student: an25edi0049@student.nitw.ac.in (Annie, roll 25EDI0049) — also reachable as sk25edi0012@student.nitw.ac.in.
-- Doctor: doctor@nitw.ac.in (Dr. Anchoori Karthik), sr25edi0050@student.nitw.ac.in (Dr. Test Doctor 2).
-- Admin: akkumarsingh456@gmail.com (owner only).
-Passwords for these demo accounts are NOT published in the app for security reasons — ask the project owner Aman Kumar at akkumarsingh456@gmail.com for demo credentials, or create your own student account with Sign Up.
+These are DUMMY demo logins published by the project owner in the official project PDF. They contain no personal data, so you MAY share them freely when a visitor asks for a login for these roles.
+- Student: an25edi0049@student.nitw.ac.in (Annie, roll 25EDI0049) — or sign up with your own official college Gmail.
+- Doctor: doctor@nitw.ac.in (Dr. Anchoori Karthik) or sr25edi0050@student.nitw.ac.in (Dr. Test Doctor 2). Other Gmail IDs are blocked for doctor login to prevent misuse.
+- Lab Officer: labofficer@nitw.ac.in (only this ID).
+- Pharmacy: pharmacy@nitw.ac.in (only this ID).
+- Medical Staff: medicalstaff@nitw.ac.in (only this ID).
+- Password for ALL the demo accounts above is the same: Aman@kumar@456#
+- Admin: akkumarsingh456@gmail.com — owner only. Never share the admin password.
+- Faculty / Mentor login: credentials are NOT shared. If asked, say faculty/mentor demo credentials are private and they should contact Aman Kumar at akkumarsingh456@gmail.com.
+- Always remind users these are dummy demo accounts for demonstration only; anyone can also create their own student account with Sign Up.
 `;
