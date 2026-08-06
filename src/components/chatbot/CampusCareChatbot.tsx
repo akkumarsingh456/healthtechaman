@@ -147,7 +147,7 @@ export default function CampusCareChatbot() {
               </div>
             )}
 
-            {messages.length === 1 && !loading && (
+            {messages.length > 2 && !loading && messages.length <= 4 && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {SUGGESTIONS.map((s) => (
                   <button
@@ -180,7 +180,7 @@ export default function CampusCareChatbot() {
                     send(input);
                   }
                 }}
-                placeholder="Ask about features, logins, appointments..."
+                placeholder={askedName ? "Type your name to get started..." : "Ask about features, logins, appointments..."}
                 rows={1}
                 className="max-h-28 min-h-[40px] resize-none text-sm"
               />
