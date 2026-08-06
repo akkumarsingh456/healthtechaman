@@ -11,7 +11,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nAsk me anything about this NIT Warangal Digital Health Centre portal — features, dashboards for each role, how to book an appointment, medical leave approval, lab reports, pharmacy, or how each role signs in.\n\n_Note: this is a personal demo project, not the official NITW website._",
+    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n_Note: this is a personal demo project, not the official NITW website._",
 };
 
 const SUGGESTIONS = [
@@ -27,6 +27,7 @@ export default function CampusCareChatbot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState<number | null>(null);
+  const askedName = messages.length <= 2;
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
