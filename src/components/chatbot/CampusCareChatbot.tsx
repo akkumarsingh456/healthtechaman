@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import { Link } from "react-router-dom";
 import { Stethoscope, X, Send, Copy, Check, Loader2, HeartPulse } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,6 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type Msg = { role: "user" | "assistant"; content: string };
+
+// Turn portal route mentions (e.g. `/auth`) into clickable in-app links
+const ROUTE_LABELS: Record<string, string> = { "/auth": "Go to Sign In page" };
+
+const linkifyRoutes = (text: string) =>
+  text
+    .replace(/`(\/[a-zA-Z0-9\-/]*)`/g, (_m, route: string) => `[${ROUTE_LABELS[route] ?? route}](${route})`)
+    .replace(/(^|[\s(])(\/auth)\b(?![\]\)])/g, (_m, pre: string, route: string) => `${pre}[${ROUTE_LABELS[route]}](${route})`);
 
 const WELCOME: Msg = {
   role: "assistant",
@@ -121,9 +130,34 @@ export default function CampusCareChatbot() {
                 >
                   {m.role === "assistant" ? (
                     <div className="space-y-2 [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-background/70 [&_code]:px-1 [&_li]:ml-4 [&_li]:list-disc [&_ol_li]:list-decimal [&_strong]:font-semibold [&_ul]:space-y-1">
-                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        components={{
+                          a: ({ href, children }) => {
+                            const to = href ?? "";
+                            if (to.startsWith("/")) {
+                              return (
+                                <Link
+                                  to={to}
+                                  onClick={() => setOpen(false)}
+                                  className="font-medium text-primary underline underline-offset-2"
+                                >
+                                  {children}
+                                </Link>
+                              );
+                            }
+                            return (
+                              <a href={to} target="_blank" rel="noreferrer">
+                                {children}
+                              </a>
+                            );
+                          },
+                        }}
+                      >
+                        {linkifyRoutes(m.content)}
+                      </ReactMarkdown>
                     </div>
                   ) : (
+
                     <span className="whitespace-pre-wrap">{m.content}</span>
                   )}
                 </div>
