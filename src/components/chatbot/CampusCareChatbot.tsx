@@ -9,6 +9,14 @@ import { cn } from "@/lib/utils";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+// Turn portal route mentions (e.g. `/auth`) into clickable in-app links
+const ROUTE_LABELS: Record<string, string> = { "/auth": "Go to Sign In page" };
+
+const linkifyRoutes = (text: string) =>
+  text
+    .replace(/`(\/[a-zA-Z0-9\-/]*)`/g, (_m, route: string) => `[${ROUTE_LABELS[route] ?? route}](${route})`)
+    .replace(/(^|[\s(])(\/auth)\b(?![\]\)])/g, (_m, pre: string, route: string) => `${pre}[${ROUTE_LABELS[route]}](${route})`);
+
 const WELCOME: Msg = {
   role: "assistant",
   content:
