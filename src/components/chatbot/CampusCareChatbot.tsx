@@ -112,7 +112,10 @@ export default function CampusCareChatbot() {
       )}
 
       {open && (
-        <div className="fixed bottom-4 right-4 z-50 flex h-[min(560px,80vh)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div
+          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+          className="fixed bottom-4 right-4 z-50 flex h-[min(560px,80vh)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        >
           <div className="flex items-center gap-3 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground/15">
               <HeartPulse className="h-5 w-5" />
