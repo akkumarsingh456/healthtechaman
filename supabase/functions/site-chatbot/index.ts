@@ -104,8 +104,9 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     // 1) Direct Gemini (free key, independent of Lovable credits)
+    // Fastest-first: lite model handles this small, grounded knowledge base quickly.
     if (GEMINI_API_KEY) {
-      for (const model of ["gemini-2.0-flash", "gemini-1.5-flash"]) {
+      for (const model of ["gemini-2.0-flash-lite", "gemini-2.0-flash"]) {
         try {
           const res = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
@@ -115,7 +116,12 @@ Deno.serve(async (req) => {
               body: JSON.stringify({
                 systemInstruction: { parts: [{ text: SYSTEM }] },
                 contents: history,
-                generationConfig: { temperature: 0.2, maxOutputTokens: 800 },
+                generationConfig: {
+                  temperature: 0.15,
+                  maxOutputTokens: 420,
+                  topP: 0.8,
+                  candidateCount: 1,
+                },
               }),
             },
           );
