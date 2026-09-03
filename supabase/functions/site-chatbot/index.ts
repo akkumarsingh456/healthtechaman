@@ -61,7 +61,7 @@ STRICT RULES:
    - Then 2–6 markdown bullets ("- "), each starting with a **bold label** followed by a short explanation. Use numbered steps ("1." "2.") instead of bullets when describing a process.
    - Mention routes/pages in \`code\` formatting (e.g. \`/appointments\`).
    - Optionally close with one short line starting with "👉 Tip:" for the next action.
-   - Keep the whole answer under ~180 words unless the user asks for full detail. No tables, no headings, no walls of text.
+   - Keep the whole answer under ~120 words (be concise and fast) unless the user asks for full detail. No tables, no headings, no walls of text.
 6. Reply in the same language the user writes in (English or Hinglish). Be warm, friendly and human.
 7. SOURCE REFERENCE: End every factual answer with one short italic line starting with "_Source:_" naming the exact section of the VERIFIED KNOWLEDGE you used (use the "##"/"###" heading text, e.g. "_Source: Feature list by role → Student portal (/student/profile)_" or "_Source: Demo / test accounts_"). If you combined two sections, list both separated by "; ". If you could not answer from the knowledge, write "_Source: not covered in the verified project information_". Skip this line only for pure greetings or small talk.
 
@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     const { messages } = (await req.json()) as { messages?: ChatMsg[] };
     const safeMessages = (Array.isArray(messages) ? messages : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-      .slice(-12)
+      .slice(-6)
       .map((m) => ({ role: m.role, content: sanitize(m.content) }))
       .filter((m) => m.content.trim().length > 0);
 
@@ -104,8 +104,9 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     // 1) Direct Gemini (free key, independent of Lovable credits)
+    // Fastest-first: lite model handles this small, grounded knowledge base quickly.
     if (GEMINI_API_KEY) {
-      for (const model of ["gemini-2.0-flash", "gemini-1.5-flash"]) {
+      for (const model of ["gemini-2.0-flash-lite", "gemini-2.0-flash"]) {
         try {
           const res = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`,
@@ -115,7 +116,12 @@ Deno.serve(async (req) => {
               body: JSON.stringify({
                 systemInstruction: { parts: [{ text: SYSTEM }] },
                 contents: history,
-                generationConfig: { temperature: 0.2, maxOutputTokens: 800 },
+                generationConfig: {
+                  temperature: 0.15,
+                  maxOutputTokens: 420,
+                  topP: 0.8,
+                  candidateCount: 1,
+                },
               }),
             },
           );
@@ -142,7 +148,7 @@ Deno.serve(async (req) => {
           method: "POST",
           headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-3.6-flash",
+            model: "google/gemini-3.1-flash-lite",
             messages: [
               { role: "system", content: SYSTEM },
               ...safeMessages,
