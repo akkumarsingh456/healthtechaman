@@ -20,8 +20,17 @@ const linkifyRoutes = (text: string) =>
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n_Note: this is a personal demo project, not the official NITW website._",
+    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n**You may use the dummy logins to check how the website works** — tap any role chip below (Student, Admin, Doctor, Medical Staff, Lab Officer, Pharmacy) to get its demo credentials instantly.\n\n_Note: this is a personal demo project, not the official NITW website._",
 };
+
+const DEMO_ROLES = [
+  { label: "Student", query: "Give the student dummy login and password" },
+  { label: "Admin", query: "Give the admin dummy login and password" },
+  { label: "Doctor", query: "Give the doctor dummy login and password" },
+  { label: "Medical Staff", query: "Give the medical staff dummy login and password" },
+  { label: "Lab Officer", query: "Give the lab officer dummy login and password" },
+  { label: "Pharmacy", query: "Give the pharmacy dummy login and password" },
+];
 
 const SUGGESTIONS = [
   "What features does this website have?",
