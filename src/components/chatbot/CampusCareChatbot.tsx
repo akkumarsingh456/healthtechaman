@@ -20,8 +20,17 @@ const linkifyRoutes = (text: string) =>
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n_Note: this is a personal demo project, not the official NITW website._",
+    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n**You may use the dummy logins to check how the website works** — tap any role chip below (Student, Admin, Doctor, Medical Staff, Lab Officer, Pharmacy) to get its demo credentials instantly.\n\n_Note: this is a personal demo project, not the official NITW website._",
 };
+
+const DEMO_ROLES = [
+  { label: "Student", query: "Give the student dummy login and password" },
+  { label: "Admin", query: "Give the admin dummy login and password" },
+  { label: "Doctor", query: "Give the doctor dummy login and password" },
+  { label: "Medical Staff", query: "Give the medical staff dummy login and password" },
+  { label: "Lab Officer", query: "Give the lab officer dummy login and password" },
+  { label: "Pharmacy", query: "Give the pharmacy dummy login and password" },
+];
 
 const SUGGESTIONS = [
   "What features does this website have?",
@@ -103,7 +112,10 @@ export default function CampusCareChatbot() {
       )}
 
       {open && (
-        <div className="fixed bottom-4 right-4 z-50 flex h-[min(560px,80vh)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div
+          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+          className="fixed bottom-4 right-4 z-50 flex h-[min(560px,80vh)] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        >
           <div className="flex items-center gap-3 border-b border-border bg-primary px-4 py-3 text-primary-foreground">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground/15">
               <HeartPulse className="h-5 w-5" />
@@ -195,6 +207,27 @@ export default function CampusCareChatbot() {
               </div>
             )}
           </div>
+
+          <div className="border-t border-border bg-muted/40 px-2 py-2">
+            <p className="mb-1.5 px-1 text-[11px] font-semibold text-muted-foreground">
+              Dummy logins — tap a role to test the site
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {DEMO_ROLES.map((r) => (
+                <button
+                  key={r.label}
+                  type="button"
+                  disabled={loading}
+                  onClick={() => send(r.query)}
+                  className="rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-foreground transition-colors hover:border-primary hover:text-primary disabled:opacity-50"
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+
 
           <form
             onSubmit={(e) => {
