@@ -121,9 +121,34 @@ export default function CampusCareChatbot() {
                 >
                   {m.role === "assistant" ? (
                     <div className="space-y-2 [&_a]:text-primary [&_a]:underline [&_code]:rounded [&_code]:bg-background/70 [&_code]:px-1 [&_li]:ml-4 [&_li]:list-disc [&_ol_li]:list-decimal [&_strong]:font-semibold [&_ul]:space-y-1">
-                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        components={{
+                          a: ({ href, children }) => {
+                            const to = href ?? "";
+                            if (to.startsWith("/")) {
+                              return (
+                                <Link
+                                  to={to}
+                                  onClick={() => setOpen(false)}
+                                  className="font-medium text-primary underline underline-offset-2"
+                                >
+                                  {children}
+                                </Link>
+                              );
+                            }
+                            return (
+                              <a href={to} target="_blank" rel="noreferrer">
+                                {children}
+                              </a>
+                            );
+                          },
+                        }}
+                      >
+                        {linkifyRoutes(m.content)}
+                      </ReactMarkdown>
                     </div>
                   ) : (
+
                     <span className="whitespace-pre-wrap">{m.content}</span>
                   )}
                 </div>
