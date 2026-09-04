@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Mail, AtSign, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -330,23 +330,23 @@ const DisclaimerSection = () => {
                   <span>{item.text}</span>
                 </div>
               ))}
-              <div className="flex items-start gap-2 text-sm">
-                <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <div className="flex flex-col gap-1">
-                  <a
-                    href="mailto:akkumarsingh456@gmail.com"
-                    className="text-primary hover:underline break-all font-medium"
-                  >
-                    akkumarsingh456@gmail.com
-                  </a>
-                  <a
-                    href="mailto:ak25edi0022@student.nitw.ac.in"
-                    className="text-primary hover:underline break-all font-medium"
-                  >
-                    ak25edi0022@student.nitw.ac.in
-                  </a>
-                </div>
+              <div className="flex flex-col gap-1.5 text-sm">
+                <a
+                  href="mailto:akkumarsingh456@gmail.com"
+                  className="flex items-center gap-2 text-primary hover:underline break-all font-medium"
+                >
+                  <Mail className="w-4 h-4 text-primary shrink-0" />
+                  akkumarsingh456@gmail.com
+                </a>
+                <a
+                  href="mailto:ak25edi0022@student.nitw.ac.in"
+                  className="flex items-center gap-2 text-primary hover:underline break-all font-medium"
+                >
+                  <AtSign className="w-4 h-4 text-primary shrink-0" />
+                  ak25edi0022@student.nitw.ac.in
+                </a>
               </div>
+
             </div>
           </CardContent>
         </Card>
