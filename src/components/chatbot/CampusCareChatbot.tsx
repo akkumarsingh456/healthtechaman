@@ -20,7 +20,7 @@ const linkifyRoutes = (text: string) =>
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n**You may use the dummy logins to check how the website works** — tap any role chip below (Student, Admin, Doctor, Medical Staff, Lab Officer, Pharmacy) to get its demo credentials instantly.\n\n_Note: this is a personal demo project, not the official NITW website._",
+    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n**You may use the dummy logins to check how the website works** — tap any role chip below (Student, Admin, Doctor, Medical Staff, Lab Officer, Pharmacy) to get its demo credentials instantly.\n\n_Note: this is a personal demo project by **Aman Kumar**, not the official NITW website._",
 };
 
 const DEMO_ROLES = [
@@ -122,7 +122,7 @@ export default function CampusCareChatbot() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">Campus Care Assistant</p>
-              <p className="truncate text-xs opacity-80">Health portal guide • AI powered</p>
+              <p className="truncate text-xs opacity-80">Health portal guide • AI powered • by Aman Kumar</p>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close assistant" className="rounded-full p-1 hover:bg-primary-foreground/15">
               <X className="h-5 w-5" />
@@ -256,7 +256,7 @@ export default function CampusCareChatbot() {
               </Button>
             </div>
             <p className="px-1 pt-1.5 text-[10px] leading-tight text-muted-foreground">
-              Answers come only from this portal's verified information. Demo project — not officially valid.
+              Answers come only from this portal's verified information. Demo project by Aman Kumar — not officially valid.
             </p>
           </form>
         </div>
