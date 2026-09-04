@@ -122,7 +122,7 @@ export default function CampusCareChatbot() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">Campus Care Assistant</p>
-              <p className="truncate text-xs opacity-80">Health portal guide • AI powered</p>
+              <p className="truncate text-xs opacity-80">Health portal guide • AI powered • by Aman Kumar</p>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close assistant" className="rounded-full p-1 hover:bg-primary-foreground/15">
               <X className="h-5 w-5" />
@@ -256,7 +256,7 @@ export default function CampusCareChatbot() {
               </Button>
             </div>
             <p className="px-1 pt-1.5 text-[10px] leading-tight text-muted-foreground">
-              Answers come only from this portal's verified information. Demo project — not officially valid.
+              Answers come only from this portal's verified information. Demo project by Aman Kumar — not officially valid.
             </p>
           </form>
         </div>
