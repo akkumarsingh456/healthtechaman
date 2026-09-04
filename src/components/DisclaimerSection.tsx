@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Mail, AtSign, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -335,14 +335,14 @@ const DisclaimerSection = () => {
                   href="mailto:akkumarsingh456@gmail.com"
                   className="flex items-center gap-2 text-primary hover:underline break-all font-medium"
                 >
-                  <Mail className="w-4 h-4 text-primary shrink-0" />
+                  <GmailIcon />
                   akkumarsingh456@gmail.com
                 </a>
                 <a
                   href="mailto:ak25edi0022@student.nitw.ac.in"
                   className="flex items-center gap-2 text-primary hover:underline break-all font-medium"
                 >
-                  <AtSign className="w-4 h-4 text-primary shrink-0" />
+                  <GmailIcon />
                   ak25edi0022@student.nitw.ac.in
                 </a>
               </div>
