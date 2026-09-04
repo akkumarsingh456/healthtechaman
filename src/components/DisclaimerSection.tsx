@@ -335,14 +335,14 @@ const DisclaimerSection = () => {
                   href="mailto:akkumarsingh456@gmail.com"
                   className="flex items-center gap-2 text-primary hover:underline break-all font-medium"
                 >
-                  <Mail className="w-4 h-4 text-primary shrink-0" />
+                  <GmailIcon />
                   akkumarsingh456@gmail.com
                 </a>
                 <a
                   href="mailto:ak25edi0022@student.nitw.ac.in"
                   className="flex items-center gap-2 text-primary hover:underline break-all font-medium"
                 >
-                  <AtSign className="w-4 h-4 text-primary shrink-0" />
+                  <GmailIcon />
                   ak25edi0022@student.nitw.ac.in
                 </a>
               </div>
