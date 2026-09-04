@@ -20,7 +20,7 @@ const linkifyRoutes = (text: string) =>
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n**You may use the dummy logins to check how the website works** — tap any role chip below (Student, Admin, Doctor, Medical Staff, Lab Officer, Pharmacy) to get its demo credentials instantly.\n\n_Note: this is a personal demo project, not the official NITW website._",
+    "**Namaste! I'm the Campus Care Assistant** 🩺\n\nBefore we begin — **may I know your name?**\n\nAfter that you can ask me anything about this NIT Warangal Digital Health Centre portal — features, role dashboards, booking an appointment, medical leave approval, lab reports, pharmacy, or demo logins.\n\n**You may use the dummy logins to check how the website works** — tap any role chip below (Student, Admin, Doctor, Medical Staff, Lab Officer, Pharmacy) to get its demo credentials instantly.\n\n_Note: this is a personal demo project by **Aman Kumar**, not the official NITW website._",
 };
 
 const DEMO_ROLES = [
