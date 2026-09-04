@@ -100,14 +100,21 @@ export default function CampusCareChatbot() {
         <button
           onClick={() => setOpen(true)}
           aria-label="Open Campus Care health assistant"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-primary-foreground shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          className="group fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-full bg-gradient-to-r from-primary to-primary/85 py-2.5 pl-2.5 pr-5 text-primary-foreground shadow-lg ring-1 ring-primary/30 transition-all duration-300 hover:scale-[1.04] hover:shadow-2xl"
         >
-          <span className="relative flex h-6 w-6 items-center justify-center">
-            <Stethoscope className="h-6 w-6" />
-            <span className="absolute -right-1 -top-1 h-2 w-2 animate-ping rounded-full bg-emerald-400" />
-            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/15 backdrop-blur-sm transition-transform duration-300 group-hover:rotate-6">
+            <span className="absolute inset-0 rounded-full bg-primary-foreground/10 animate-ping" />
+            <MessageCircleHeart className="relative h-5 w-5" />
+            <Stethoscope className="absolute -bottom-0.5 -left-0.5 h-3.5 w-3.5 opacity-80" />
+            <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-primary" />
           </span>
-          <span className="hidden text-sm font-semibold sm:inline">Ask Health Assistant</span>
+          <span className="hidden text-left sm:block">
+            <span className="flex items-center gap-1.5 text-sm font-semibold leading-tight">
+              Ask Health Assistant
+              <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
+            </span>
+            <span className="text-[11px] leading-tight opacity-80">Online • instant answers</span>
+          </span>
         </button>
       )}
 
