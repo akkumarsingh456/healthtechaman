@@ -255,7 +255,7 @@ export default function CampusCareChatbot() {
                 <Send className="h-4 w-4" />
               </Button>
             </div>
-            <p className="px-1 pt-1.5 text-[10px] leading-tight text-muted-foreground">
+            <p className="mt-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2 py-1.5 text-center text-[13px] font-bold leading-snug text-primary">
               Answers come only from this portal's verified information. Demo project by Aman Kumar — not officially valid.
             </p>
           </form>
