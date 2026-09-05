@@ -36,29 +36,29 @@ const SUPER_SPECIALTY_HYDERABAD = [
 ];
 
 const EMPANELLED_HOSPITALS = [
-  { sno: 1, name: "M/s. CARE Hospitals", place: "Hyderabad", entitlement: "Employees" },
-  { sno: 2, name: "M/s. KIMS Hospitals", place: "Hyderabad", entitlement: "Employees" },
-  { sno: 3, name: "M/s. KIMS-Sunshine Hospitals", place: "Hyderabad", entitlement: "Employees" },
-  { sno: 4, name: "M/s. Basavatarakam Indo-American Cancer Hospital & Research Institute", place: "Hyderabad", entitlement: "Employees" },
-  { sno: 5, name: "M/s. Star Hospitals", place: "Hyderabad", entitlement: "Employees" },
-  { sno: 6, name: "M/s. Omega Hospitals", place: "Hyderabad", entitlement: "Employees" },
-  { sno: 7, name: "M/s. Medicover Hospitals", place: "Hyderabad & Warangal", entitlement: "Employees & Students" },
-  { sno: 8, name: "M/s. Vijaya Diagnostic Centre Ltd.", place: "Hyderabad & Warangal", entitlement: "Employees & Students" },
-  { sno: 9, name: "M/s. Rohini Medicare Pvt. Ltd.", place: "Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 10, name: "M/s. Ajara Hospitals", place: "Warangal", entitlement: "Employees & Students" },
-  { sno: 11, name: "M/s. Laxmi Narasimha Hospital", place: "Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 12, name: "M/s. Samraksha Super Specialty Hospital", place: "Warangal", entitlement: "Employees & Students" },
-  { sno: 13, name: "M/s. Dr. Sharat Maxivision Eye Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 14, name: "M/s. Ekashilaa Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 15, name: "M/s. Jaya Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 16, name: "M/s. S Vision Hospital", place: "Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 17, name: "M/s. Guardian Multi Speciality Hospital", place: "Warangal", entitlement: "Employees" },
-  { sno: 18, name: "M/s. Pramoda Hospital", place: "Hanamkonda", entitlement: "Employees" },
-  { sno: 19, name: "M/s. Dr. Vasavi's Hospital", place: "Naimnagar, Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 20, name: "M/s. Pebbles Kids Hospital", place: "Main Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 21, name: "M/s. Sri Chakra Super Speciality Hospital", place: "Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 22, name: "M/s. Sri Valli Good Life Hospital", place: "Beside New Bustand Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" },
-  { sno: 23, name: "M/s. K&H Dental Hospitals", place: "Near Hanuman Temple Road, Hanamkonda & JPN Road, Warangal", entitlement: "Employees & Students" },
+  { sno: 1, name: "M/s. CARE Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "CARE Hospitals, Road No. 1, Banjara Hills, Hyderabad, Telangana 500034" },
+  { sno: 2, name: "M/s. KIMS Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "KIMS Hospitals, 1-8-31/1, Minister Road, Begumpet, Secunderabad, Telangana 500003" },
+  { sno: 3, name: "M/s. KIMS-Sunshine Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "KIMS-Sunshine Hospitals, Penderghast Road, Paradise, Secunderabad, Telangana 500003" },
+  { sno: 4, name: "M/s. Basavatarakam Indo-American Cancer Hospital & Research Institute", place: "Hyderabad", entitlement: "Employees" , address: "Basavatarakam Indo-American Cancer Hospital, Road No. 10, Banjara Hills, Hyderabad, Telangana 500034" },
+  { sno: 5, name: "M/s. Star Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "Star Hospitals, Road No. 10, Banjara Hills, Hyderabad, Telangana 500034" },
+  { sno: 6, name: "M/s. Omega Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "Omega Hospitals, Road No. 12, Banjara Hills, Hyderabad, Telangana 500034" },
+  { sno: 7, name: "M/s. Medicover Hospitals", place: "Hyderabad & Warangal", entitlement: "Employees & Students" , address: "Medicover Hospitals, Nakkalagutta, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 8, name: "M/s. Vijaya Diagnostic Centre Ltd.", place: "Hyderabad & Warangal", entitlement: "Employees & Students" , address: "Vijaya Diagnostic Centre, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 9, name: "M/s. Rohini Medicare Pvt. Ltd.", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Rohini Superspeciality Hospital, Ramnagar, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 10, name: "M/s. Ajara Hospitals", place: "Warangal", entitlement: "Employees & Students" , address: "Ajara Hospitals, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 11, name: "M/s. Laxmi Narasimha Hospital", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Sri Laxmi Narasimha Hospital, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 12, name: "M/s. Samraksha Super Specialty Hospital", place: "Warangal", entitlement: "Employees & Students" , address: "Samraksha Super Speciality Hospital, Kishanpura, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 13, name: "M/s. Dr. Sharat Maxivision Eye Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Dr. Sharat Maxivision Eye Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 14, name: "M/s. Ekashilaa Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Ekashilaa Hospitals, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 15, name: "M/s. Jaya Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Jaya Hospital, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 16, name: "M/s. S Vision Hospital", place: "Hanamkonda", entitlement: "Employees & Students" , address: "S Vision Hospital, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 17, name: "M/s. Guardian Multi Speciality Hospital", place: "Warangal", entitlement: "Employees" , address: "Guardian Multi Speciality Hospital, Naim Nagar, Hanamkonda, Warangal, Telangana 506009" },
+  { sno: 18, name: "M/s. Pramoda Hospital", place: "Hanamkonda", entitlement: "Employees" , address: "Pramoda Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 19, name: "M/s. Dr. Vasavi's Hospital", place: "Naimnagar, Hanamkonda", entitlement: "Employees & Students" , address: "Dr. Vasavi's Hospital, Naimnagar, Hanamkonda, Warangal, Telangana 506009" },
+  { sno: 20, name: "M/s. Pebbles Kids Hospital", place: "Main Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Pebbles Kids Hospital, Main Road, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 21, name: "M/s. Sri Chakra Super Speciality Hospital", place: "Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Sri Chakra Super Speciality Hospital, Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 22, name: "M/s. Sri Valli Good Life Hospital", place: "Beside New Bustand Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Sri Valli Good Life Hospital, Beside New Bus Stand Road, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 23, name: "M/s. K&H Dental Hospitals", place: "Near Hanuman Temple Road, Hanamkonda & JPN Road, Warangal", entitlement: "Employees & Students" , address: "K&H Dental Hospital, Near Hanuman Temple Road, Hanamkonda, Warangal, Telangana 506001" },
 ];
 
 const HospitalCard = ({ name, location, address }: { name: string; location: string; address: string }) => (
@@ -194,7 +194,7 @@ const HospitalIntegration = () => {
                       <tr className="bg-muted/50">
                         <th className="text-left p-3 font-semibold text-sm border-b">S.No</th>
                         <th className="text-left p-3 font-semibold text-sm border-b">Name of the Hospital</th>
-                        <th className="text-left p-3 font-semibold text-sm border-b">Place</th>
+                        <th className="text-left p-3 font-semibold text-sm border-b">Address</th>
                         <th className="text-left p-3 font-semibold text-sm border-b">Entitlement</th>
                       </tr>
                     </thead>
@@ -203,7 +203,17 @@ const HospitalIntegration = () => {
                         <tr key={hospital.sno} className="hover:bg-muted/30 transition-colors">
                           <td className="p-3 border-b text-sm">{hospital.sno}</td>
                           <td className="p-3 border-b text-sm font-medium">{hospital.name}</td>
-                          <td className="p-3 border-b text-sm text-muted-foreground">{hospital.place}</td>
+                          <td className="p-3 border-b text-sm text-muted-foreground">
+                            <a
+                              href={mapsUrl(hospital.name.replace(/^M\/s\.\s*/, ""), hospital.address)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-start gap-1 hover:text-primary hover:underline"
+                            >
+                              <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                              <span>{hospital.address}</span>
+                            </a>
+                          </td>
                           <td className="p-3 border-b">
                             <Badge 
                               variant={hospital.entitlement === "Employees & Students" ? "default" : "secondary"}
