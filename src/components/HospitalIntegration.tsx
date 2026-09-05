@@ -10,25 +10,29 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+// Google Maps link built from the hospital name + full address so the pin resolves exactly.
+const mapsUrl = (name: string, address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${address}`)}`;
+
 const SUPER_SPECIALTY_WARANGAL = [
-  { name: "Rohini Super Specialty Hospital", location: "Hanamkonda" },
-  { name: "Samraksha Super Specialty Hospital", location: "Warangal" },
+  { name: "Rohini Super Specialty Hospital", location: "Hanamkonda", address: "Rohini Superspeciality Hospital, Ramnagar, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Samraksha Super Specialty Hospital", location: "Warangal", address: "Samraksha Super Speciality Hospital, Kishanpura, Hanamkonda, Warangal, Telangana 506001" },
 ];
 
 const GENERAL_HOSPITALS_WARANGAL = [
-  { name: "Jaya Hospital", location: "Hanamkonda" },
-  { name: "Guardian Multi-Speciality Hospital", location: "Warangal" },
-  { name: "Max Care Hospitals", location: "Warangal" },
-  { name: "Pramoda Hospital", location: "Hanamkonda" },
-  { name: "Sharat Laser Eye Hospital", location: "Hanamkonda" },
-  { name: "Sri Laxmi Narasimha Hospital", location: "Hanamkonda" },
+  { name: "Jaya Hospital", location: "Hanamkonda", address: "Jaya Hospital, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Guardian Multi-Speciality Hospital", location: "Warangal", address: "Guardian Multi Speciality Hospital, Naim Nagar, Hanamkonda, Warangal, Telangana 506009" },
+  { name: "Max Care Hospitals", location: "Warangal", address: "Maxcare Hospitals, Nakkalagutta, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Pramoda Hospital", location: "Hanamkonda", address: "Pramoda Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Sharat Laser Eye Hospital", location: "Hanamkonda", address: "Dr. Sharat Maxivision Eye Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Sri Laxmi Narasimha Hospital", location: "Hanamkonda", address: "Sri Laxmi Narasimha Hospital, Hanamkonda, Warangal, Telangana 506001" },
 ];
 
 const SUPER_SPECIALTY_HYDERABAD = [
-  { name: "Basavatarakam Indo American Cancer Hospital", location: "Hyderabad" },
-  { name: "Krishna Institute of Medical Sciences Ltd.", location: "Hyderabad" },
-  { name: "Sunshine Hospitals", location: "Hyderabad" },
-  { name: "CARE Super Speciality Hospitals", location: "Hyderabad" },
+  { name: "Basavatarakam Indo American Cancer Hospital", location: "Hyderabad", address: "Road No. 10, Banjara Hills, Hyderabad, Telangana 500034" },
+  { name: "Krishna Institute of Medical Sciences Ltd.", location: "Hyderabad", address: "1-8-31/1, Minister Road, Krishna Nagar, Begumpet, Secunderabad, Telangana 500003" },
+  { name: "Sunshine Hospitals", location: "Hyderabad", address: "Penderghast Road, Beside Sujana Forum Mall, Paradise, Secunderabad, Telangana 500003" },
+  { name: "CARE Super Speciality Hospitals", location: "Hyderabad", address: "Road No. 1, Banjara Hills, Hyderabad, Telangana 500034" },
 ];
 
 const EMPANELLED_HOSPITALS = [
@@ -57,8 +61,14 @@ const EMPANELLED_HOSPITALS = [
   { sno: 23, name: "M/s. K&H Dental Hospitals", place: "Near Hanuman Temple Road, Hanamkonda & JPN Road, Warangal", entitlement: "Employees & Students" },
 ];
 
-const HospitalCard = ({ name, location }: { name: string; location: string }) => (
-  <div className="p-4 bg-white rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
+const HospitalCard = ({ name, location, address }: { name: string; location: string; address: string }) => (
+  <a
+    href={mapsUrl(name, address)}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Open ${name} on Google Maps`}
+    className="block p-4 bg-white rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group"
+  >
     <div className="flex items-start gap-3">
       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         <Building2 className="h-5 w-5 text-primary" />
@@ -67,14 +77,15 @@ const HospitalCard = ({ name, location }: { name: string; location: string }) =>
         <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
           {name}
         </h4>
-        <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-          <MapPin className="h-3 w-3" />
-          {location}
+        <p className="text-sm text-muted-foreground flex items-start gap-1 mt-1">
+          <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+          <span>{address}</span>
         </p>
+        <span className="text-xs text-primary font-medium mt-1 inline-block">View on Google Maps</span>
       </div>
       <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
     </div>
-  </div>
+  </a>
 );
 
 const HospitalIntegration = () => {
