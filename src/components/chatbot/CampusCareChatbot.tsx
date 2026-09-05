@@ -99,6 +99,11 @@ export default function CampusCareChatbot() {
     const next = [...messages, { role: "user" as const, content: question }];
     setMessages(next);
     setInput("");
+    const quick = instantAnswer(question);
+    if (quick) {
+      setMessages((m) => [...m, { role: "assistant", content: quick }]);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("site-chatbot", {
