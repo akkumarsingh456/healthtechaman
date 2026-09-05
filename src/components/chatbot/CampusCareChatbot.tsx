@@ -32,6 +32,42 @@ const DEMO_ROLES = [
   { label: "Pharmacy", query: "Give the pharmacy dummy login and password" },
 ];
 
+const DEMO_PASSWORD = "Aman@kumar@456#";
+
+// Instant, verified answers served locally — no model call, so these reply immediately.
+const INSTANT_ANSWERS: { match: RegExp; reply: string }[] = [
+  {
+    match: /\bstudent\b.*(login|password|credential)|(login|password|credential).*\bstudent\b/i,
+    reply: `**Student demo login**\n\n- Email: \`an25edi0049@student.nitw.ac.in\` (Annie, roll 25EDI0049)\n- Password: \`${DEMO_PASSWORD}\`\n\nYou can also sign up with your own official @student.nitw.ac.in email. \`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+  {
+    match: /\bdoctor\b.*(login|password|credential)|(login|password|credential).*\bdoctor\b/i,
+    reply: `**Doctor demo login**\n\n- Email: \`doctor@nitw.ac.in\` (Dr. Anchoori Karthik) or \`sr25edi0050@student.nitw.ac.in\` (Dr. Test Doctor 2)\n- Password: \`${DEMO_PASSWORD}\`\n\nOther Gmail IDs are blocked for doctor login. \`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+  {
+    match: /(lab)\b.*(login|password|credential)|(login|password|credential).*\blab\b/i,
+    reply: `**Lab Officer demo login**\n\n- Email: \`labofficer@nitw.ac.in\`\n- Password: \`${DEMO_PASSWORD}\`\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+  {
+    match: /pharmac/i,
+    reply: `**Pharmacy demo login**\n\n- Email: \`pharmacy@nitw.ac.in\`\n- Password: \`${DEMO_PASSWORD}\`\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+  {
+    match: /medical\s*staff/i,
+    reply: `**Medical Staff demo login**\n\n- Email: \`medicalstaff@nitw.ac.in\`\n- Password: \`${DEMO_PASSWORD}\`\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+  {
+    match: /\badmin\b/i,
+    reply: `**Admin access**\n\nAdmin is restricted to the owner only — \`akkumarsingh456@gmail.com\`. The admin password is not shared.\n\nFor a walkthrough, contact Aman Kumar at akkumarsingh456@gmail.com.\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+  {
+    match: /(faculty|mentor)\b.*(login|password|credential)|(login|password|credential).*\b(faculty|mentor)\b/i,
+    reply: `**Faculty / Mentor login**\n\nThese demo credentials are private and are not shared. Please contact Aman Kumar at akkumarsingh456@gmail.com.\n\n_Source: Demo logins (portal knowledge base)_`,
+  },
+];
+
+const instantAnswer = (q: string) => INSTANT_ANSWERS.find((a) => a.match.test(q))?.reply;
+
 const SUGGESTIONS = [
   "What features does this website have?",
   "How do I book an appointment?",
