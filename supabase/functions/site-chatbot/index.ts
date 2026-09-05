@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     const { messages } = (await req.json()) as { messages?: ChatMsg[] };
     const safeMessages = (Array.isArray(messages) ? messages : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-      .slice(-6)
+      .slice(-4)
       .map((m) => ({ role: m.role, content: sanitize(m.content) }))
       .filter((m) => m.content.trim().length > 0);
 
@@ -113,13 +113,15 @@ Deno.serve(async (req) => {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              signal: AbortSignal.timeout(7000),
               body: JSON.stringify({
                 systemInstruction: { parts: [{ text: SYSTEM }] },
                 contents: history,
                 generationConfig: {
-                  temperature: 0.15,
-                  maxOutputTokens: 420,
+                  temperature: 0.1,
+                  maxOutputTokens: 260,
                   topP: 0.8,
+                  topK: 20,
                   candidateCount: 1,
                 },
               }),
