@@ -40,6 +40,16 @@ const getReviewRolePresentation = (role: string) => {
   return { icon: UserRound, label: "Community member" };
 };
 
+const GmailIcon = ({ className = "h-4 w-4 shrink-0" }: { className?: string }) => (
+  <svg viewBox="0 0 48 48" className={className} aria-hidden="true" focusable="false">
+    <path fill="#4caf50" d="M45 16.2l-5 2.75-5 4.75V40h7a3 3 0 003-3V16.2z" />
+    <path fill="#1e88e5" d="M3 16.2l3.614 1.71L13 23.7V40H6a3 3 0 01-3-3V16.2z" />
+    <path fill="#e53935" d="M35 11.2L24 19.45 13 11.2l-.925 6.98L13 23.7l11 8.25 11-8.25 .925-5.52z" />
+    <path fill="#c62828" d="M3 12.298V16.2l10 7.5V11.2L9.876 8.859C9.132 8.301 8.228 8 7.298 8 4.924 8 3 9.924 3 12.298z" />
+    <path fill="#fbc02d" d="M45 12.298V16.2l-10 7.5V11.2l3.124-2.341C38.868 8.301 39.772 8 40.702 8 43.076 8 45 9.924 45 12.298z" />
+  </svg>
+);
+
 const DisclaimerSection = () => {
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [reviewForm, setReviewForm] = useState({
