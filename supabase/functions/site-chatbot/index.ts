@@ -113,13 +113,15 @@ Deno.serve(async (req) => {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
+              signal: AbortSignal.timeout(7000),
               body: JSON.stringify({
                 systemInstruction: { parts: [{ text: SYSTEM }] },
                 contents: history,
                 generationConfig: {
-                  temperature: 0.15,
-                  maxOutputTokens: 420,
+                  temperature: 0.1,
+                  maxOutputTokens: 260,
                   topP: 0.8,
+                  topK: 20,
                   candidateCount: 1,
                 },
               }),
