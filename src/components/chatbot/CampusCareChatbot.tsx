@@ -304,8 +304,29 @@ export default function CampusCareChatbot() {
               </Button>
             </div>
             <p className="mt-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2 py-1.5 text-center text-[13px] font-bold leading-snug text-primary">
-              Answers come only from this portal's verified information. Demo project by Aman Kumar — not officially valid.
+              Answers come only from this portal's verified information. Demo project by{" "}
+              <a
+                href="https://amankumar-me.lovable.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
+                Aman Kumar
+              </a>{" "}
+              — not officially valid.
             </p>
+            <div className="mt-1.5 flex items-center justify-center gap-3 text-[12px] font-semibold">
+              <a href="https://amankumar-me.lovable.app" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                <UserRound className="h-3.5 w-3.5" /> About me
+              </a>
+              <a href="https://www.linkedin.com/in/amankumar456/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                <Linkedin className="h-3.5 w-3.5" /> LinkedIn
+              </a>
+              <a href="https://www.instagram.com/anikantsingh456" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                <Instagram className="h-3.5 w-3.5" /> Instagram
+              </a>
+            </div>
+
           </form>
         </div>
       )}
