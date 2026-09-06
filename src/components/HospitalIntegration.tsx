@@ -15,17 +15,17 @@ const mapsUrl = (name: string, address: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name}, ${address}`)}`;
 
 const SUPER_SPECIALTY_WARANGAL = [
-  { name: "Rohini Super Specialty Hospital", location: "Hanamkonda", address: "Rohini Superspeciality Hospital, Ramnagar, Hanamkonda, Warangal, Telangana 506001" },
-  { name: "Samraksha Super Specialty Hospital", location: "Warangal", address: "Samraksha Super Speciality Hospital, Kishanpura, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Rohini Super Specialty Hospital", location: "Hanamkonda", address: "Rohini Super Specialty Hospital, 2-5-742, Subedari, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Samraksha Super Specialty Hospital", location: "Warangal", address: "Samraksha Super Speciality Hospital, Narsampet Road, Prathap Nagar, Warangal, Telangana" },
 ];
 
 const GENERAL_HOSPITALS_WARANGAL = [
-  { name: "Jaya Hospital", location: "Hanamkonda", address: "Jaya Hospital, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
-  { name: "Guardian Multi-Speciality Hospital", location: "Warangal", address: "Guardian Multi Speciality Hospital, Naim Nagar, Hanamkonda, Warangal, Telangana 506009" },
-  { name: "Max Care Hospitals", location: "Warangal", address: "Maxcare Hospitals, Nakkalagutta, Hanamkonda, Warangal, Telangana 506001" },
-  { name: "Pramoda Hospital", location: "Hanamkonda", address: "Pramoda Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
-  { name: "Sharat Laser Eye Hospital", location: "Hanamkonda", address: "Dr. Sharat Maxivision Eye Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
-  { name: "Sri Laxmi Narasimha Hospital", location: "Hanamkonda", address: "Sri Laxmi Narasimha Hospital, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Jaya Hospital", location: "Hanamkonda", address: "Jaya Hospital, Vijaya Talkies Road, Hanamkonda Chowrasta, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Guardian Multi-Speciality Hospital", location: "Warangal", address: "Guardian Multi Speciality Hospital, 15-1-237, Opp. L.B. College, Mulugu X Road, Vidya Nagar, Warangal, Telangana 506007" },
+  { name: "Max Care Hospitals", location: "Warangal", address: "Ekashilaa Hospitals (formerly Maxcare), 6-1-236, Sai Nagar, Opp. Ashoka Hotel, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Pramoda Hospital", location: "Hanamkonda", address: "Pramoda Hospital, Kaloji Marg, Beside Canara Bank, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { name: "Sharat Laser Eye Hospital", location: "Hanamkonda", address: "Dr. Sharat Maxivision Eye Hospital, Alankar Circle, Raganna Darwaja, Kakatiya Colony, Hanamkonda, Warangal, Telangana 506011" },
+  { name: "Sri Laxmi Narasimha Hospital", location: "Hanamkonda", address: "Sri Laxmi Narasimha Hospital, 2-2-316, Naim Nagar, Hanamkonda, Warangal, Telangana 506001" },
 ];
 
 const SUPER_SPECIALTY_HYDERABAD = [
@@ -42,23 +42,23 @@ const EMPANELLED_HOSPITALS = [
   { sno: 4, name: "M/s. Basavatarakam Indo-American Cancer Hospital & Research Institute", place: "Hyderabad", entitlement: "Employees" , address: "Basavatarakam Indo-American Cancer Hospital, Road No. 10, Banjara Hills, Hyderabad, Telangana 500034" },
   { sno: 5, name: "M/s. Star Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "Star Hospitals, Road No. 10, Banjara Hills, Hyderabad, Telangana 500034" },
   { sno: 6, name: "M/s. Omega Hospitals", place: "Hyderabad", entitlement: "Employees" , address: "Omega Hospitals, Road No. 12, Banjara Hills, Hyderabad, Telangana 500034" },
-  { sno: 7, name: "M/s. Medicover Hospitals", place: "Hyderabad & Warangal", entitlement: "Employees & Students" , address: "Medicover Hospitals, Nakkalagutta, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 8, name: "M/s. Vijaya Diagnostic Centre Ltd.", place: "Hyderabad & Warangal", entitlement: "Employees & Students" , address: "Vijaya Diagnostic Centre, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 9, name: "M/s. Rohini Medicare Pvt. Ltd.", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Rohini Superspeciality Hospital, Ramnagar, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 10, name: "M/s. Ajara Hospitals", place: "Warangal", entitlement: "Employees & Students" , address: "Ajara Hospitals, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 11, name: "M/s. Laxmi Narasimha Hospital", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Sri Laxmi Narasimha Hospital, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 12, name: "M/s. Samraksha Super Specialty Hospital", place: "Warangal", entitlement: "Employees & Students" , address: "Samraksha Super Speciality Hospital, Kishanpura, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 13, name: "M/s. Dr. Sharat Maxivision Eye Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Dr. Sharat Maxivision Eye Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 14, name: "M/s. Ekashilaa Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Ekashilaa Hospitals, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 15, name: "M/s. Jaya Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Jaya Hospital, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 16, name: "M/s. S Vision Hospital", place: "Hanamkonda", entitlement: "Employees & Students" , address: "S Vision Hospital, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 17, name: "M/s. Guardian Multi Speciality Hospital", place: "Warangal", entitlement: "Employees" , address: "Guardian Multi Speciality Hospital, Naim Nagar, Hanamkonda, Warangal, Telangana 506009" },
-  { sno: 18, name: "M/s. Pramoda Hospital", place: "Hanamkonda", entitlement: "Employees" , address: "Pramoda Hospital, Subedari, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 19, name: "M/s. Dr. Vasavi's Hospital", place: "Naimnagar, Hanamkonda", entitlement: "Employees & Students" , address: "Dr. Vasavi's Hospital, Naimnagar, Hanamkonda, Warangal, Telangana 506009" },
+  { sno: 7, name: "M/s. Medicover Hospitals", place: "Hyderabad & Warangal", entitlement: "Employees & Students" , address: "Medicover Hospitals, 23-6-156/1, Hunter Road, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 8, name: "M/s. Vijaya Diagnostic Centre Ltd.", place: "Hyderabad & Warangal", entitlement: "Employees & Students" , address: "Vijaya Diagnostic Centre, Beside Joyalukkas, Near Vijaya Talkies, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 9, name: "M/s. Rohini Medicare Pvt. Ltd.", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Rohini Super Specialty Hospital, 2-5-742, Subedari, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 10, name: "M/s. Ajara Hospitals", place: "Warangal", entitlement: "Employees & Students" , address: "Ajara Hospitals, Opp. Sub Station, Mulugu Road, Vidya Nagar, Warangal, Telangana 506007" },
+  { sno: 11, name: "M/s. Laxmi Narasimha Hospital", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Sri Laxmi Narasimha Hospital, 2-2-316, Naim Nagar, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 12, name: "M/s. Samraksha Super Specialty Hospital", place: "Warangal", entitlement: "Employees & Students" , address: "Samraksha Super Speciality Hospital, Narsampet Road, Prathap Nagar, Warangal, Telangana" },
+  { sno: 13, name: "M/s. Dr. Sharat Maxivision Eye Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Dr. Sharat Maxivision Eye Hospital, Alankar Circle, Raganna Darwaja, Kakatiya Colony, Hanamkonda, Warangal, Telangana 506011" },
+  { sno: 14, name: "M/s. Ekashilaa Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Ekashilaa Hospitals, Opp. KUDA Office, Near Ashoka Hotel, Sai Nagar, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 15, name: "M/s. Jaya Hospitals", place: "Hanamkonda", entitlement: "Employees & Students" , address: "Jaya Hospital, Vijaya Talkies Road, Hanamkonda Chowrasta, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 16, name: "M/s. S Vision Hospital", place: "Hanamkonda", entitlement: "Employees & Students" , address: "S Vision Hospital, 6-2-261, Near Hanamkonda Chowrasta, Kakaji Colony, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 17, name: "M/s. Guardian Multi Speciality Hospital", place: "Warangal", entitlement: "Employees" , address: "Guardian Multi Speciality Hospital, 15-1-237, Opp. L.B. College, Mulugu X Road, Vidya Nagar, Warangal, Telangana 506007" },
+  { sno: 18, name: "M/s. Pramoda Hospital", place: "Hanamkonda", entitlement: "Employees" , address: "Pramoda Hospital, Kaloji Marg, Beside Canara Bank, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 19, name: "M/s. Dr. Vasavi's Hospital", place: "Naimnagar, Hanamkonda", entitlement: "Employees & Students" , address: "Dr. Vasavi's Hospital, 2-2-112/A, Naim Nagar Main Road, Hanamkonda, Warangal, Telangana 506001" },
   { sno: 20, name: "M/s. Pebbles Kids Hospital", place: "Main Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Pebbles Kids Hospital, Main Road, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 21, name: "M/s. Sri Chakra Super Speciality Hospital", place: "Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Sri Chakra Super Speciality Hospital, Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 22, name: "M/s. Sri Valli Good Life Hospital", place: "Beside New Bustand Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Sri Valli Good Life Hospital, Beside New Bus Stand Road, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
-  { sno: 23, name: "M/s. K&H Dental Hospitals", place: "Near Hanuman Temple Road, Hanamkonda & JPN Road, Warangal", entitlement: "Employees & Students" , address: "K&H Dental Hospital, Near Hanuman Temple Road, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 21, name: "M/s. Sri Chakra Super Speciality Hospital", place: "Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Sri Chakra Super Speciality Hospital, Fire Station Road, Kaloji Marg, Opp. Hayagreevachary Ground, Balasamudram, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 22, name: "M/s. Sri Valli Good Life Hospital", place: "Beside New Bustand Road, Balasamudram, Hanamkonda", entitlement: "Employees & Students" , address: "Sri Valli Good Life Hospital, Sai Nagar, Balasamudram Road, Near New Bus Stand, Hanamkonda, Warangal, Telangana 506001" },
+  { sno: 23, name: "M/s. K&H Dental Hospitals", place: "Near Hanuman Temple Road, Hanamkonda & JPN Road, Warangal", entitlement: "Employees & Students" , address: "K&H Dental Hospital, Vijaya Talkies Road, Near Hanuman Temple, Opp. Sri Krishna Children's Hospital, Hanamkonda, Warangal, Telangana 506001" },
 ];
 
 const HospitalCard = ({ name, location, address }: { name: string; location: string; address: string }) => (
