@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
-import { Stethoscope, X, Send, Copy, Check, Loader2, HeartPulse, Sparkles, MessageCircleHeart, UserRound, Linkedin, Instagram } from "lucide-react";
+import { Stethoscope, X, Send, Copy, Check, Loader2, HeartPulse, Sparkles, MessageCircleHeart, UserRound, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -321,9 +321,6 @@ export default function CampusCareChatbot() {
               </a>
               <a href="https://www.linkedin.com/in/amankumar456/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
                 <Linkedin className="h-3.5 w-3.5" /> LinkedIn
-              </a>
-              <a href="https://www.instagram.com/anikantsingh456" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                <Instagram className="h-3.5 w-3.5" /> Instagram
               </a>
             </div>
 
