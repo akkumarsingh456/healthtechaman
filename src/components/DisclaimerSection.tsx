@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck, Linkedin, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -323,8 +323,39 @@ const DisclaimerSection = () => {
                 <p>
                   As of now, I have restricted a few features and am actively working for the betterment of the project.
                 </p>
+
+                <div className="pt-2 flex flex-wrap items-center gap-3">
+                  <a
+                    href="https://amankumar-me.lovable.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]"
+                  >
+                    <UserRound className="w-4 h-4" />
+                    Read about me
+                  </a>
+                  <a
+                    href="https://www.linkedin.com/in/amankumar456/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                    LinkedIn
+                  </a>
+                  <a
+                    href="https://www.instagram.com/anikantsingh456"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
+                  >
+                    <Instagram className="w-4 h-4" />
+                    Instagram
+                  </a>
+                </div>
               </div>
             </div>
+
             {/* ---> END NEW Bio Section <--- */}
 
             <div className="grid sm:grid-cols-2 gap-3 pt-4 border-t border-border/40">
