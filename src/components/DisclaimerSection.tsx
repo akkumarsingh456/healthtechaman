@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck, Linkedin, Instagram } from "lucide-react";
+import { AlertTriangle, Mail, Send, Save, CheckCircle, XCircle, Megaphone, ShieldAlert, Star, MessageSquare, GraduationCap, BookOpen, Quote, Loader2, UserRound, Presentation, Award, ShieldCheck, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -342,15 +342,6 @@ const DisclaimerSection = () => {
                   >
                     <Linkedin className="w-4 h-4" />
                     LinkedIn
-                  </a>
-                  <a
-                    href="https://www.instagram.com/anikantsingh456"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10"
-                  >
-                    <Instagram className="w-4 h-4" />
-                    Instagram
                   </a>
                 </div>
               </div>
