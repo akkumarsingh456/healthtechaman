@@ -126,6 +126,12 @@ const HospitalIntegration = () => {
           </p>
         </div>
 
+        <p className="mb-6 text-center text-sm text-muted-foreground">
+          Phone numbers and opening hours are collected from publicly available listings and are
+          <span className="font-semibold text-foreground"> unverified</span> — please call ahead to confirm before visiting.
+        </p>
+
+
         <Accordion type="multiple" className="space-y-4">
           {/* Super Specialty Hospitals - Warangal */}
           <AccordionItem value="super-warangal" className="border rounded-xl overflow-hidden">
