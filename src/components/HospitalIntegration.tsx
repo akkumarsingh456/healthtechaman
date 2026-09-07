@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, MapPin, Users, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import { Building2, MapPin, Users, ChevronDown, ChevronUp, ExternalLink, Phone, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,19 +64,13 @@ const EMPANELLED_HOSPITALS = [
 ];
 
 
-const HospitalCard = ({ name, location, address }: { name: string; location: string; address: string }) => (
-  <a
-    href={mapsUrl(name, address)}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={`Open ${name} on Google Maps`}
-    className="block p-4 bg-white rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group"
-  >
+const HospitalCard = ({ name, location, address, phone, hours }: { name: string; location: string; address: string; phone?: string; hours?: string }) => (
+  <div className="p-4 bg-white rounded-lg border border-border hover:border-primary/50 hover:shadow-md transition-all group">
     <div className="flex items-start gap-3">
       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         <Building2 className="h-5 w-5 text-primary" />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">
           {name}
         </h4>
@@ -84,12 +78,35 @@ const HospitalCard = ({ name, location, address }: { name: string; location: str
           <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
           <span>{address}</span>
         </p>
-        <span className="text-xs text-primary font-medium mt-1 inline-block">View on Google Maps</span>
+        <p className="text-sm text-muted-foreground flex items-start gap-1 mt-1">
+          <Clock className="h-3 w-3 mt-0.5 shrink-0" />
+          <span>{hours || "Timings not published — please call ahead"}</span>
+        </p>
+        <p className="text-sm text-muted-foreground flex items-start gap-1 mt-1">
+          <Phone className="h-3 w-3 mt-0.5 shrink-0" />
+          {phone ? (
+            <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="font-medium text-foreground hover:text-primary hover:underline">
+              {phone}
+            </a>
+          ) : (
+            <span>Phone number not published</span>
+          )}
+        </p>
+        <a
+          href={mapsUrl(name, address)}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open ${name} on Google Maps`}
+          className="text-xs text-primary font-medium mt-2 inline-flex items-center gap-1 hover:underline"
+        >
+          View on Google Maps
+          <ExternalLink className="h-3 w-3" />
+        </a>
       </div>
-      <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
     </div>
-  </a>
+  </div>
 );
+
 
 const HospitalIntegration = () => {
   const [showAllEmpanelled, setShowAllEmpanelled] = useState(false);
