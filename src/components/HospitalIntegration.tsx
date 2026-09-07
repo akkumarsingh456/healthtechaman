@@ -215,6 +215,8 @@ const HospitalIntegration = () => {
                         <th className="text-left p-3 font-semibold text-sm border-b">S.No</th>
                         <th className="text-left p-3 font-semibold text-sm border-b">Name of the Hospital</th>
                         <th className="text-left p-3 font-semibold text-sm border-b">Address</th>
+                        <th className="text-left p-3 font-semibold text-sm border-b">Opening Hours</th>
+                        <th className="text-left p-3 font-semibold text-sm border-b">Contact</th>
                         <th className="text-left p-3 font-semibold text-sm border-b">Entitlement</th>
                       </tr>
                     </thead>
