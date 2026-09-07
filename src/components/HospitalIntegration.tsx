@@ -236,6 +236,25 @@ const HospitalIntegration = () => {
                               <span>{hospital.address}</span>
                             </a>
                           </td>
+                          <td className="p-3 border-b text-sm text-muted-foreground whitespace-nowrap">
+                            <span className="inline-flex items-start gap-1">
+                              <Clock className="h-3 w-3 mt-0.5 shrink-0" />
+                              {hospital.hours || "Not published"}
+                            </span>
+                          </td>
+                          <td className="p-3 border-b text-sm whitespace-nowrap">
+                            {hospital.phone ? (
+                              <a href={`tel:${hospital.phone.replace(/[^\d+]/g, "")}`} className="inline-flex items-start gap-1 font-medium hover:text-primary hover:underline">
+                                <Phone className="h-3 w-3 mt-0.5 shrink-0" />
+                                {hospital.phone}
+                              </a>
+                            ) : (
+                              <span className="inline-flex items-start gap-1 text-muted-foreground">
+                                <Phone className="h-3 w-3 mt-0.5 shrink-0" />
+                                Not published
+                              </span>
+                            )}
+                          </td>
                           <td className="p-3 border-b">
                             <Badge 
                               variant={hospital.entitlement === "Employees & Students" ? "default" : "secondary"}
