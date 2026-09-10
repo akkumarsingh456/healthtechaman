@@ -55,6 +55,7 @@ const MedicalStaffDashboard = lazyRetry(() => import("./pages/MedicalStaffDashbo
 const MedicalStaffHome = lazyRetry(() => import("./pages/MedicalStaffHome"));
 const EmergencyPage = lazyRetry(() => import("./pages/EmergencyPage"));
 const ProposalViewer = lazyRetry(() => import("./pages/ProposalViewer"));
+const VerifyDocument = lazyRetry(() => import("./pages/VerifyDocument"));
 
 const PageLoader = () => (
   <div className="min-h-screen bg-background">
@@ -104,6 +105,7 @@ const App = () => (
             <Route path="/email-confirmation" element={<EmailConfirmation />} />
             <Route path="/medical-team" element={<MedicalTeam />} />
             <Route path="/proposal" element={<ProposalViewer />} />
+            <Route path="/verify" element={<VerifyDocument />} />
             
             {/* Protected Routes */}
             <Route path="/student/register" element={<ProtectedRoute><StudentRegistration /></ProtectedRoute>} />
