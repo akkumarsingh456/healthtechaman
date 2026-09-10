@@ -98,7 +98,7 @@ const VerifyDocument = () => {
             title={title}
             srcDoc={html}
             sandbox="allow-modals"
-            className="h-[1200px] w-full rounded-lg border bg-background"
+            className="h-[820px] w-full rounded-lg border bg-background"
           />
         )}
       </div>
