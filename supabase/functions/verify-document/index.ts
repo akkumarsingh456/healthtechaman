@@ -46,7 +46,7 @@ function buildHtml(kind: "referral" | "leave-certificate", leave: any, student: 
           ["Referral Date", fmt(leave.referral_date || leave.created_at)],
           ["Condition", leave.illness_description],
           ["Expected Duration", leave.expected_duration],
-          ["Referring Doctor", `Dr. ${doctorName}`],
+          ["Referring Doctor", doctorName],
           ["Doctor's Notes", leave.doctor_notes || "—"],
         ]
       : [
@@ -59,7 +59,7 @@ function buildHtml(kind: "referral" | "leave-certificate", leave: any, student: 
           ["Expected Return", fmt(leave.expected_return_date)],
           ["Rest Days Advised", leave.rest_days == null ? "—" : String(leave.rest_days)],
           ["Medical Clearance", leave.doctor_clearance ? `Granted on ${fmt(leave.doctor_clearance_date)}` : "Pending"],
-          ["Certifying Doctor", `Dr. ${doctorName}`],
+          ["Certifying Doctor", doctorName],
         ];
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/>
@@ -138,14 +138,14 @@ Deno.serve(async (req) => {
     .eq("id", leave.student_id)
     .maybeSingle();
 
-  let doctorName = "Campus Doctor";
+  let doctorName = "Dr. Campus Doctor";
   if (leave.referring_doctor_id) {
     const { data: doc2 } = await admin
       .from("medical_officers")
       .select("name")
       .eq("id", leave.referring_doctor_id)
       .maybeSingle();
-    if (doc2?.name) doctorName = doc2.name;
+    if (doc2?.name) doctorName = /^dr\.?\s/i.test(doc2.name) ? doc2.name : `Dr. ${doc2.name}`;
   }
 
   const html = buildHtml(doc as any, leave, student || { full_name: "—", roll_number: "—" }, doctorName);
