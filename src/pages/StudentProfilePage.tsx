@@ -229,9 +229,29 @@ export default function StudentProfilePage() {
     if (user && !roleLoading) fetchData();
   }, [user, roleLoading]);
 
-  const fetchData = async () => {
+  // Reload whenever the background auto-refresh finishes, when the tab
+  // becomes visible again, or when the device comes back online — so the
+  // profile always fills in on any laptop/phone/new browser.
+  useEffect(() => {
+    if (!user || roleLoading) return;
+    const reload = () => fetchData();
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchData(); };
+    window.addEventListener('app:data-refreshed', reload);
+    window.addEventListener('online', reload);
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.removeEventListener('app:data-refreshed', reload);
+      window.removeEventListener('online', reload);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [user, roleLoading]);
+
+  const fetchData = async (attempt = 0): Promise<void> => {
     try {
-      const { data: studentData } = await supabase
+      // Make sure the login session is fully restored before reading data
+      // (on a fresh browser the first request can otherwise run too early).
+      await supabase.auth.getSession();
+      const { data: studentData, error: studentErr } = await supabase
         .from('students')
         .select(`
           id, full_name, roll_number, email, phone, program, branch, batch, year_of_study,
@@ -240,6 +260,13 @@ export default function StudentProfilePage() {
         `)
         .eq('user_id', user!.id)
         .maybeSingle();
+
+      if (!studentData && attempt < 5) {
+        // Retry with backoff instead of showing an empty profile.
+        if (studentErr) console.warn('Student profile load failed, retrying', studentErr.message);
+        setTimeout(() => fetchData(attempt + 1), Math.min(800 * 2 ** attempt, 8000));
+        return;
+      }
 
       if (studentData) {
         setStudent(studentData as StudentData);

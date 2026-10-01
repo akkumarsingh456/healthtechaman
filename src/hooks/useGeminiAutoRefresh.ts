@@ -101,6 +101,8 @@ export function useGeminiAutoRefresh() {
         // Records may have been re-linked — pull correct data into the UI.
         if (res.synced) queryClient.invalidateQueries();
         else queryClient.invalidateQueries({ refetchType: "active" });
+        // Tell pages that load data manually (e.g. student profile) to reload.
+        window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
 
         schedule(INTERVAL_MS);
       } finally {
