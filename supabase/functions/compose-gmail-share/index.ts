@@ -82,8 +82,15 @@ Deno.serve(async (req) => {
     } catch (_) { /* skip */ }
   }
 
-  // System document verification links (open the printable doc in-app)
-  const origin = (payload.appOrigin || "").replace(/\/$/, "");
+  // System document verification links (open the printable doc in-app).
+  // Always use the PUBLIC published site so recipients never hit the
+  // private preview login / access-request wall.
+  const PUBLIC_APP_ORIGIN = "https://campus-care-amankumar456.lovable.app";
+  const rawOrigin = (payload.appOrigin || "").replace(/\/$/, "");
+  const isPrivateOrigin =
+    !rawOrigin ||
+    /id-preview--|lovableproject\.com|localhost|127\.0\.0\.1/i.test(rawOrigin);
+  const origin = isPrivateOrigin ? PUBLIC_APP_ORIGIN : rawOrigin;
   const systemDocs: { name: string; url: string }[] = [];
   if (leave) {
     if (payload.includeReferral && origin) {
