@@ -75,13 +75,13 @@ Deno.serve(async (req) => {
     leave = data;
   }
 
-  // Sign uploaded files (1h)
+  // Sign uploaded files (24h, public — no login needed to view)
   const fileLinks: { name: string; url: string }[] = [];
   for (const f of payload.uploadedFiles || []) {
     try {
       const { data: signed } = await admin.storage
         .from("student-health-uploads")
-        .createSignedUrl(f.path, 3600);
+        .createSignedUrl(f.path, 60 * 60 * 24);
       if (signed?.signedUrl) fileLinks.push({ name: f.name, url: signed.signedUrl });
     } catch (_) { /* skip */ }
   }
