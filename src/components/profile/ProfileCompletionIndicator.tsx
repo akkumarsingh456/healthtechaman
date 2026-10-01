@@ -23,7 +23,7 @@ export default function ProfileCompletionIndicator({
 }: ProfileCompletionIndicatorProps) {
   const filledCount = fields.filter(f => f.filled).length;
   const totalCount = fields.length;
-  const percentage = Math.round((filledCount / totalCount) * 100);
+  const percentage = totalCount > 0 ? Math.round((filledCount / totalCount) * 100) : 0;
   
   const missingRequired = fields.filter(f => f.required && !f.filled);
   const missingOptional = fields.filter(f => !f.required && !f.filled);
