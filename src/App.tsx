@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Skeleton } from "@/components/ui/skeleton";
 import AutoScanIndicator from "./components/AutoScanIndicator";
+import GoogleStudentDomainGuard from "./components/auth/GoogleStudentDomainGuard";
 
 // Auto-retry dynamic imports on chunk load failure (stale deploy)
 function lazyRetry(importFn: () => Promise<any>) {
@@ -95,6 +96,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <GoogleStudentDomainGuard />
       <BrowserRouter>
         {/* BackNavigation integrated into Header */}
         <Suspense fallback={<PageLoader />}>
