@@ -884,7 +884,7 @@ export default function Auth() {
                     <Input
                       id="signin-email"
                       type="email"
-                      placeholder={userType === "admin" ? "admin@email.com" : userType === "doctor" ? "doctor@nitw.ac.in" : "staff@nitw.ac.in"}
+                      placeholder={userType === "admin" ? "admin@email.com" : userType === "doctor" ? "doctor@nitw.ac.in" : userType === "lab_officer" ? "labofficer@nitw.ac.in" : userType === "pharmacy" ? "pharmacy@nitw.ac.in" : userType === "medical_staff" ? "medicalstaff@nitw.ac.in" : "staff@nitw.ac.in"}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10"
