@@ -8,6 +8,7 @@ const VerifyDocument = () => {
   const [params] = useSearchParams();
   const doc = params.get("doc") || "";
   const id = params.get("id") || "";
+  const code = (params.get("code") || "").toUpperCase();
 
   const [html, setHtml] = useState<string | null>(null);
   const [title, setTitle] = useState("Document Verification");
@@ -20,7 +21,7 @@ const VerifyDocument = () => {
       setLoading(true);
       setError(null);
       const { data, error: fnError } = await supabase.functions.invoke("verify-document", {
-        body: { doc, id },
+        body: code ? { code } : { doc, id },
       });
       if (!active) return;
       if (fnError || !data?.ok) {
@@ -41,7 +42,7 @@ const VerifyDocument = () => {
     return () => {
       active = false;
     };
-  }, [doc, id]);
+  }, [doc, id, code]);
 
   const handlePrint = () => {
     const frame = document.getElementById("verify-doc-frame") as HTMLIFrameElement | null;

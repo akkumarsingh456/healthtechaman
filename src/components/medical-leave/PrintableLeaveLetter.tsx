@@ -1,3 +1,4 @@
+import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "@/lib/print/issuedDocuments";
 import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,14 +65,15 @@ const PrintableLeaveLetter = ({ leaveData, onClose }: PrintableLeaveLetterProps)
     if (!printContent) return;
 
     const documentId = `ML-${leaveData.id.slice(0, 8).toUpperCase()}`;
-    const verificationUrl = `${window.location.origin}/verify?doc=medical-leave&id=${documentId}`;
+    const verifyCode = newVerificationCode();
+    const verificationUrl = getCodeVerifyUrl(verifyCode);
     const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
     const currentDate = format(new Date(), "PPP");
 
     const printWindow = window.open('', '', 'width=800,height=600');
     if (!printWindow) return;
 
-    printWindow.document.write(`
+    const fullHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -290,10 +292,12 @@ const PrintableLeaveLetter = ({ leaveData, onClose }: PrintableLeaveLetterProps)
         </head>
         <body>
           ${printContent.innerHTML}
-          ${getFooterHtml(documentId, 'Medical Leave Certificate', qrDataUrl, currentDate)}
+          ${getFooterHtml(verifyCode, 'Medical Leave Certificate', qrDataUrl, currentDate)}
         </body>
       </html>
-    `);
+    `;
+    printWindow.document.write(fullHtml);
+    void saveIssuedDocument({ code: verifyCode, docType: "Medical Leave Certificate", title: `Medical Leave Letter - ${leaveData.studentName}`, html: fullHtml, sourceId: documentId });
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();

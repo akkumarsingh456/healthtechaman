@@ -1,3 +1,4 @@
+import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "@/lib/print/issuedDocuments";
 import { Button } from "@/components/ui/button";
 import { Printer, FileText } from "lucide-react";
 import { format } from "date-fns";
@@ -61,7 +62,8 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
     const esc = (s: unknown) =>
       String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
     const documentId = `REF-${Date.now().toString(36).toUpperCase()}`;
-    const verificationUrl = getVerificationUrl(documentId, 'referral');
+    const verifyCode = newVerificationCode();
+    const verificationUrl = getCodeVerifyUrl(verifyCode);
     const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
     
     const printWindow = window.open('', '', 'width=800,height=600');
@@ -81,7 +83,7 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
 
     const priority = priorityColors[data.healthPriority] || priorityColors.medium;
 
-    printWindow.document.write(`
+    const fullHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -513,10 +515,12 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
             </div>
           </div>
 
-          ${getFooterHtml(documentId, 'Medical Referral Letter', qrDataUrl, currentDate)}
+          ${getFooterHtml(verifyCode, 'Medical Referral Letter', qrDataUrl, currentDate)}
         </body>
       </html>
-    `);
+    `;
+    printWindow.document.write(fullHtml);
+    void saveIssuedDocument({ code: verifyCode, docType: "Medical Referral Letter", title: `Medical Referral Letter - ${data.studentName}`, html: fullHtml, sourceId: documentId });
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();

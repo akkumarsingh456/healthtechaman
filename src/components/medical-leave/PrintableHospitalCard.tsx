@@ -1,3 +1,4 @@
+import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "@/lib/print/issuedDocuments";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { getCompactFooterStyles, getCompactFooterHtml } from "@/lib/print/generateVerificationQR";
@@ -53,7 +54,8 @@ const PrintableHospitalCard = ({
 }: PrintableHospitalCardProps) => {
   const handlePrint = async () => {
     const documentId = `HC-${Date.now().toString(36).toUpperCase()}`;
-    const verificationUrl = `${window.location.origin}/verify?doc=hospital-card&id=${documentId}`;
+    const verifyCode = newVerificationCode();
+    const verificationUrl = getCodeVerifyUrl(verifyCode);
     const qrDataUrl = await generateQRDataUrl(verificationUrl, 60);
 
     const printWindow = window.open('', '_blank');
@@ -483,7 +485,7 @@ const PrintableHospitalCard = ({
             </div>
           ` : ''}
           
-          ${getCompactFooterHtml(documentId, qrDataUrl)}
+          ${getCompactFooterHtml(verifyCode, qrDataUrl)}
         </div>
         
         <script>
@@ -496,6 +498,7 @@ const PrintableHospitalCard = ({
     `;
 
     printWindow.document.write(printContent);
+    void saveIssuedDocument({ code: verifyCode, docType: "Hospital Referral Card", title: `Hospital Referral Card - ${hospital.name}`, html: printContent, sourceId: documentId });
     printWindow.document.close();
   };
 

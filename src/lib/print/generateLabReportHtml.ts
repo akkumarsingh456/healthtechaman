@@ -1,3 +1,4 @@
+import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "./issuedDocuments";
 import { format } from "date-fns";
 import { generateQRDataUrl } from "@/hooks/useQRCode";
 import { getFooterStyles, getFooterHtml } from "./generateVerificationQR";
@@ -40,7 +41,8 @@ async function getEmblemBase64(): Promise<string> {
  */
 export async function generateLabReportHtmlBlob(opts: LabReportHtmlOptions): Promise<Blob> {
   const reportNo = `LR/${format(new Date(opts.testDate), "yyyyMMdd")}/${opts.reportId.slice(0, 6).toUpperCase()}`;
-  const verificationUrl = `${window.location.origin}/verify?doc=LAB_REPORT&id=${encodeURIComponent(reportNo)}`;
+  const verifyCode = newVerificationCode();
+  const verificationUrl = getCodeVerifyUrl(verifyCode);
   const [qrDataUrl, emblemBase64] = await Promise.all([
     generateQRDataUrl(verificationUrl, 80),
     getEmblemBase64(),
@@ -168,9 +170,10 @@ export async function generateLabReportHtmlBlob(opts: LabReportHtmlOptions): Pro
 </head>
 <body>
   ${bodyHtml}
-  ${getFooterHtml(reportNo, "LAB_REPORT", qrDataUrl, currentDate)}
+  ${getFooterHtml(verifyCode, "LAB_REPORT", qrDataUrl, currentDate)}
 </body>
 </html>`;
 
+  void saveIssuedDocument({ code: verifyCode, docType: "LAB_REPORT", title: `Lab Report — ${opts.studentName}`, html: fullHtml, sourceId: reportNo });
   return new Blob([fullHtml], { type: "text/html" });
 }
