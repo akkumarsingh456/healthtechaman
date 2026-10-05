@@ -108,12 +108,29 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   let doc = url.searchParams.get("doc") || "";
   let id = url.searchParams.get("id") || "";
+  let code = url.searchParams.get("code") || "";
   if (req.method === "POST") {
     try {
       const b = await req.json();
       doc = b.doc || doc;
       id = b.id || id;
+      code = b.code || code;
     } catch (_) { /* ignore */ }
+  }
+
+  if (code) {
+    if (!/^[A-Z0-9]{12,32}$/.test(code)) return json({ error: "invalid_id" }, 400);
+    const adminC = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: snap, error: snapErr } = await adminC
+      .from("issued_documents")
+      .select("code, doc_type, title, html, created_at")
+      .eq("code", code)
+      .maybeSingle();
+    if (snapErr) return json({ error: "lookup_failed" }, 500);
+    if (!snap) return json({ error: "not_found" }, 404);
+    const banner = `<div style="position:sticky;top:0;z-index:99999;background:#ecfdf5;border:1px solid #10b981;color:#065f46;font:600 12px Arial,sans-serif;padding:8px 12px;text-align:center">&#10003; Verified copy · Code ${esc(snap.code)} · Issued ${esc(fmt(snap.created_at))}</div>`;
+    const html = String(snap.html).replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<body([^>]*)>/i, `<body$1>${banner}`);
+    return json({ ok: true, doc: snap.doc_type, html, title: `${snap.title} — Verified (${snap.code})` });
   }
 
   if (doc !== "referral" && doc !== "leave-certificate") return json({ error: "invalid_doc" }, 400);
