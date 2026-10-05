@@ -1,3 +1,4 @@
+import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "@/lib/print/issuedDocuments";
 import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,8 @@ const PrintableLeaveLetter = ({ leaveData, onClose }: PrintableLeaveLetterProps)
     if (!printContent) return;
 
     const documentId = `ML-${leaveData.id.slice(0, 8).toUpperCase()}`;
-    const verificationUrl = `${window.location.origin}/verify?doc=medical-leave&id=${documentId}`;
+    const verifyCode = newVerificationCode();
+    const verificationUrl = getCodeVerifyUrl(verifyCode);
     const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
     const currentDate = format(new Date(), "PPP");
 

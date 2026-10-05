@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { generateQRDataUrl } from "@/hooks/useQRCode";
 import { getFooterStyles, getFooterHtml } from "./generateVerificationQR";
+import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "./issuedDocuments";
 
 /**
  * Shared print utility that opens a new window with full WYSIWYG styling.
@@ -19,7 +20,8 @@ export interface PrintDocumentOptions {
 
 export const printDocument = async (opts: PrintDocumentOptions) => {
   const { title, bodyHtml, extraCss = "", documentId, documentType, skipFooter } = opts;
-  const verificationUrl = `${window.location.origin}/verify?doc=${encodeURIComponent(documentType)}&id=${encodeURIComponent(documentId)}`;
+  const verifyCode = newVerificationCode();
+  const verificationUrl = getCodeVerifyUrl(verifyCode);
   const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
   const currentDate = format(new Date(), "PPP");
 
@@ -29,7 +31,7 @@ export const printDocument = async (opts: PrintDocumentOptions) => {
     return;
   }
 
-  printWindow.document.write(`
+  const fullHtml = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -364,14 +366,16 @@ export const printDocument = async (opts: PrintDocumentOptions) => {
       <body>
         <div class="watermark-top-bar">⚠️ This is a student project document. No official validity. NOT for official use.</div>
         ${bodyHtml}
-        ${!skipFooter ? getFooterHtml(documentId, documentType, qrDataUrl, currentDate) : ""}
+        ${!skipFooter ? getFooterHtml(verifyCode, documentType, qrDataUrl, currentDate) : ""}
         <div class="watermark-legal-bar" style="text-align:center;font-size:9pt;color:#cc0000;border-top:2px solid #cc0000;padding:10px 8px;margin-top:20px;font-family:Arial,sans-serif;font-weight:bold;background:#fff5f5;">
           ⚠️ DISCLAIMER: This is not the official website of NIT Warangal. No medical claims or documents issued here are valid for official, legal, or medical purposes. All data is dummy or publicly available from the NIT Warangal website.
         </div>
         <div class="watermark-bottom-bar">⚠️ This is a student project document. No official validity. Do not use for medical leave or any official purpose.</div>
       </body>
     </html>
-  `);
+  `;
+  printWindow.document.write(fullHtml);
+  void saveIssuedDocument({ code: verifyCode, docType: documentType, title, html: fullHtml, sourceId: documentId });
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
