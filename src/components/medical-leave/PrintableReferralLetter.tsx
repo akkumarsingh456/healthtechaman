@@ -83,7 +83,7 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
 
     const priority = priorityColors[data.healthPriority] || priorityColors.medium;
 
-    printWindow.document.write(`
+    const fullHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -515,10 +515,12 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
             </div>
           </div>
 
-          ${getFooterHtml(documentId, 'Medical Referral Letter', qrDataUrl, currentDate)}
+          ${getFooterHtml(verifyCode, 'Medical Referral Letter', qrDataUrl, currentDate)}
         </body>
       </html>
-    `);
+    `;
+    printWindow.document.write(fullHtml);
+    void saveIssuedDocument({ code: verifyCode, docType: "Medical Referral Letter", title: `Medical Referral Letter - ${data.studentName}`, html: fullHtml, sourceId: documentId });
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();

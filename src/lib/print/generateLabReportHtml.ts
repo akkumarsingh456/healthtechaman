@@ -170,7 +170,7 @@ export async function generateLabReportHtmlBlob(opts: LabReportHtmlOptions): Pro
 </head>
 <body>
   ${bodyHtml}
-  ${getFooterHtml(reportNo, "LAB_REPORT", qrDataUrl, currentDate)}
+  ${getFooterHtml(verifyCode, "LAB_REPORT", qrDataUrl, currentDate)}
 </body>
 </html>`;
 

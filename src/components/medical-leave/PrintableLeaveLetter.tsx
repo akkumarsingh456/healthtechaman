@@ -73,7 +73,7 @@ const PrintableLeaveLetter = ({ leaveData, onClose }: PrintableLeaveLetterProps)
     const printWindow = window.open('', '', 'width=800,height=600');
     if (!printWindow) return;
 
-    printWindow.document.write(`
+    const fullHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -292,10 +292,12 @@ const PrintableLeaveLetter = ({ leaveData, onClose }: PrintableLeaveLetterProps)
         </head>
         <body>
           ${printContent.innerHTML}
-          ${getFooterHtml(documentId, 'Medical Leave Certificate', qrDataUrl, currentDate)}
+          ${getFooterHtml(verifyCode, 'Medical Leave Certificate', qrDataUrl, currentDate)}
         </body>
       </html>
-    `);
+    `;
+    printWindow.document.write(fullHtml);
+    void saveIssuedDocument({ code: verifyCode, docType: "Medical Leave Certificate", title: `Medical Leave Letter - ${leaveData.studentName}`, html: fullHtml, sourceId: documentId });
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();

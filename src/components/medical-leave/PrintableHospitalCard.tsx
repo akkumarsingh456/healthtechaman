@@ -485,7 +485,7 @@ const PrintableHospitalCard = ({
             </div>
           ` : ''}
           
-          ${getCompactFooterHtml(documentId, qrDataUrl)}
+          ${getCompactFooterHtml(verifyCode, qrDataUrl)}
         </div>
         
         <script>
@@ -498,6 +498,7 @@ const PrintableHospitalCard = ({
     `;
 
     printWindow.document.write(printContent);
+    void saveIssuedDocument({ code: verifyCode, docType: "Hospital Referral Card", title: `Hospital Referral Card - ${hospital.name}`, html: printContent, sourceId: documentId });
     printWindow.document.close();
   };
 
