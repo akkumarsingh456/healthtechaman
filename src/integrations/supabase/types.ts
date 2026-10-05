@@ -630,6 +630,36 @@ export type Database = {
           },
         ]
       }
+      issued_documents: {
+        Row: {
+          code: string
+          created_at: string
+          doc_type: string
+          html: string
+          issued_by: string
+          source_id: string | null
+          title: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          doc_type: string
+          html: string
+          issued_by?: string
+          source_id?: string | null
+          title: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          doc_type?: string
+          html?: string
+          issued_by?: string
+          source_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       lab_reports: {
         Row: {
           created_at: string
