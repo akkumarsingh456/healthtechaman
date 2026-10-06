@@ -104,12 +104,15 @@ const DoctorAppointmentsList = ({ doctorId }: DoctorAppointmentsListProps) => {
       // Date filter
       let dateMatch = true;
       const isCompleted = apt.status === "completed";
+      const isOpen = apt.status === "pending" || apt.status === "confirmed";
       if (dateFilter === "today") {
         dateMatch = isToday(aptDate) && !isCompleted;
       } else if (dateFilter === "upcoming") {
         dateMatch = aptDate >= today && !isToday(aptDate) && !isCompleted;
+      } else if (dateFilter === "overdue") {
+        dateMatch = aptDate < today && isOpen;
       } else if (dateFilter === "past") {
-        dateMatch = aptDate < today || isCompleted;
+        dateMatch = (aptDate < today && !isOpen) || isCompleted;
       }
 
       // Search filter
@@ -128,6 +131,7 @@ const DoctorAppointmentsList = ({ doctorId }: DoctorAppointmentsListProps) => {
 
   const todayAppointments = filterAppointments("today");
   const upcomingAppointments = filterAppointments("upcoming");
+  const overdueAppointments = [...filterAppointments("overdue")].reverse();
   // Deduplicate past appointments: show only the latest visit per student
   const pastAppointmentsAll = filterAppointments("past");
   const pastAppointments = (() => {
@@ -203,7 +207,7 @@ const DoctorAppointmentsList = ({ doctorId }: DoctorAppointmentsListProps) => {
 
       {/* Appointments Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full max-w-md grid-cols-3">
+        <TabsList className="grid w-full max-w-xl grid-cols-4">
           <TabsTrigger value="today" className="flex items-center gap-1.5 text-xs sm:text-sm px-2 sm:px-4">
             <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             Today ({todayAppointments.length})
@@ -211,10 +215,33 @@ const DoctorAppointmentsList = ({ doctorId }: DoctorAppointmentsListProps) => {
           <TabsTrigger value="upcoming" className="text-xs sm:text-sm px-2 sm:px-4">
             Upcoming ({upcomingAppointments.length})
           </TabsTrigger>
+          <TabsTrigger value="overdue" className="text-xs sm:text-sm px-2 sm:px-4">
+            Pending ({overdueAppointments.length})
+          </TabsTrigger>
           <TabsTrigger value="past" className="text-xs sm:text-sm px-2 sm:px-4">
             Past ({pastAppointments.length})
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="overdue" className="mt-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                Pending from earlier days (needs action)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {overdueAppointments.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">Nothing pending</p>
+              ) : (
+                overdueAppointments.map((apt) => (
+                  <AppointmentCard key={apt.id} appointment={apt} doctorId={doctorId} />
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="today" className="mt-4">
           <Card>
