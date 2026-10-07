@@ -907,13 +907,16 @@ export default function StudentProfilePage() {
                 <p className="text-muted-foreground text-sm mt-2">Roll No: <span className="font-semibold text-foreground">{student?.roll_number}</span></p>
                 {student?.roll_number?.toLowerCase() === ANNIE_ROLL && (
                   <div className="flex items-center gap-2 mt-3" aria-label="Profile stickers">
+                    <span className="text-xs text-muted-foreground mr-1">Tap a sticker to use it as your photo:</span>
                     {ANNIE_STICKERS.map((s) => (
-                      <div
+                      <button
                         key={s.label}
-                        title={s.label}
-                        role="img"
-                        aria-label={s.label}
-                        className="w-12 h-12 rounded-xl border border-primary/20 bg-background/70 shadow-sm hover:scale-110 transition-transform"
+                        type="button"
+                        title={`${s.label} — set as profile photo`}
+                        aria-label={`Set ${s.label} sticker as profile photo`}
+                        disabled={uploadingPhoto}
+                        onClick={() => handleStickerPhoto(s)}
+                        className="w-12 h-12 rounded-xl border border-primary/20 bg-background/70 shadow-sm hover:scale-110 hover:border-primary/50 active:scale-95 transition-transform cursor-pointer disabled:opacity-50"
                         style={{
                           backgroundImage: `url(${annieProfileIcons})`,
                           backgroundSize: '200% 200%',
