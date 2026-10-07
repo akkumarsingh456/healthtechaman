@@ -861,6 +861,25 @@ export default function StudentProfilePage() {
                   )}
                 </div>
                 <p className="text-muted-foreground text-sm mt-2">Roll No: <span className="font-semibold text-foreground">{student?.roll_number}</span></p>
+                {student?.roll_number?.toLowerCase() === ANNIE_ROLL && (
+                  <div className="flex items-center gap-2 mt-3" aria-label="Profile stickers">
+                    {ANNIE_STICKERS.map((s) => (
+                      <div
+                        key={s.label}
+                        title={s.label}
+                        role="img"
+                        aria-label={s.label}
+                        className="w-12 h-12 rounded-xl border border-primary/20 bg-background/70 shadow-sm hover:scale-110 transition-transform"
+                        style={{
+                          backgroundImage: `url(${annieProfileIcons})`,
+                          backgroundSize: '200% 200%',
+                          backgroundPosition: s.position,
+                        }}
+                      />
+                    ))}
+                    <span className="text-lg" aria-hidden="true">🌸💖📚</span>
+                  </div>
+                )}
               </div>
               {/* Health Stats */}
               <div className="grid grid-cols-3 gap-3">
