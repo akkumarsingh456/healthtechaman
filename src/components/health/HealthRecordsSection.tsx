@@ -167,7 +167,7 @@ const HealthRecordsSection = () => {
         type: (v.reason_category === 'routine_checkup' ? 'Checkup' : v.reason_category === 'mental_wellness' ? 'Assessment' : 'Medical Report') as HealthRecord['type'],
         student: v.students?.full_name || 'Unknown',
         studentRoll: v.students?.roll_number || 'N/A',
-        doctor: v.medical_officers?.name ? `Dr. ${v.medical_officers.name}` : 'Health Centre',
+        doctor: v.medical_officers?.name ? `${v.medical_officers.name}` : 'Health Centre',
         department: v.medical_officers?.designation || 'General Medicine',
         summary: v.reason_notes || v.diagnosis || `${formatReasonCategory(v.reason_category)} visit`,
         details: [
@@ -191,7 +191,7 @@ const HealthRecordsSection = () => {
           type: 'Prescription' as const,
           student: p.student_info?.full_name || 'Unknown',
           studentRoll: p.student_info?.roll_number || 'N/A',
-          doctor: p.medical_officers?.name ? `Dr. ${p.medical_officers.name}` : 'Doctor',
+          doctor: p.medical_officers?.name ? `${p.medical_officers.name}` : 'Doctor',
           department: p.medical_officers?.designation || 'General Medicine',
           summary: p.diagnosis || 'Prescription issued',
           details: [
@@ -210,7 +210,7 @@ const HealthRecordsSection = () => {
         type: 'Certificate' as const,
         student: l.students?.full_name || 'Unknown',
         studentRoll: l.students?.roll_number || 'N/A',
-        doctor: l.medical_officers?.name ? `Dr. ${l.medical_officers.name}` : 'Health Centre',
+        doctor: l.medical_officers?.name ? `${l.medical_officers.name}` : 'Health Centre',
         department: l.medical_officers?.designation || 'General Medicine',
         summary: l.illness_description || `Medical leave referral to ${l.referral_hospital}`,
         details: [
@@ -234,7 +234,7 @@ const HealthRecordsSection = () => {
         type: 'Lab Report' as const,
         student: lr.students?.full_name || 'Unknown',
         studentRoll: lr.students?.roll_number || 'N/A',
-        doctor: lr.medical_officers?.name ? `Dr. ${lr.medical_officers.name}` : 'Health Centre',
+        doctor: lr.medical_officers?.name ? `${lr.medical_officers.name}` : 'Health Centre',
         department: lr.medical_officers?.designation || 'General Medicine',
         summary: `${lr.test_name} — ${lr.status === 'completed' ? 'Report Ready' : 'Pending'}`,
         details: [

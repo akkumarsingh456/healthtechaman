@@ -1639,7 +1639,7 @@ export default function StudentProfilePage() {
                             <LeaveApprovalWorkflowTimeline
                               workflow={workflowsByLeave[ref.id] || null}
                               approverNames={{
-                                doctor: `Dr. ${ref.doctor_name}`,
+                                doctor: `${ref.doctor_name}`,
                                 mentor: student?.mentors?.name || student?.mentor_name || undefined,
                               }}
                             />
