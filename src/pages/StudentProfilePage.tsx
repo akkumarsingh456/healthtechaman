@@ -34,15 +34,21 @@ import RecipientEmailsCard from '@/components/student/RecipientEmailsCard';
 import StudentLeaveHistoryCard from '@/components/student/StudentLeaveHistoryCard';
 import StudentDataSyncBanner from '@/components/student/StudentDataSyncBanner';
 import annieProfileIcons from '@/assets/annie-profile-icons.png';
+import annieStickerWave from '@/assets/annie-sticker-wave.png';
+import annieStickerDoctor from '@/assets/annie-sticker-doctor.png';
+import annieStickerLove from '@/assets/annie-sticker-love.png';
+import annieStickerStudy from '@/assets/annie-sticker-study.png';
 
 // AI-generated girl sticker set shown only on Annie's profile (roll 25edi0049).
 // The image is a 2x2 grid; each tile crops one sticker via background-position.
+// Clicking a sticker uploads it as Annie's profile photo (AI face validation skipped
+// for stickers only — regular photo uploads keep the AI validation unchanged).
 const ANNIE_ROLL = '25edi0049';
-const ANNIE_STICKERS: { position: string; label: string }[] = [
-  { position: '0% 0%', label: 'Waving hello' },
-  { position: '100% 0%', label: 'Future doctor' },
-  { position: '0% 100%', label: 'Feeling loved' },
-  { position: '100% 100%', label: 'Study time' },
+const ANNIE_STICKERS: { position: string; label: string; src: string }[] = [
+  { position: '0% 0%', label: 'Waving hello', src: annieStickerWave },
+  { position: '100% 0%', label: 'Future doctor', src: annieStickerDoctor },
+  { position: '0% 100%', label: 'Feeling loved', src: annieStickerLove },
+  { position: '100% 100%', label: 'Study time', src: annieStickerStudy },
 ];
 
 interface StudentData {
@@ -501,6 +507,44 @@ export default function StudentProfilePage() {
     `;
 
     await printDocument({ title: `Prescription — ${student?.full_name}`, bodyHtml, documentId: prescriptionId, documentType: 'PRESCRIPTION' });
+  };
+
+  const handleStickerPhoto = async (sticker: { label: string; src: string }) => {
+    if (!student || !user) return;
+    setUploadingPhoto(true);
+    try {
+      // Fetch the bundled sticker image and upload it as the profile photo.
+      const response = await fetch(sticker.src);
+      if (!response.ok) throw new Error('Could not load sticker image');
+      const blob = await response.blob();
+      const filePath = `${user.id}/profile.png`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('student-photos')
+        .upload(filePath, blob, { upsert: true, contentType: 'image/png' });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('student-photos')
+        .getPublicUrl(filePath);
+
+      const photoUrl = `${publicUrl}?t=${Date.now()}`;
+      const { error: updateError } = await supabase
+        .from('students')
+        .update({ photo_url: photoUrl })
+        .eq('id', student.id);
+
+      if (updateError) throw updateError;
+
+      setStudent(prev => prev ? { ...prev, photo_url: photoUrl } : null);
+      toast({ title: '✅ Sticker Set', description: `The "${sticker.label}" sticker is now your profile photo.` });
+    } catch (err: any) {
+      console.error(err);
+      toast({ title: 'Failed', description: err.message || 'Could not set the sticker as your photo.', variant: 'destructive' });
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
