@@ -310,7 +310,7 @@ export default function ShiftExchangeSection({ doctorId }: ShiftExchangeProps) {
                 <div className="flex items-center gap-2 min-w-0">
                   <User className="h-3 w-3 text-muted-foreground shrink-0" />
                   <span className="truncate text-xs sm:text-sm">
-                    Dr. {ex.original_doctor?.name} → Dr. {ex.replacement_doctor?.name}
+                    {ex.original_doctor?.name} → {ex.replacement_doctor?.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 pl-5 sm:pl-0">
@@ -418,7 +418,7 @@ export default function ShiftExchangeSection({ doctorId }: ShiftExchangeProps) {
                   <SelectContent>
                     {otherDoctors.map((doc) => (
                       <SelectItem key={doc.id} value={doc.id}>
-                        Dr. {doc.name} — {doc.designation}
+                        {doc.name} — {doc.designation}
                       </SelectItem>
                     ))}
                   </SelectContent>

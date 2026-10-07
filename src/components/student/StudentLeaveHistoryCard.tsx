@@ -88,7 +88,7 @@ export default function StudentLeaveHistoryCard({
                         <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
                           <Calendar className="w-3 h-3" />
                           {format(new Date(leave.referral_date), "MMM d, yyyy")} · {leave.expected_duration}
-                          {leave.doctor_name && <span>· Dr. {leave.doctor_name}</span>}
+                          {leave.doctor_name && <span>· {leave.doctor_name}</span>}
                         </p>
                       </div>
                     </CollapsibleTrigger>

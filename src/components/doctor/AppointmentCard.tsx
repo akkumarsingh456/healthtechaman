@@ -564,7 +564,7 @@ const AppointmentCard = ({ appointment, doctorId }: AppointmentCardProps) => {
               <DialogDescription>
                 Issued on {new Date(existingPrescription.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
                 {(existingPrescription as any).medical_officers?.name && (
-                  <> · Dr. {(existingPrescription as any).medical_officers.name}</>
+                  <> · {(existingPrescription as any).medical_officers.name}</>
                 )}
               </DialogDescription>
             </DialogHeader>

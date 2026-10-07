@@ -210,7 +210,7 @@ const StaffReferralDetails = ({ leaveRequests, student }: StaffReferralDetailsPr
                     </div>
                     <div className="flex items-center gap-1">
                       <User className="w-3 h-3 text-muted-foreground" />
-                      <span>Doctor: Dr. {leave.doctor?.name || "Unknown"}</span>
+                      <span>Doctor: {leave.doctor?.name || "Unknown"}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-muted-foreground" />

@@ -509,7 +509,7 @@ const MedicalLeave = () => {
                                   <p className="font-medium">{item.referral_hospital}</p>
                                   {(item as any).medical_officers?.name && (
                                     <p className="text-xs text-muted-foreground">
-                                      Dr. {(item as any).medical_officers.name}
+                                      {(item as any).medical_officers.name}
                                     </p>
                                   )}
                                 </div>

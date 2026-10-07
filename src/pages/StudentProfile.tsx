@@ -746,7 +746,7 @@ const StudentProfile = () => {
                             </p>
                             {(rx.medical_officers as any)?.name && (
                               <p className="text-sm text-muted-foreground">
-                                Dr. {(rx.medical_officers as any).name} — {(rx.medical_officers as any).designation}
+                                {(rx.medical_officers as any).name} — {(rx.medical_officers as any).designation}
                               </p>
                             )}
                           </div>

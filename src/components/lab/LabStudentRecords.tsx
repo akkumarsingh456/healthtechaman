@@ -230,7 +230,7 @@ export default function LabStudentRecords({ reports, searchQuery, onSearchChange
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{format(new Date(r.updated_at), "dd MMM yyyy, hh:mm a")}</span>
-                      {r.doctor?.name && <span>Dr. {r.doctor.name}</span>}
+                      {r.doctor?.name && <span>{r.doctor.name}</span>}
                       {r.status === "completed" && <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-500" />Verified</span>}
                     </div>
                     {r.report_file_name && <p className="text-xs text-muted-foreground mt-1">📎 {r.report_file_name}</p>}

@@ -157,7 +157,7 @@ export default function LabProcessingQueue({
                       <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                         <span className="flex items-center gap-1">
                           <Stethoscope className="w-3 h-3" />
-                          Ordered by Dr. {r.doctor?.name || "Unknown"}
+                          Ordered by {r.doctor?.name || "Unknown"}
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />

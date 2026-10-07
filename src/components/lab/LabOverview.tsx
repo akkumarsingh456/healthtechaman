@@ -221,7 +221,7 @@ export default function LabOverview({
                       <Badge className="bg-blue-100 text-blue-800 text-[10px]">{r.test_name}</Badge>
                       {r.doctor?.name && (
                         <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                          <Stethoscope className="w-2.5 h-2.5" />Dr. {r.doctor.name}
+                          <Stethoscope className="w-2.5 h-2.5" />{r.doctor.name}
                         </span>
                       )}
                     </div>

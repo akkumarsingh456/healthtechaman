@@ -175,7 +175,7 @@ export default function ShiftExchangeAppointments({ doctorId }: ShiftExchangeApp
           <div key={i} className="flex items-start sm:items-center gap-2 p-2 rounded-md bg-amber-50 border border-amber-200 text-xs sm:text-sm">
             <User className="h-4 w-4 text-amber-600 shrink-0 mt-0.5 sm:mt-0" />
             <span className="text-amber-800">
-              From <strong>Dr. {info.originalDoctor}</strong> • {info.date} • {info.timeRange}
+              From <strong>{info.originalDoctor}</strong> • {info.date} • {info.timeRange}
             </span>
           </div>
         ))}

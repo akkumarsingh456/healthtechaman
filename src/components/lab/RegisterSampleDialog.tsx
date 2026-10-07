@@ -220,7 +220,7 @@ export default function RegisterSampleDialog({ open, onClose, onRegistered }: Pr
               <SelectTrigger><SelectValue placeholder="Select doctor (optional)" /></SelectTrigger>
               <SelectContent>
                 {doctors.map(d => (
-                  <SelectItem key={d.id} value={d.id}>Dr. {d.name} — {d.designation}</SelectItem>
+                  <SelectItem key={d.id} value={d.id}>{d.name} — {d.designation}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

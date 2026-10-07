@@ -1377,7 +1377,7 @@ const HealthDashboard = () => {
                             {visit.reason_notes && <div><span className="text-muted-foreground">Complaint:</span> <span>{visit.reason_notes}</span></div>}
                             {visit.diagnosis && <div><span className="text-muted-foreground">Diagnosis:</span> <span>{visit.diagnosis}</span></div>}
                             {visit.prescription && <div><span className="text-muted-foreground">Prescription:</span> <span>{visit.prescription}</span></div>}
-                            {visit.medical_officers?.name && <div><span className="text-muted-foreground">Doctor:</span> <span>Dr. {visit.medical_officers.name}</span></div>}
+                            {visit.medical_officers?.name && <div><span className="text-muted-foreground">Doctor:</span> <span>{visit.medical_officers.name}</span></div>}
                             {visit.follow_up_required && (
                               <Badge variant="outline" className="text-amber-600 border-amber-300">
                                 <AlertTriangle className="w-3 h-3 mr-1" />
@@ -1571,7 +1571,7 @@ const HealthDashboard = () => {
                             <div><span className="text-muted-foreground">Duration:</span> <span>{leave.expected_duration}</span></div>
                             {leave.leave_start_date && <div><span className="text-muted-foreground">Leave Start:</span> <span>{format(new Date(leave.leave_start_date), 'MMM d, yyyy')}</span></div>}
                             {leave.expected_return_date && <div><span className="text-muted-foreground">Expected Return:</span> <span>{format(new Date(leave.expected_return_date), 'MMM d, yyyy')}</span></div>}
-                            {doctor?.name && <div><span className="text-muted-foreground">Referring Doctor:</span> <span>Dr. {doctor.name}</span></div>}
+                            {doctor?.name && <div><span className="text-muted-foreground">Referring Doctor:</span> <span>{doctor.name}</span></div>}
                             {leave.health_priority && <div><span className="text-muted-foreground">Priority:</span> <Badge variant={leave.health_priority === 'high' ? 'destructive' : 'secondary'} className="text-xs ml-1">{leave.health_priority}</Badge></div>}
                           </div>
                           {leave.illness_description && (

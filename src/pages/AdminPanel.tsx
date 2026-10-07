@@ -563,7 +563,7 @@ const AdminPanel = () => {
                       </TableCell>
                       <TableCell>
                         {u.linked_doctor && (
-                          <span className="text-sm">Dr. {u.linked_doctor.name}</span>
+                          <span className="text-sm">{u.linked_doctor.name}</span>
                         )}
                         {u.linked_mentor && (
                           <span className="text-sm">{u.linked_mentor.name}</span>
