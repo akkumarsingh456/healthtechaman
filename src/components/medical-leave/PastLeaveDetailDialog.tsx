@@ -125,7 +125,7 @@ const PastLeaveDetailDialog = ({ open, onOpenChange, leaveRequest }: PastLeaveDe
               label="Referring Doctor"
               value={
                 leaveRequest.medical_officers
-                  ? `Dr. ${leaveRequest.medical_officers.name}${leaveRequest.medical_officers.designation ? ` — ${leaveRequest.medical_officers.designation}` : ""}`
+                  ? `${leaveRequest.medical_officers.name}${leaveRequest.medical_officers.designation ? ` — ${leaveRequest.medical_officers.designation}` : ""}`
                   : null
               }
             />

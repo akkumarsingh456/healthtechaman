@@ -746,7 +746,7 @@ const StudentProfile = () => {
                             </p>
                             {(rx.medical_officers as any)?.name && (
                               <p className="text-sm text-muted-foreground">
-                                Dr. {(rx.medical_officers as any).name} — {(rx.medical_officers as any).designation}
+                                {(rx.medical_officers as any).name} — {(rx.medical_officers as any).designation}
                               </p>
                             )}
                           </div>
@@ -838,7 +838,7 @@ const StudentProfile = () => {
                           <div>
                             <p className="font-medium">{report.test_name}</p>
                             <p className="text-sm text-muted-foreground">
-                              {report.medical_officers ? `Dr. ${report.medical_officers.name}` : 'Doctor'} · {format(new Date(report.created_at), 'MMM d, yyyy')}
+                              {report.medical_officers ? `${report.medical_officers.name}` : 'Doctor'} · {format(new Date(report.created_at), 'MMM d, yyyy')}
                             </p>
                             {report.notes && <p className="text-xs text-muted-foreground mt-0.5">{report.notes}</p>}
                           </div>
@@ -1039,7 +1039,7 @@ const StudentProfile = () => {
                             <LeaveApprovalWorkflowTimeline
                               workflow={workflowsByLeave[leave.id] || null}
                               approverNames={{
-                                doctor: leave.medical_officers?.name ? `Dr. ${leave.medical_officers.name}` : undefined,
+                                doctor: leave.medical_officers?.name ? `${leave.medical_officers.name}` : undefined,
                                 mentor: student?.mentors?.name || student?.mentor_name || undefined,
                               }}
                             />

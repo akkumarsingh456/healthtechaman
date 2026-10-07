@@ -41,7 +41,7 @@ export const notifyStudentOfReferral = async (
   await createNotification({
     userId: studentUserId,
     title: "📋 Medical Leave Referral Issued",
-    message: `Dr. ${referralData.doctorName} has referred you to ${referralData.hospital} for treatment (Duration: ${referralData.expectedDuration}). ⚠️ REQUIRED: Complete the departure form before leaving campus. Your referral letter and hospital card are available in Medical Leave section. Tap to open.`,
+    message: `${referralData.doctorName} has referred you to ${referralData.hospital} for treatment (Duration: ${referralData.expectedDuration}). ⚠️ REQUIRED: Complete the departure form before leaving campus. Your referral letter and hospital card are available in Medical Leave section. Tap to open.`,
     type: "medical_leave_referral",
     relatedId: referralData.leaveRequestId,
   });
@@ -101,7 +101,7 @@ export const notifyStudentOfCertificate = async (
   await createNotification({
     userId: studentUserId,
     title: titles[certificateData.type] || '📄 Certificate Issued',
-    message: `Dr. ${certificateData.doctorName} has issued a ${certificateData.type.replace('_', ' ')} certificate for you. ${certificateData.details} Tap to view and download.`,
+    message: `${certificateData.doctorName} has issued a ${certificateData.type.replace('_', ' ')} certificate for you. ${certificateData.details} Tap to view and download.`,
     type: 'certificate_issued',
   });
 };

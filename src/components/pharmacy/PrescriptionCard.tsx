@@ -26,7 +26,7 @@ export function PrescriptionCard({ p, showActions, onDispense }: PrescriptionCar
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
               <Stethoscope className="w-3 h-3" />
-              <span>Dr. {p.doctor?.name || "Unknown"}</span>
+              <span>{p.doctor?.name || "Unknown"}</span>
               <span>•</span>
               <Calendar className="w-3 h-3" />
               <span>{format(new Date(p.created_at), "dd MMM yyyy, hh:mm a")}</span>
@@ -69,7 +69,7 @@ export function PrescriptionCard({ p, showActions, onDispense }: PrescriptionCar
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Doctor</p>
-                      <p className="font-medium">Dr. {p.doctor?.name}</p>
+                      <p className="font-medium">{p.doctor?.name}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Date</p>

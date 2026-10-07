@@ -158,7 +158,7 @@ export default function DoctorHomeDashboard() {
                   const displayName = name.replace(/^Dr\.?\s*/i, "").trim();
                   return (
                     <h1 className="text-2xl font-bold text-foreground">
-                      Welcome, Dr. {displayName}
+                      Welcome, {displayName}
                     </h1>
                   );
                 })()}

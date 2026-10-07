@@ -382,7 +382,7 @@ export default function MedicalStaffHomeDashboard() {
                     <Stethoscope className="w-5 h-5 text-green-700" />
                   </div>
                   <div>
-                    <p className="font-medium text-sm">Dr. {doc.name}</p>
+                    <p className="font-medium text-sm">{doc.name}</p>
                     <p className="text-xs text-muted-foreground">{doc.designation}</p>
                     {doc.is_senior && (
                       <Badge variant="outline" className="text-xs mt-0.5">Senior</Badge>

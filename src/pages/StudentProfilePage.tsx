@@ -1428,7 +1428,7 @@ export default function StudentProfilePage() {
                             <div>
                               <p className="font-medium text-sm">{report.test_name}</p>
                               <p className="text-xs text-muted-foreground">
-                                Prescribed by Dr. {report.doctor_name} · {format(new Date(report.created_at), 'MMM d, yyyy')}
+                                Prescribed by {report.doctor_name} · {format(new Date(report.created_at), 'MMM d, yyyy')}
                               </p>
                               {report.status === 'completed' && report.report_file_url && (
                                 <p className="text-xs text-primary mt-1 flex items-center gap-1">
@@ -1563,7 +1563,7 @@ export default function StudentProfilePage() {
                               <div>
                                 <p className="font-medium text-sm">{ref.referral_hospital}</p>
                                 <p className="text-xs text-muted-foreground">
-                                  Referred by Dr. {ref.doctor_name} · {format(new Date(ref.referral_date), 'MMM d, yyyy')}
+                                  Referred by {ref.doctor_name} · {format(new Date(ref.referral_date), 'MMM d, yyyy')}
                                 </p>
                               </div>
                             </div>
@@ -1639,7 +1639,7 @@ export default function StudentProfilePage() {
                             <LeaveApprovalWorkflowTimeline
                               workflow={workflowsByLeave[ref.id] || null}
                               approverNames={{
-                                doctor: `Dr. ${ref.doctor_name}`,
+                                doctor: `${ref.doctor_name}`,
                                 mentor: student?.mentors?.name || student?.mentor_name || undefined,
                               }}
                             />
@@ -1723,7 +1723,7 @@ export default function StudentProfilePage() {
                                     <div>
                                       <p className="font-medium text-sm">{certType}</p>
                                       <p className="text-xs text-muted-foreground">
-                                        {cert.referral_hospital} · Dr. {cert.doctor_name} · {format(new Date(cert.created_at), 'MMM d, yyyy')}
+                                        {cert.referral_hospital} · {cert.doctor_name} · {format(new Date(cert.created_at), 'MMM d, yyyy')}
                                       </p>
                                     </div>
                                   </div>
@@ -1874,7 +1874,7 @@ export default function StudentProfilePage() {
                         <p className="text-2xl text-[#003366] mb-2" style={{ fontFamily: "'Brush Script MT', cursive" }}>
                           {previewCertificate.doctor_name}
                         </p>
-                        <p className="font-semibold">Dr. {previewCertificate.doctor_name}</p>
+                        <p className="font-semibold">{previewCertificate.doctor_name}</p>
                         <p className="text-sm text-gray-500">{previewCertificate.doctor_designation}</p>
                         <p className="text-sm text-gray-500">{previewCertificate.doctor_qualification}</p>
                         <p className="text-sm text-gray-500">Health Centre, NIT Warangal</p>

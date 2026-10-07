@@ -104,7 +104,7 @@ const StudentMedicalLeaveSection = ({ userId }: StudentMedicalLeaveSectionProps)
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Departure Form Required</AlertTitle>
             <AlertDescription>
-              Dr. {(displayRequest as any).medical_officers?.name || "Campus Doctor"} has referred you to{" "}
+              {(displayRequest as any).medical_officers?.name || "Campus Doctor"} has referred you to{" "}
               <strong>{displayRequest.referral_hospital}</strong>. Complete the form before leaving campus.
             </AlertDescription>
           </Alert>
