@@ -33,6 +33,17 @@ import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
 import RecipientEmailsCard from '@/components/student/RecipientEmailsCard';
 import StudentLeaveHistoryCard from '@/components/student/StudentLeaveHistoryCard';
 import StudentDataSyncBanner from '@/components/student/StudentDataSyncBanner';
+import annieProfileIcons from '@/assets/annie-profile-icons.png';
+
+// AI-generated girl sticker set shown only on Annie's profile (roll 25edi0049).
+// The image is a 2x2 grid; each tile crops one sticker via background-position.
+const ANNIE_ROLL = '25edi0049';
+const ANNIE_STICKERS: { position: string; label: string }[] = [
+  { position: '0% 0%', label: 'Waving hello' },
+  { position: '100% 0%', label: 'Future doctor' },
+  { position: '0% 100%', label: 'Feeling loved' },
+  { position: '100% 100%', label: 'Study time' },
+];
 
 interface StudentData {
   id: string;
