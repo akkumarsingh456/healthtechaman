@@ -44,6 +44,7 @@ import annieStickerStudy from '@/assets/annie-sticker-study.png';
 // Clicking a sticker uploads it as Annie's profile photo (AI face validation skipped
 // for stickers only — regular photo uploads keep the AI validation unchanged).
 const ANNIE_ROLL = '25edi0049';
+const STICKER_DRAG_TYPE = 'application/x-campuscare-profile-sticker';
 const ANNIE_STICKERS: { position: string; label: string; src: string }[] = [
   { position: '0% 0%', label: 'Waving hello', src: annieStickerWave },
   { position: '100% 0%', label: 'Future doctor', src: annieStickerDoctor },
@@ -229,6 +230,7 @@ export default function StudentProfilePage() {
   const [saving, setSaving] = useState(false);
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [stickerDragOver, setStickerDragOver] = useState(false);
 
   // Settings state
   const [notifAppointments, setNotifAppointments] = useState(true);
@@ -510,7 +512,7 @@ export default function StudentProfilePage() {
   };
 
   const handleStickerPhoto = async (sticker: { label: string; src: string }) => {
-    if (!student || !user) return;
+    if (!student || !user || uploadingPhoto || student.roll_number?.toLowerCase() !== ANNIE_ROLL) return;
     setUploadingPhoto(true);
     try {
       // Fetch the bundled sticker image and upload it as the profile photo.
@@ -865,7 +867,25 @@ export default function StudentProfilePage() {
         </div>
 
         {/* Profile Hero */}
-        <Card className="bg-gradient-to-br from-primary/5 via-primary/8 to-primary/12 border-primary/20">
+        <Card
+          className={`bg-gradient-to-br from-primary/5 via-primary/8 to-primary/12 border-primary/20 ${stickerDragOver ? 'ring-2 ring-primary' : ''}`}
+          onDragOver={(event) => {
+            if (student?.roll_number?.toLowerCase() !== ANNIE_ROLL || uploadingPhoto || !event.dataTransfer.types.includes(STICKER_DRAG_TYPE)) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+            setStickerDragOver(true);
+          }}
+          onDragLeave={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setStickerDragOver(false);
+          }}
+          onDrop={(event) => {
+            setStickerDragOver(false);
+            if (!event.dataTransfer.types.includes(STICKER_DRAG_TYPE)) return;
+            event.preventDefault();
+            const sticker = ANNIE_STICKERS.find((item) => item.label === event.dataTransfer.getData(STICKER_DRAG_TYPE));
+            if (sticker) void handleStickerPhoto(sticker);
+          }}
+        >
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row items-start gap-6">
               <div className="relative group">
@@ -907,7 +927,9 @@ export default function StudentProfilePage() {
                 <p className="text-muted-foreground text-sm mt-2">Roll No: <span className="font-semibold text-foreground">{student?.roll_number}</span></p>
                 {student?.roll_number?.toLowerCase() === ANNIE_ROLL && (
                   <div className="flex items-center gap-2 mt-3" aria-label="Profile stickers">
-                    <span className="text-xs text-muted-foreground mr-1">Tap a sticker to use it as your photo:</span>
+                    <span className="text-xs text-muted-foreground mr-1" aria-live="polite">
+                      {uploadingPhoto ? 'Saving your profile photo…' : stickerDragOver ? 'Drop to use this sticker as your photo' : 'Tap a sticker or drag it onto your profile to use it as your photo:'}
+                    </span>
                     {ANNIE_STICKERS.map((s) => (
                       <button
                         key={s.label}
@@ -915,6 +937,12 @@ export default function StudentProfilePage() {
                         title={`${s.label} — set as profile photo`}
                         aria-label={`Set ${s.label} sticker as profile photo`}
                         disabled={uploadingPhoto}
+                        draggable={!uploadingPhoto}
+                        onDragStart={(event) => {
+                          event.dataTransfer.setData(STICKER_DRAG_TYPE, s.label);
+                          event.dataTransfer.effectAllowed = 'copy';
+                        }}
+                        onDragEnd={() => setStickerDragOver(false)}
                         onClick={() => handleStickerPhoto(s)}
                         className="w-12 h-12 rounded-xl border border-primary/20 bg-background/70 shadow-sm hover:scale-110 hover:border-primary/50 active:scale-95 transition-transform cursor-pointer disabled:opacity-50"
                         style={{
