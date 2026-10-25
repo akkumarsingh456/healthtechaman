@@ -574,6 +574,7 @@ export default function StudentProfilePage() {
       if (updateError) throw updateError;
 
       setStudent(prev => prev ? { ...prev, photo_url: photoUrl } : null);
+      window.dispatchEvent(new Event('student-profile-photo-updated'));
       toast({ title: '✅ Sticker Set', description: `The "${sticker.label}" sticker is now your profile photo.` });
     } catch (err: any) {
       console.error(err);
@@ -671,6 +672,7 @@ export default function StudentProfilePage() {
       if (updateError) throw updateError;
 
       setStudent(prev => prev ? { ...prev, photo_url: photoUrl } : null);
+      window.dispatchEvent(new Event('student-profile-photo-updated'));
       toast({ title: '✅ Photo Updated', description: 'Your profile photo has been uploaded successfully.' });
     } catch (err: any) {
       console.error(err);

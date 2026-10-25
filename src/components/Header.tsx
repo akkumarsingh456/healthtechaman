@@ -39,6 +39,47 @@ const Header = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { user, isDoctor, isMentor, isAdmin, isLabOfficer, isPharmacy, isMedicalStaff, loading: roleLoading } = useUserRole();
+  const [profilePhoto, setProfilePhoto] = useState<{ userId: string; url: string } | null>(null);
+  const avatarUrl = profilePhoto?.userId === user?.id ? profilePhoto?.url : undefined;
+
+  useEffect(() => {
+    setProfilePhoto(null);
+    if (!user) return;
+    let active = true;
+    let request = 0;
+    const loadPhoto = async () => {
+      const current = ++request;
+      try {
+        const { data: student, error } = await supabase.from('students')
+          .select('photo_url').eq('user_id', user.id).maybeSingle();
+        if (error) throw error;
+        let url = student?.photo_url || '';
+        if (url) {
+          const match = new URL(url).pathname.match(/^\/storage\/v1\/object\/(?:public|sign|authenticated)\/student-photos\/(.+)$/);
+          if (match) {
+            const { data, error: photoError } = await supabase.storage.from('student-photos')
+              .createSignedUrl(decodeURIComponent(match[1]), 3600);
+            if (photoError) throw photoError;
+            url = data.signedUrl;
+          }
+        }
+        if (active && current === request) setProfilePhoto(url ? { userId: user.id, url } : null);
+      } catch (error) {
+        console.error('Could not load header profile photo', error);
+      }
+    };
+    const refresh = () => { void loadPhoto(); };
+    refresh();
+    window.addEventListener('student-profile-photo-updated', refresh);
+    window.addEventListener('focus', refresh);
+    const interval = window.setInterval(refresh, 45 * 60 * 1000);
+    return () => {
+      active = false;
+      window.removeEventListener('student-profile-photo-updated', refresh);
+      window.removeEventListener('focus', refresh);
+      window.clearInterval(interval);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     if (!roleLoading) {
@@ -329,8 +370,10 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
-                      <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
-                        {getUserDisplayName().split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+                      <span className="w-7 h-7 rounded-full overflow-hidden bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shrink-0">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt={getUserDisplayName()} className="w-full h-full object-cover" onError={() => setProfilePhoto(null)} />
+                        ) : getUserDisplayName().split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
                       </span>
                       <span className="max-w-[100px] truncate">{getUserDisplayName()}</span>
                     </Button>
@@ -612,10 +655,12 @@ const Header = () => {
               {/* User Info for Mobile */}
               {user && (
                 <div className="flex items-center gap-3 pb-3 border-b border-border">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div className={`w-10 h-10 rounded-full overflow-hidden flex items-center justify-center ${
                     getUserType() === 'doctor' ? 'bg-secondary/10' : 'bg-primary/10'
                   }`}>
-                    {getUserType() === 'doctor' ? (
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt={getUserDisplayName()} className="w-full h-full object-cover" onError={() => setProfilePhoto(null)} />
+                    ) : getUserType() === 'doctor' ? (
                       <Stethoscope className="w-5 h-5 text-secondary" />
                     ) : (
                       <GraduationCap className="w-5 h-5 text-primary" />
