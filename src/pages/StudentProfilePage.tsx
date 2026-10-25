@@ -231,6 +231,40 @@ export default function StudentProfilePage() {
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [stickerDragOver, setStickerDragOver] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState<{ source: string; url: string } | null>(null);
+
+  useEffect(() => {
+    const source = student?.photo_url;
+    setProfilePhoto(null);
+    if (!source || !user) return;
+    let active = true;
+
+    const resolvePhoto = async () => {
+      try {
+        const parsed = new URL(source);
+        const match = parsed.pathname.match(/^\/storage\/v1\/object\/(?:public|sign|authenticated)\/student-photos\/(.+)$/);
+        if (!match) {
+          if (active) setProfilePhoto({ source, url: source });
+          return;
+        }
+        // Keep the stable stored reference; renew the private viewing URL here.
+        const { data, error } = await supabase.storage
+          .from('student-photos')
+          .createSignedUrl(decodeURIComponent(match[1]), 3600);
+        if (error) throw error;
+        if (active) setProfilePhoto({ source, url: data.signedUrl });
+      } catch (error) {
+        console.error('Could not load profile photo', error);
+      }
+    };
+
+    void resolvePhoto();
+    const refresh = window.setInterval(() => void resolvePhoto(), 45 * 60 * 1000);
+    return () => {
+      active = false;
+      window.clearInterval(refresh);
+    };
+  }, [student?.photo_url, user?.id]);
 
   // Settings state
   const [notifAppointments, setNotifAppointments] = useState(true);
@@ -890,8 +924,8 @@ export default function StudentProfilePage() {
             <div className="flex flex-col sm:flex-row items-start gap-6">
               <div className="relative group">
                 <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-primary/30">
-                  {student?.photo_url ? (
-                    <img src={student.photo_url} alt={student.full_name} className="w-full h-full object-cover" />
+                  {profilePhoto && profilePhoto.source === student?.photo_url ? (
+                    <img src={profilePhoto.url} alt={student.full_name} className="w-full h-full object-cover" onError={() => setProfilePhoto(null)} />
                   ) : (
                     <GraduationCap className="w-10 h-10 text-primary" />
                   )}
