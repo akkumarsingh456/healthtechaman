@@ -256,7 +256,7 @@ const SecurityDashboard = () => {
       format(parseISO(log.created_at), "yyyy-MM-dd HH:mm:ss"),
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [headers.join(","), ...rows.map((r) => r.map(csvSafe).join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
