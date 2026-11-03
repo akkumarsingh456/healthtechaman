@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { generateQRDataUrl } from "@/hooks/useQRCode";
 import { getFooterStyles, getFooterHtml } from "./generateVerificationQR";
 import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "./issuedDocuments";
+import { escapeHtml, sanitizeHtmlFragment } from "@/lib/htmlSanitizer";
 
 /**
  * Shared print utility that opens a new window with full WYSIWYG styling.
