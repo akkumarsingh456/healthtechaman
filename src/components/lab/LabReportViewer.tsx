@@ -47,7 +47,7 @@ export async function printLabReport(reportFileUrl: string) {
   if (!url) return false;
   if (reportFileUrl.endsWith(".html")) {
     const res = await fetch(url);
-    const html = await res.text();
+    const html = sanitizeHtmlDocument(await res.text());
     const blob = new Blob([html], { type: "text/html" });
     const blobUrl = URL.createObjectURL(blob);
     const w = window.open(blobUrl, "_blank");
@@ -86,6 +86,14 @@ function buildFallbackHtml(opts: {
 
   const dateStr = opts.testDate ? format(new Date(opts.testDate), "dd MMM yyyy") : "N/A";
 
+  // Every caller-controlled field is escaped before it touches the markup.
+  const escTitle = escapeHtml(opts.title.toUpperCase());
+  const escName = escapeHtml(opts.studentName);
+  const escRoll = escapeHtml(opts.rollNumber);
+  const escDoctor = escapeHtml(opts.doctorName);
+  const escNotes = escapeHtml(opts.notes);
+  const escTechNotes = escapeHtml(techNotes);
+
   const rowsHtml = params.length > 0 ? params.map(p => {
     const flagHtml = p.flag === "high"
       ? '<span style="color:red;font-weight:bold">↑ HIGH</span>'
@@ -94,11 +102,11 @@ function buildFallbackHtml(opts: {
         : p.flag === "normal"
           ? '<span style="color:green">✓ Normal</span>'
           : "—";
-    return `<tr><td>${p.name}</td><td><strong>${p.value}</strong></td><td>${p.unit}</td><td>${p.refRange}</td><td>${flagHtml}</td></tr>`;
+    return `<tr><td>${escapeHtml(p.name)}</td><td><strong>${escapeHtml(p.value)}</strong></td><td>${escapeHtml(p.unit)}</td><td>${escapeHtml(p.refRange)}</td><td>${flagHtml}</td></tr>`;
   }).join("") : `<tr><td colspan="5" style="text-align:center;padding:20px;color:#888;">Raw results below</td></tr>`;
 
   const rawBlock = params.length === 0
-    ? `<div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-top:16px;white-space:pre-line;font-size:13px;">${opts.notes}</div>`
+    ? `<div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-top:16px;white-space:pre-line;font-size:13px;">${escNotes}</div>`
     : "";
 
   return `<!DOCTYPE html>
