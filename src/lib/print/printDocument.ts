@@ -40,7 +40,7 @@ export const printDocument = async (opts: PrintDocumentOptions) => {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>${title}</title>
+        <title>${safeTitle}</title>
         <style>
           /* ===== Base reset & typography ===== */
           *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -370,7 +370,7 @@ export const printDocument = async (opts: PrintDocumentOptions) => {
       </head>
       <body>
         <div class="watermark-top-bar">⚠️ This is a student project document. No official validity. NOT for official use.</div>
-        ${bodyHtml}
+        ${safeBodyHtml}
         ${!skipFooter ? getFooterHtml(verifyCode, documentType, qrDataUrl, currentDate) : ""}
         <div class="watermark-legal-bar" style="text-align:center;font-size:9pt;color:#cc0000;border-top:2px solid #cc0000;padding:10px 8px;margin-top:20px;font-family:Arial,sans-serif;font-weight:bold;background:#fff5f5;">
           ⚠️ DISCLAIMER: This is not the official website of NIT Warangal. No medical claims or documents issued here are valid for official, legal, or medical purposes. All data is dummy or publicly available from the NIT Warangal website.
