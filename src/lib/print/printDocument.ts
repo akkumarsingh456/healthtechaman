@@ -21,6 +21,10 @@ export interface PrintDocumentOptions {
 
 export const printDocument = async (opts: PrintDocumentOptions) => {
   const { title, bodyHtml, extraCss = "", documentId, documentType, skipFooter } = opts;
+  // Titles and body markup can carry user-influenced text — neutralize any
+  // executable content before rendering or saving the printable snapshot.
+  const safeTitle = escapeHtml(title);
+  const safeBodyHtml = sanitizeHtmlFragment(bodyHtml);
   const verifyCode = newVerificationCode();
   const verificationUrl = getCodeVerifyUrl(verifyCode);
   const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
