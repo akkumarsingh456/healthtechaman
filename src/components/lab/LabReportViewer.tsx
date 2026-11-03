@@ -5,6 +5,7 @@ import { Eye, Printer, TestTube } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { escapeHtml, sanitizeHtmlDocument, sanitizeHtmlFragment } from "@/lib/htmlSanitizer";
 
 interface LabReportViewerProps {
   open: boolean;
@@ -32,7 +33,7 @@ export async function openLabReport(reportFileUrl: string) {
   if (!url) return false;
   if (reportFileUrl.endsWith(".html")) {
     const res = await fetch(url);
-    const html = await res.text();
+    const html = sanitizeHtmlDocument(await res.text());
     const blob = new Blob([html], { type: "text/html" });
     window.open(URL.createObjectURL(blob), "_blank");
   } else {
