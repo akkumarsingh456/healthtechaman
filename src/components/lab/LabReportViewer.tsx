@@ -201,7 +201,7 @@ export default function LabReportViewer({ open, onOpenChange, title, reportFileU
       if (reportFileUrl.endsWith(".html")) {
         const res = await fetch(url);
         const html = await res.text();
-        setHtmlContent(html);
+        setHtmlContent(sanitizeHtmlDocument(html));
       } else {
         setHtmlContent(null);
       }
@@ -237,7 +237,7 @@ export default function LabReportViewer({ open, onOpenChange, title, reportFileU
           {loading ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">Loading report...</div>
           ) : htmlContent ? (
-            <iframe srcDoc={htmlContent} className="w-full h-full border-0" title="Lab Report" />
+            <iframe srcDoc={htmlContent} sandbox="" className="w-full h-full border-0" title="Lab Report" />
           ) : signedUrl ? (
             <iframe src={signedUrl} className="w-full h-full border-0" title="Lab Report" />
           ) : (
