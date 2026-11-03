@@ -215,6 +215,13 @@ const SecurityDashboard = () => {
     setAuditActionFilter("all");
   };
 
+  // Neutralize spreadsheet formulas: a cell starting with = + - @ (or a
+  // tab/CR) would execute as a formula when the CSV is opened in Excel.
+  const csvSafe = (value: unknown): string => {
+    const text = String(value ?? "");
+    return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  };
+
   const exportLoginAttemptsToCSV = () => {
     if (!filteredLoginAttempts.length) return;
 
@@ -226,7 +233,7 @@ const SecurityDashboard = () => {
       format(parseISO(a.created_at), "yyyy-MM-dd HH:mm:ss"),
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [headers.join(","), ...rows.map((r) => r.map(csvSafe).join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -249,7 +256,7 @@ const SecurityDashboard = () => {
       format(parseISO(log.created_at), "yyyy-MM-dd HH:mm:ss"),
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [headers.join(","), ...rows.map((r) => r.map(csvSafe).join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { generateQRDataUrl } from "@/hooks/useQRCode";
 import { getFooterStyles, getFooterHtml } from "./generateVerificationQR";
 import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "./issuedDocuments";
+import { escapeHtml, sanitizeHtmlFragment } from "@/lib/htmlSanitizer";
 
 /**
  * Shared print utility that opens a new window with full WYSIWYG styling.
@@ -20,6 +21,10 @@ export interface PrintDocumentOptions {
 
 export const printDocument = async (opts: PrintDocumentOptions) => {
   const { title, bodyHtml, extraCss = "", documentId, documentType, skipFooter } = opts;
+  // Titles and body markup can carry user-influenced text — neutralize any
+  // executable content before rendering or saving the printable snapshot.
+  const safeTitle = escapeHtml(title);
+  const safeBodyHtml = sanitizeHtmlFragment(bodyHtml);
   const verifyCode = newVerificationCode();
   const verificationUrl = getCodeVerifyUrl(verifyCode);
   const qrDataUrl = await generateQRDataUrl(verificationUrl, 80);
@@ -35,7 +40,7 @@ export const printDocument = async (opts: PrintDocumentOptions) => {
     <!DOCTYPE html>
     <html>
       <head>
-        <title>${title}</title>
+        <title>${safeTitle}</title>
         <style>
           /* ===== Base reset & typography ===== */
           *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -365,7 +370,7 @@ export const printDocument = async (opts: PrintDocumentOptions) => {
       </head>
       <body>
         <div class="watermark-top-bar">⚠️ This is a student project document. No official validity. NOT for official use.</div>
-        ${bodyHtml}
+        ${safeBodyHtml}
         ${!skipFooter ? getFooterHtml(verifyCode, documentType, qrDataUrl, currentDate) : ""}
         <div class="watermark-legal-bar" style="text-align:center;font-size:9pt;color:#cc0000;border-top:2px solid #cc0000;padding:10px 8px;margin-top:20px;font-family:Arial,sans-serif;font-weight:bold;background:#fff5f5;">
           ⚠️ DISCLAIMER: This is not the official website of NIT Warangal. No medical claims or documents issued here are valid for official, legal, or medical purposes. All data is dummy or publicly available from the NIT Warangal website.

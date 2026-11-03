@@ -8,6 +8,13 @@
       "when": 1791222169669,
       "tag": "0000_issued_documents",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793704646987,
+      "tag": "0001_tighten_contact_submissions_insert",
+      "breakpoints": true
     }
   ]
 }

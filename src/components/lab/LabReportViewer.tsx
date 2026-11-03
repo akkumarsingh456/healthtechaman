@@ -5,6 +5,7 @@ import { Eye, Printer, TestTube } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { escapeHtml, sanitizeHtmlDocument, sanitizeHtmlFragment } from "@/lib/htmlSanitizer";
 
 interface LabReportViewerProps {
   open: boolean;
@@ -32,7 +33,7 @@ export async function openLabReport(reportFileUrl: string) {
   if (!url) return false;
   if (reportFileUrl.endsWith(".html")) {
     const res = await fetch(url);
-    const html = await res.text();
+    const html = sanitizeHtmlDocument(await res.text());
     const blob = new Blob([html], { type: "text/html" });
     window.open(URL.createObjectURL(blob), "_blank");
   } else {
@@ -46,7 +47,7 @@ export async function printLabReport(reportFileUrl: string) {
   if (!url) return false;
   if (reportFileUrl.endsWith(".html")) {
     const res = await fetch(url);
-    const html = await res.text();
+    const html = sanitizeHtmlDocument(await res.text());
     const blob = new Blob([html], { type: "text/html" });
     const blobUrl = URL.createObjectURL(blob);
     const w = window.open(blobUrl, "_blank");
@@ -85,6 +86,14 @@ function buildFallbackHtml(opts: {
 
   const dateStr = opts.testDate ? format(new Date(opts.testDate), "dd MMM yyyy") : "N/A";
 
+  // Every caller-controlled field is escaped before it touches the markup.
+  const escTitle = escapeHtml(opts.title.toUpperCase());
+  const escName = escapeHtml(opts.studentName);
+  const escRoll = escapeHtml(opts.rollNumber);
+  const escDoctor = escapeHtml(opts.doctorName);
+  const escNotes = escapeHtml(opts.notes);
+  const escTechNotes = escapeHtml(techNotes);
+
   const rowsHtml = params.length > 0 ? params.map(p => {
     const flagHtml = p.flag === "high"
       ? '<span style="color:red;font-weight:bold">↑ HIGH</span>'
@@ -93,11 +102,11 @@ function buildFallbackHtml(opts: {
         : p.flag === "normal"
           ? '<span style="color:green">✓ Normal</span>'
           : "—";
-    return `<tr><td>${p.name}</td><td><strong>${p.value}</strong></td><td>${p.unit}</td><td>${p.refRange}</td><td>${flagHtml}</td></tr>`;
+    return `<tr><td>${escapeHtml(p.name)}</td><td><strong>${escapeHtml(p.value)}</strong></td><td>${escapeHtml(p.unit)}</td><td>${escapeHtml(p.refRange)}</td><td>${flagHtml}</td></tr>`;
   }).join("") : `<tr><td colspan="5" style="text-align:center;padding:20px;color:#888;">Raw results below</td></tr>`;
 
   const rawBlock = params.length === 0
-    ? `<div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-top:16px;white-space:pre-line;font-size:13px;">${opts.notes}</div>`
+    ? `<div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-top:16px;white-space:pre-line;font-size:13px;">${escNotes}</div>`
     : "";
 
   return `<!DOCTYPE html>
@@ -136,21 +145,21 @@ function buildFallbackHtml(opts: {
   <div class="section">
     <div class="section-title">PATIENT DETAILS</div>
     <div class="info-grid">
-      <div class="info-item"><span class="info-label">Patient Name:</span><span>${opts.studentName || "N/A"}</span></div>
-      <div class="info-item"><span class="info-label">Roll Number:</span><span>${opts.rollNumber || "N/A"}</span></div>
-      <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${opts.doctorName || "N/A"}</span></div>
+      <div class="info-item"><span class="info-label">Patient Name:</span><span>${escName || "N/A"}</span></div>
+      <div class="info-item"><span class="info-label">Roll Number:</span><span>${escRoll || "N/A"}</span></div>
+      <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${escDoctor || "N/A"}</span></div>
       <div class="info-item"><span class="info-label">Test Date:</span><span>${dateStr}</span></div>
     </div>
   </div>
   <div class="section">
-    <div class="section-title">TEST: ${opts.title.toUpperCase()}</div>
+    <div class="section-title">TEST: ${escTitle}</div>
     <table>
       <thead><tr><th>Parameter</th><th>Result</th><th>Unit</th><th>Reference Range</th><th>Flag</th></tr></thead>
       <tbody>${rowsHtml}</tbody>
     </table>
     ${rawBlock}
   </div>
-  ${techNotes && techNotes !== "None" ? `<div class="notes-box"><strong>Technician Notes:</strong> ${techNotes}</div>` : ""}
+  ${escTechNotes && escTechNotes !== "None" ? `<div class="notes-box"><strong>Technician Notes:</strong> ${escTechNotes}</div>` : ""}
   <div class="sig">
     <div class="sig-box"><div class="sig-line">Lab Technician</div></div>
     <div class="sig-box"><div class="sig-line">Pathologist</div></div>
@@ -192,7 +201,7 @@ export default function LabReportViewer({ open, onOpenChange, title, reportFileU
       if (reportFileUrl.endsWith(".html")) {
         const res = await fetch(url);
         const html = await res.text();
-        setHtmlContent(html);
+        setHtmlContent(sanitizeHtmlDocument(html));
       } else {
         setHtmlContent(null);
       }
@@ -228,7 +237,7 @@ export default function LabReportViewer({ open, onOpenChange, title, reportFileU
           {loading ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">Loading report...</div>
           ) : htmlContent ? (
-            <iframe srcDoc={htmlContent} className="w-full h-full border-0" title="Lab Report" />
+            <iframe srcDoc={htmlContent} sandbox="" className="w-full h-full border-0" title="Lab Report" />
           ) : signedUrl ? (
             <iframe src={signedUrl} className="w-full h-full border-0" title="Lab Report" />
           ) : (
