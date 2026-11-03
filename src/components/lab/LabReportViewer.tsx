@@ -145,21 +145,21 @@ function buildFallbackHtml(opts: {
   <div class="section">
     <div class="section-title">PATIENT DETAILS</div>
     <div class="info-grid">
-      <div class="info-item"><span class="info-label">Patient Name:</span><span>${opts.studentName || "N/A"}</span></div>
-      <div class="info-item"><span class="info-label">Roll Number:</span><span>${opts.rollNumber || "N/A"}</span></div>
-      <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${opts.doctorName || "N/A"}</span></div>
+      <div class="info-item"><span class="info-label">Patient Name:</span><span>${escName || "N/A"}</span></div>
+      <div class="info-item"><span class="info-label">Roll Number:</span><span>${escRoll || "N/A"}</span></div>
+      <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${escDoctor || "N/A"}</span></div>
       <div class="info-item"><span class="info-label">Test Date:</span><span>${dateStr}</span></div>
     </div>
   </div>
   <div class="section">
-    <div class="section-title">TEST: ${opts.title.toUpperCase()}</div>
+    <div class="section-title">TEST: ${escTitle}</div>
     <table>
       <thead><tr><th>Parameter</th><th>Result</th><th>Unit</th><th>Reference Range</th><th>Flag</th></tr></thead>
       <tbody>${rowsHtml}</tbody>
     </table>
     ${rawBlock}
   </div>
-  ${techNotes && techNotes !== "None" ? `<div class="notes-box"><strong>Technician Notes:</strong> ${techNotes}</div>` : ""}
+  ${escTechNotes && escTechNotes !== "None" ? `<div class="notes-box"><strong>Technician Notes:</strong> ${escTechNotes}</div>` : ""}
   <div class="sig">
     <div class="sig-box"><div class="sig-line">Lab Technician</div></div>
     <div class="sig-box"><div class="sig-line">Pathologist</div></div>
