@@ -89,7 +89,9 @@ Deno.serve(async (req) => {
   try {
     const { messages } = (await req.json()) as { messages?: ChatMsg[] };
     const safeMessages = (Array.isArray(messages) ? messages : [])
-      .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      // Assistant turns are caller-controlled and cannot be trusted as model
+      // history; only accept visitor-authored questions from the request.
+      .filter((m) => m && m.role === "user" && typeof m.content === "string")
       .slice(-4)
       .map((m) => ({ role: m.role, content: sanitize(m.content) }))
       .filter((m) => m.content.trim().length > 0);

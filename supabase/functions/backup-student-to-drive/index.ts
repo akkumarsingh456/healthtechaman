@@ -100,10 +100,38 @@ Deno.serve(async (req) => {
     const { student_id } = (await req.json().catch(() => ({}))) as { student_id?: string };
     if (!student_id) return ok({ skipped: true, reason: "missing student_id" });
 
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (!token) return ok({ error: "unauthorized" }, 401);
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+    });
+    const { data: authData, error: authError } = await userClient.auth.getUser(token);
+    if (authError || !authData.user) return ok({ error: "unauthorized" }, 401);
+
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
+      supabaseUrl,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    const { data: requestedStudent } = await supabase
+      .from("students")
+      .select("id, user_id")
+      .eq("id", student_id)
+      .maybeSingle();
+    if (!requestedStudent) return ok({ skipped: true, reason: "student not found" }, 404);
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", authData.user.id);
+    const isAdmin = (roles || []).some((row: { role: string }) => row.role === "admin");
+    if (requestedStudent.user_id !== authData.user.id && !isAdmin) {
+      return ok({ error: "forbidden" }, 403);
+    }
 
     // Pull the full student picture in parallel
     const [

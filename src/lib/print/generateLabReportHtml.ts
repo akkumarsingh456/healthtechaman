@@ -2,6 +2,7 @@ import { newVerificationCode, getCodeVerifyUrl, saveIssuedDocument } from "./iss
 import { format } from "date-fns";
 import { generateQRDataUrl } from "@/hooks/useQRCode";
 import { getFooterStyles, getFooterHtml } from "./generateVerificationQR";
+import { escapeHtml } from "@/lib/htmlSanitizer";
 
 interface LabReportHtmlOptions {
   reportId: string;
@@ -58,10 +59,10 @@ export async function generateLabReportHtmlBlob(opts: LabReportHtmlOptions): Pro
           ? '<span style="color:green">✓ Normal</span>'
           : "—";
     return `<tr>
-      <td>${p.name}</td>
-      <td><strong>${p.value || "—"}</strong></td>
-      <td>${p.unit}</td>
-      <td>${p.refRange}</td>
+      <td>${escapeHtml(p.name)}</td>
+      <td><strong>${escapeHtml(p.value || "—")}</strong></td>
+      <td>${escapeHtml(p.unit)}</td>
+      <td>${escapeHtml(p.refRange)}</td>
       <td>${flagHtml}</td>
     </tr>`;
   }).join("");
@@ -87,22 +88,22 @@ export async function generateLabReportHtmlBlob(opts: LabReportHtmlOptions): Pro
     <div class="section">
       <div class="section-title">PATIENT DETAILS</div>
       <div class="info-grid">
-        <div class="info-item"><span class="info-label">Patient Name:</span><span>${opts.studentName}</span></div>
-        <div class="info-item"><span class="info-label">Roll Number:</span><span>${opts.rollNumber}</span></div>
-        <div class="info-item"><span class="info-label">Programme:</span><span>${opts.program}</span></div>
-        <div class="info-item"><span class="info-label">Branch:</span><span>${opts.branch || "N/A"}</span></div>
-        <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${opts.doctorName}</span></div>
+        <div class="info-item"><span class="info-label">Patient Name:</span><span>${escapeHtml(opts.studentName)}</span></div>
+        <div class="info-item"><span class="info-label">Roll Number:</span><span>${escapeHtml(opts.rollNumber)}</span></div>
+        <div class="info-item"><span class="info-label">Programme:</span><span>${escapeHtml(opts.program)}</span></div>
+        <div class="info-item"><span class="info-label">Branch:</span><span>${escapeHtml(opts.branch || "N/A")}</span></div>
+        <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${escapeHtml(opts.doctorName)}</span></div>
         <div class="info-item"><span class="info-label">Test Date:</span><span>${format(new Date(opts.testDate), "dd MMM yyyy")}</span></div>
       </div>
     </div>
     <div class="section">
-      <div class="section-title">TEST: ${opts.testName.toUpperCase()}</div>
+      <div class="section-title">TEST: ${escapeHtml(opts.testName.toUpperCase())}</div>
       <table>
         <thead><tr><th>Parameter</th><th>Result</th><th>Unit</th><th>Reference Range</th><th>Flag</th></tr></thead>
         <tbody>${rowsHtml}</tbody>
       </table>
     </div>
-    ${opts.techNotes ? `<div class="notes-box"><strong>Technician Notes:</strong> ${opts.techNotes}</div>` : ""}
+    ${opts.techNotes ? `<div class="notes-box"><strong>Technician Notes:</strong> ${escapeHtml(opts.techNotes)}</div>` : ""}
     <div class="signature-section">
       <div class="signature-box">
         <div class="signature-line">Lab Technician</div>
@@ -119,7 +120,7 @@ export async function generateLabReportHtmlBlob(opts: LabReportHtmlOptions): Pro
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Lab Report — ${opts.studentName}</title>
+  <title>Lab Report — ${escapeHtml(opts.studentName)}</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {

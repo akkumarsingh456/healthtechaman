@@ -149,7 +149,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    console.log(`Sending ${action} notification to ${student.email}`);
+    console.log(`Sending ${action} appointment notification to the student account`);
 
     // Format date and time
     const appointmentDate = new Date(appointment.appointment_date).toLocaleDateString('en-IN', {

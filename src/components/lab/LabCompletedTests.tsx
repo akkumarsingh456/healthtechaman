@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { generateLabReportHtmlBlob } from "@/lib/print/generateLabReportHtml";
+import { escapeHtml, sanitizeHtmlDocument } from "@/lib/htmlSanitizer";
 
 /** Formatted lab notes block for the View Results dialog */
 function FormattedLabNotesBlock({ notes }: { notes: string }) {
@@ -141,7 +142,7 @@ export default function LabCompletedTests({ reports, searchQuery, onSearchChange
       try {
         const res = await fetch(url);
         const html = await res.text();
-        setPdfViewContent(html);
+        setPdfViewContent(sanitizeHtmlDocument(html));
       } catch {
         setPdfViewContent(null);
       }
@@ -160,7 +161,7 @@ export default function LabCompletedTests({ reports, searchQuery, onSearchChange
         try {
           const res = await fetch(url);
           const html = await res.text();
-          const blob = new Blob([html], { type: "text/html" });
+          const blob = new Blob([sanitizeHtmlDocument(html)], { type: "text/html" });
           const blobUrl = URL.createObjectURL(blob);
           const printWin = window.open(blobUrl, "_blank");
           if (printWin) printWin.addEventListener("load", () => setTimeout(() => printWin.print(), 600));
@@ -187,11 +188,11 @@ export default function LabCompletedTests({ reports, searchQuery, onSearchChange
         const isPdf = r.report_file_name?.toLowerCase().endsWith(".pdf");
         const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(r.report_file_name || "");
         if (isPdf) {
-          fileEmbed = `<div class="section"><div class="section-title">ATTACHED REPORT</div><iframe src="${url}" style="width:100%;height:600px;border:1px solid #ddd;border-radius:4px;" title="Lab Report"></iframe></div>`;
+          fileEmbed = `<div class="section"><div class="section-title">ATTACHED REPORT</div><iframe src="${escapeHtml(url)}" style="width:100%;height:600px;border:1px solid #ddd;border-radius:4px;" title="Lab Report"></iframe></div>`;
         } else if (isImage) {
-          fileEmbed = `<div class="section"><div class="section-title">ATTACHED REPORT</div><img src="${url}" style="max-width:100%;border:1px solid #ddd;border-radius:4px;" alt="Lab Report" /></div>`;
+          fileEmbed = `<div class="section"><div class="section-title">ATTACHED REPORT</div><img src="${escapeHtml(url)}" style="max-width:100%;border:1px solid #ddd;border-radius:4px;" alt="Lab Report" /></div>`;
         } else {
-          fileEmbed = `<div class="section"><div class="section-title">ATTACHED REPORT</div><div class="info-box"><strong>File:</strong> ${r.report_file_name}<br/><a href="${url}" target="_blank">Download File</a></div></div>`;
+          fileEmbed = `<div class="section"><div class="section-title">ATTACHED REPORT</div><div class="info-box"><strong>File:</strong> ${escapeHtml(r.report_file_name)}<br/><a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">Download File</a></div></div>`;
         }
       }
     }
@@ -205,15 +206,15 @@ export default function LabCompletedTests({ reports, searchQuery, onSearchChange
       <div class="section">
         <div class="section-title">PATIENT DETAILS</div>
         <div class="info-grid">
-          <div class="info-item"><span class="info-label">Patient Name:</span><span>${r.student?.full_name || "N/A"}</span></div>
-          <div class="info-item"><span class="info-label">Roll Number:</span><span>${r.student?.roll_number || "N/A"}</span></div>
-          <div class="info-item"><span class="info-label">Programme:</span><span>${r.student?.program || "N/A"}</span></div>
-          <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${r.doctor?.name || "N/A"}</span></div>
+          <div class="info-item"><span class="info-label">Patient Name:</span><span>${escapeHtml(r.student?.full_name || "N/A")}</span></div>
+          <div class="info-item"><span class="info-label">Roll Number:</span><span>${escapeHtml(r.student?.roll_number || "N/A")}</span></div>
+          <div class="info-item"><span class="info-label">Programme:</span><span>${escapeHtml(r.student?.program || "N/A")}</span></div>
+          <div class="info-item"><span class="info-label">Referring Doctor:</span><span>Dr. ${escapeHtml(r.doctor?.name || "N/A")}</span></div>
         </div>
       </div>
       <div class="section">
-        <div class="section-title">TEST: ${r.test_name.toUpperCase()}</div>
-        <div class="body-text" style="white-space:pre-line">${r.notes || "Results attached as file."}</div>
+        <div class="section-title">TEST: ${escapeHtml(r.test_name.toUpperCase())}</div>
+        <div class="body-text" style="white-space:pre-line">${escapeHtml(r.notes || "Results attached as file.")}</div>
       </div>
       ${fileEmbed}
       <div class="signature-section">

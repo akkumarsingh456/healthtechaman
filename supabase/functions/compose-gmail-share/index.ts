@@ -74,6 +74,12 @@ Deno.serve(async (req) => {
   // Sign uploaded files (24h for Gmail use)
   const fileLinks: { name: string; url: string }[] = [];
   for (const f of payload.uploadedFiles || []) {
+    if (
+      typeof f?.path !== "string" ||
+      f.path.length > 512 ||
+      !f.path.startsWith(`${user.id}/`) ||
+      f.path.split("/").some((part) => !part || part === "." || part === "..")
+    ) continue;
     try {
       const { data: signed } = await admin.storage
         .from("student-health-uploads")

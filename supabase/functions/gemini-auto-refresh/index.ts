@@ -112,25 +112,8 @@ Deno.serve(async (req) => {
     {
       const { data } = await admin.from("students").select("*").eq("user_id", user.id).maybeSingle();
       student = data;
-      if (!student && email) {
-        const { data: byEmail } = await admin.from("students").select("*").ilike("email", email).maybeSingle();
-        if (byEmail) {
-          issues.push("Student record was linked to an old login id.");
-          const { error } = await admin.from("students").update({ user_id: user.id }).eq("id", byEmail.id);
-          if (error) issues.push(`Re-link failed: ${error.message}`);
-          else repairs.push("Re-linked your student record to this login.");
-          student = { ...byEmail, user_id: user.id };
-        }
-      }
-      if (!student && body.roll_number_hint) {
-        const { data: byRoll } = await admin
-          .from("students").select("*").ilike("roll_number", body.roll_number_hint).maybeSingle();
-        if (byRoll) {
-          await admin.from("students").update({ user_id: user.id }).eq("id", byRoll.id);
-          repairs.push("Re-linked your student record by roll number.");
-          student = { ...byRoll, user_id: user.id };
-        }
-      }
+      // Student records are never discovered or reassigned by a caller-provided
+      // email or roll number. Only the existing auth ownership link is trusted.
     }
 
     if (student) {

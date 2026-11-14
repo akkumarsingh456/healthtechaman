@@ -219,7 +219,8 @@ const SecurityDashboard = () => {
   // tab/CR) would execute as a formula when the CSV is opened in Excel.
   const csvSafe = (value: unknown): string => {
     const text = String(value ?? "");
-    return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+    const neutralized = /^[\u0000-\u0020]*[=+\-@]/.test(text) ? `'${text}` : text;
+    return `"${neutralized.replace(/"/g, '""')}"`;
   };
 
   const exportLoginAttemptsToCSV = () => {

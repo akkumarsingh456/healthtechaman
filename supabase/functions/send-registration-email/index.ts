@@ -120,6 +120,14 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
+    // Registration notices may only be sent to the authenticated account's
+    // address, never to a caller-selected third party.
+    if (!data.user.email || data.user.email.toLowerCase() !== String((await req.clone().json().catch(() => ({}))).email || "").trim().toLowerCase()) {
+      return new Response(JSON.stringify({ error: 'Email must match the signed-in account' }), {
+        status: 403, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const body = await req.json();
     const { email, name, userType, rollNumber }: RegistrationEmailRequest = body;
 

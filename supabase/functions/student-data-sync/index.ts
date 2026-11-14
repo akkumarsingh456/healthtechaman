@@ -1,8 +1,8 @@
 // Edge function: student-data-sync
 // Self-healing data fetch for the logged-in student.
 // - Verifies the auth user
-// - Locates their student record by user_id, then by email, then by roll number
-// - If found via email/roll, re-links students.user_id to the current auth uid
+// - Locates only the student record already linked to the verified auth user
+// - Never treats a submitted email or roll number as proof of record ownership
 // - Returns a health report of related rows so the UI can show what was repaired
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -42,9 +42,9 @@ Deno.serve(async (req) => {
     }
     const user = userData.user;
 
-    const { roll_number_hint } = (await req.json().catch(() => ({}))) as {
-      roll_number_hint?: string;
-    };
+    // Consume the request body for compatibility, but never use user-supplied
+    // identifiers to discover or reassign a student record.
+    await req.json().catch(() => ({}));
 
     const admin = createClient(supabaseUrl, serviceKey);
     const issues: string[] = [];
@@ -56,45 +56,6 @@ Deno.serve(async (req) => {
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
-
-    // 2. Fallback: by email
-    if (!student && user.email) {
-      const { data: byEmail } = await admin
-        .from("students")
-        .select("*")
-        .ilike("email", user.email)
-        .maybeSingle();
-      if (byEmail) {
-        student = byEmail;
-        issues.push(`Student record was linked to a stale auth id (${byEmail.user_id ?? "none"}).`);
-        const { error: upErr } = await admin
-          .from("students")
-          .update({ user_id: user.id })
-          .eq("id", byEmail.id);
-        if (upErr) {
-          issues.push(`Auto-relink failed: ${upErr.message}`);
-        } else {
-          repairs.push("Re-linked student record to your current login.");
-          student.user_id = user.id;
-        }
-      }
-    }
-
-    // 3. Fallback: by roll number hint
-    if (!student && roll_number_hint) {
-      const { data: byRoll } = await admin
-        .from("students")
-        .select("*")
-        .ilike("roll_number", roll_number_hint)
-        .maybeSingle();
-      if (byRoll) {
-        student = byRoll;
-        issues.push("Student record was matched by roll number (no email match).");
-        await admin.from("students").update({ user_id: user.id }).eq("id", byRoll.id);
-        repairs.push("Re-linked student record by roll number.");
-        student.user_id = user.id;
-      }
-    }
 
     if (!student) {
       return json({
