@@ -30,6 +30,7 @@ import Footer from '@/components/Footer';
 import ProfileCompletionIndicator from '@/components/profile/ProfileCompletionIndicator';
 import LeaveApprovalWorkflowTimeline, { type ApprovalWorkflowRow } from '@/components/medical-leave/LeaveApprovalWorkflowTimeline';
 import { triggerStudentBackup } from '@/lib/backup/triggerStudentBackup';
+import { escapeHtml } from '@/lib/htmlSanitizer';
 import RecipientEmailsCard from '@/components/student/RecipientEmailsCard';
 import StudentLeaveHistoryCard from '@/components/student/StudentLeaveHistoryCard';
 import StudentDataSyncBanner from '@/components/student/StudentDataSyncBanner';
@@ -1633,8 +1634,8 @@ export default function StudentProfilePage() {
                                         <div class="cert-no">Report No.: ${reportNo}</div>
                                       </div>
                                       <div class="section">
-                                        <div class="section-title">TEST: ${report.test_name.toUpperCase()}</div>
-                                        <div class="body-text" style="white-space:pre-line">${report.notes || 'Results not available.'}</div>
+                                        <div class="section-title">TEST: ${escapeHtml(report.test_name.toUpperCase())}</div>
+                                        <div class="body-text" style="white-space:pre-line">${escapeHtml(report.notes || 'Results not available.')}</div>
                                       </div>
                                       <div class="signature-section">
                                         <div class="signature-box"><div class="signature-line">Lab Technician</div></div>
