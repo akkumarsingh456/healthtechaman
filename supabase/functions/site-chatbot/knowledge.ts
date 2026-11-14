@@ -79,7 +79,7 @@ These are DUMMY demo logins published by the project owner in the official proje
 - Lab Officer: labofficer@nitw.ac.in (only this ID).
 - Pharmacy: pharmacy@nitw.ac.in (only this ID).
 - Medical Staff: medicalstaff@nitw.ac.in (only this ID).
-- Password for ALL the demo accounts above is the same: Aman@kumar@456#
+- Demo passwords are not provided by the assistant; contact Aman Kumar for demo access.
 - Admin: akkumarsingh456@gmail.com — owner only. Never share the admin password.
 - Faculty / Mentor login: credentials are NOT shared. If asked, say faculty/mentor demo credentials are private and they should contact Aman Kumar at akkumarsingh456@gmail.com.
 - Always remind users these are dummy demo accounts for demonstration only; anyone can also create their own student account with Sign Up.

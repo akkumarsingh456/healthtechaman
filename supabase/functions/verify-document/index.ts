@@ -132,7 +132,12 @@ Deno.serve(async (req) => {
     const html = String(snap.html).replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<body([^>]*)>/i, `<body$1>${banner}`);
     return json({ ok: true, doc: snap.doc_type, html, title: `${snap.title} — Verified (${snap.code})` });
   }
+  // Legacy UUID routes expose live medical data and are not proof of consent.
+  // Keep public QR verification available only through random snapshot codes.
+  if (doc || id) return json({ error: "legacy_verification_unavailable", message: "Please use the document's QR verification code." }, 410);
+  return json({ error: "missing_code", message: "Please scan the QR code on the saved document." }, 400);
 
+  /* Legacy implementation retained below for migration context only.
   if (doc !== "referral" && doc !== "leave-certificate") return json({ error: "invalid_doc" }, 400);
   if (!UUID_RE.test(id)) return json({ error: "invalid_id" }, 400);
 
@@ -175,4 +180,5 @@ Deno.serve(async (req) => {
       (doc === "referral" ? "Medical Referral Letter" : "Medical Leave Certificate") +
       ` — ${student?.full_name || ""} (${student?.roll_number || ""})`,
   });
+  */
 });

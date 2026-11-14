@@ -140,13 +140,8 @@ Deno.serve(async (req) => {
     // ---- Doctor / medical officer ----
     if (roles.includes("doctor") || !student) {
       const { data: doc } = await admin.from("medical_officers").select("id").eq("user_id", user.id).maybeSingle();
-      if (!doc && email) {
-        const { data: byEmail } = await admin.from("medical_officers").select("id").ilike("email", email).maybeSingle();
-        if (byEmail) {
-          const { error } = await admin.from("medical_officers").update({ user_id: user.id }).eq("id", byEmail.id);
-          if (!error) repairs.push("Re-linked your medical officer profile to this login.");
-        }
-      }
+      // Do not claim an unlinked clinician profile by email. Provisioning is
+      // performed by an administrator and email matching is not proof of ownership.
       if (doc || roles.includes("doctor")) {
         const { count } = await admin
           .from("appointments").select("id", { count: "exact", head: true }).eq("doctor_id", doc?.id ?? "");
@@ -157,13 +152,7 @@ Deno.serve(async (req) => {
     // ---- Mentor ----
     if (roles.includes("mentor")) {
       const { data: mentor } = await admin.from("mentors").select("id").eq("user_id", user.id).maybeSingle();
-      if (!mentor && email) {
-        const { data: byEmail } = await admin.from("mentors").select("id").ilike("email", email).maybeSingle();
-        if (byEmail) {
-          const { error } = await admin.from("mentors").update({ user_id: user.id }).eq("id", byEmail.id);
-          if (!error) repairs.push("Re-linked your mentor profile to this login.");
-        }
-      }
+      // Mentor profiles must be explicitly linked by an administrator.
     }
 
     if (roles.length === 0) issues.push("No role assigned to this account yet.");

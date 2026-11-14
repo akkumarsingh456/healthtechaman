@@ -32,7 +32,7 @@ const DEMO_ROLES = [
   { label: "Pharmacy", query: "Give the pharmacy dummy login and password" },
 ];
 
-const DEMO_PASSWORD = "Aman@kumar@456#";
+const DEMO_PASSWORD = "Contact Aman Kumar for demo access.";
 
 // Instant, verified answers served locally — no model call, so these reply immediately.
 const INSTANT_ANSWERS: { match: RegExp; reply: string }[] = [
