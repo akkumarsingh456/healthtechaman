@@ -1,7 +1,5 @@
 // Public, read-only document verification endpoint.
-// Returns a self-contained, non-editable HTML rendering of either the
-// doctor referral letter or the medical leave certificate for a given
-// medical leave request id. No third-party/paid APIs are used.
+// Returns only saved document snapshots addressed by unguessable random code.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -9,8 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -106,14 +102,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const url = new URL(req.url);
-  let doc = url.searchParams.get("doc") || "";
-  let id = url.searchParams.get("id") || "";
+  const doc = url.searchParams.get("doc") || "";
+  const id = url.searchParams.get("id") || "";
   let code = url.searchParams.get("code") || "";
   if (req.method === "POST") {
     try {
       const b = await req.json();
-      doc = b.doc || doc;
-      id = b.id || id;
+      if (b.doc) return json({ error: "legacy_verification_unavailable" }, 410);
+      if (b.id) return json({ error: "legacy_verification_unavailable" }, 410);
       code = b.code || code;
     } catch (_) { /* ignore */ }
   }
@@ -137,48 +133,4 @@ Deno.serve(async (req) => {
   if (doc || id) return json({ error: "legacy_verification_unavailable", message: "Please use the document's QR verification code." }, 410);
   return json({ error: "missing_code", message: "Please scan the QR code on the saved document." }, 400);
 
-  /* Legacy implementation retained below for migration context only.
-  if (doc !== "referral" && doc !== "leave-certificate") return json({ error: "invalid_doc" }, 400);
-  if (!UUID_RE.test(id)) return json({ error: "invalid_id" }, 400);
-
-  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-
-  const { data: leave, error } = await admin
-    .from("medical_leave_requests")
-    .select(
-      "id, student_id, referral_hospital, illness_description, expected_duration, leave_start_date, expected_return_date, referral_date, created_at, status, doctor_notes, rest_days, doctor_clearance, doctor_clearance_date, referring_doctor_id",
-    )
-    .eq("id", id)
-    .maybeSingle();
-
-  if (error) return json({ error: "lookup_failed" }, 500);
-  if (!leave) return json({ error: "not_found" }, 404);
-
-  const { data: student } = await admin
-    .from("students")
-    .select("full_name, roll_number, branch, program")
-    .eq("id", leave.student_id)
-    .maybeSingle();
-
-  let doctorName = "Dr. Campus Doctor";
-  if (leave.referring_doctor_id) {
-    const { data: doc2 } = await admin
-      .from("medical_officers")
-      .select("name")
-      .eq("id", leave.referring_doctor_id)
-      .maybeSingle();
-    if (doc2?.name) doctorName = /^dr\.?\s/i.test(doc2.name) ? doc2.name : `Dr. ${doc2.name}`;
-  }
-
-  const html = buildHtml(doc as any, leave, student || { full_name: "—", roll_number: "—" }, doctorName);
-
-  return json({
-    ok: true,
-    doc,
-    html,
-    title:
-      (doc === "referral" ? "Medical Referral Letter" : "Medical Leave Certificate") +
-      ` — ${student?.full_name || ""} (${student?.roll_number || ""})`,
-  });
-  */
 });

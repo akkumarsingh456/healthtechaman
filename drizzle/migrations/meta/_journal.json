@@ -29,6 +29,13 @@
       "when": 1794635913465,
       "tag": "0003_allow_assigned_mentor_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794636228555,
+      "tag": "0004_enforce_student_update_guards",
+      "breakpoints": true
     }
   ]
 }
