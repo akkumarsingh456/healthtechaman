@@ -520,7 +520,7 @@ const PrintableReferralLetter = ({ data }: PrintableReferralLetterProps) => {
       </html>
     `;
     printWindow.document.write(fullHtml);
-    void saveIssuedDocument({ code: verifyCode, docType: "Medical Referral Letter", title: `Medical Referral Letter - ${data.studentName}`, html: fullHtml, sourceId: documentId, studentId: data.studentId });
+    void saveIssuedDocument({ code: verifyCode, docType: "Medical Referral Letter", title: `Medical Referral Letter - ${data.studentName}`, html: fullHtml, sourceId: documentId });
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
