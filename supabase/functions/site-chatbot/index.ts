@@ -1,4 +1,5 @@
 import { SITE_KNOWLEDGE } from "./knowledge.ts";
+import { isRateLimited } from "../_shared/ipRateLimit.ts";
 
 const ALLOWED_ORIGIN_PATTERNS = [
   /^https?:\/\/localhost(:\d+)?$/,
@@ -17,19 +18,6 @@ const buildCors = (origin: string | null) => ({
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   Vary: "Origin",
 });
-
-// Lightweight in-memory abuse guard (per IP): 20 messages / minute.
-const RATE_LIMIT = 20;
-const WINDOW_MS = 60_000;
-const hits = new Map<string, number[]>();
-const rateLimited = (ip: string) => {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(ip, recent);
-  if (hits.size > 5000) hits.clear();
-  return recent.length > RATE_LIMIT;
-};
 
 // Strip attempts to inject fake system/developer instructions from user text.
 const sanitize = (text: string) =>
@@ -84,7 +72,7 @@ Deno.serve(async (req) => {
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("cf-connecting-ip") ??
     "unknown";
-  if (rateLimited(ip)) return json({ error: "Too many messages. Please wait a moment and try again." }, 429);
+  if (isRateLimited(ip, 20, 60_000)) return json({ error: "Too many messages. Please wait a moment and try again." }, 429);
 
   try {
     const { messages } = (await req.json()) as { messages?: ChatMsg[] };

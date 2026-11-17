@@ -21,6 +21,8 @@ export interface RefreshReport {
 
 const CACHE_KEY = "gemini-auto-refresh:last";
 const INTERVAL_MS = 60_000;
+const ROUTE_COOLDOWN_MS = 15_000;
+const LAST_CHECK_KEY = "gemini-auto-refresh:last-check";
 
 /**
  * Always-on background refresh for every logged-in section.
@@ -98,11 +100,10 @@ export function useGeminiAutoRefresh() {
         }
         setStatus(res.synced ? "repaired" : "fresh");
 
-        // Records may have been re-linked — pull correct data into the UI.
-        if (res.synced) queryClient.invalidateQueries();
-        else queryClient.invalidateQueries({ refetchType: "active" });
-        // Tell pages that load data manually (e.g. student profile) to reload.
-        window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
+        if (res.synced) {
+          queryClient.invalidateQueries();
+          window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
+        }
 
         schedule(INTERVAL_MS);
       } finally {
@@ -110,7 +111,12 @@ export function useGeminiAutoRefresh() {
       }
     };
 
-    const kick = () => run();
+    const kick = () => {
+      const checkedAt = Number(sessionStorage.getItem(LAST_CHECK_KEY) || 0);
+      if (Date.now() - checkedAt < ROUTE_COOLDOWN_MS) return;
+      sessionStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
+      run();
+    };
     if (typeof (window as any).requestIdleCallback === "function") {
       (window as any).requestIdleCallback(kick, { timeout: 600 });
     } else {

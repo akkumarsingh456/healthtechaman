@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { isRateLimited } from "../_shared/ipRateLimit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,6 +8,16 @@ const corsHeaders = {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return new Response(JSON.stringify({ valid: false, notes: "Method not allowed" }), {
+    status: 405,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+  const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip, 8, 60_000)) return new Response(JSON.stringify({ valid: false, notes: "Too many requests. Please try again in a minute." }), {
+    status: 429,
+    headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "60" },
+  });
 
   try {
     const raw = await req.json();
