@@ -45,6 +45,9 @@ export function useGeminiAutoRefresh() {
   const runningRef = useRef(false);
   const attemptRef = useRef(0);
   const timerRef = useRef<number | null>(null);
+const pendingRef = useRef(false);
+const runRef = useRef<(() => Promise<void>) | null>(null);
+const scheduleRef = useRef<((ms: number) => void) | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,12 +61,17 @@ export function useGeminiAutoRefresh() {
 
     const schedule = (ms: number) => {
       clearTimer();
-      timerRef.current = window.setTimeout(run, ms);
+      if (!cancelled) timerRef.current = window.setTimeout(run, ms);
     };
 
     const run = async () => {
-      if (cancelled || runningRef.current) return;
+      if (cancelled) return;
+if (runningRef.current) {
+pendingRef.current = true;
+return;
+}
       runningRef.current = true;
+      let shouldRunPending = false;
       try {
         if (typeof navigator !== "undefined" && navigator.onLine === false) {
           setStatus("offline");
@@ -110,21 +118,19 @@ export function useGeminiAutoRefresh() {
  }
         schedule(INTERVAL_MS);
       } finally {
+      if (pendingRef.current && !cancelled) {
+        pendingRef.current = false;
+        shouldRunPending = true;
+      }
         runningRef.current = false;
+      }
+      if (shouldRunPending && !cancelled) {
+        void run();
       }
     };
 
-    const kick = () => {
-      const checkedAt = Number(sessionStorage.getItem(LAST_CHECK_KEY) || 0);
-      if (Date.now() - checkedAt < ROUTE_COOLDOWN_MS) return;
-      sessionStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
-      run();
-    };
-    if (typeof (window as any).requestIdleCallback === "function") {
-      (window as any).requestIdleCallback(kick, { timeout: 600 });
-    } else {
-      window.setTimeout(kick, 0);
-    }
+   runRef.current = run;
+    scheduleRef.current = schedule;
 
     const onOnline = () => {
       attemptRef.current = 0;
@@ -138,16 +144,70 @@ export function useGeminiAutoRefresh() {
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
     document.addEventListener("visibilitychange", onVisible);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+      if (cancelled) return;
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+        attemptRef.current = 0;
+        void run();
+      } else if (event === "SIGNED_OUT") {
+        setStatus("signed-out");
+        setReport(null);
+      }
+    });
 
     return () => {
       cancelled = true;
       clearTimer();
+      runRef.current = null;
+      scheduleRef.current = null;
+      authListener.subscription.unsubscribe();
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
       document.removeEventListener("visibilitychange", onVisible);
     };
     // Re-run on every route change so each page loads verified data.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    let idleId: number | null = null;
+    let timeoutId: number | null = null;
+
+    const kick = () => {
+      let checkedAt = 0;
+      try {
+        checkedAt = Number(sessionStorage.getItem(LAST_CHECK_KEY) || 0);
+      } catch {
+        checkedAt = 0;
+      }
+      if (Date.now() - checkedAt < ROUTE_COOLDOWN_MS) {
+        if (timerRef.current === null && !runningRef.current) {
+          scheduleRef.current?.(INTERVAL_MS);
+        }
+        return;
+      }
+      try {
+        sessionStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
+      } catch {
+        /* ignore storage errors */
+      }
+      void runRef.current?.();
+    };
+
+    if (typeof (window as any).requestIdleCallback === "function") {
+      idleId = (window as any).requestIdleCallback(kick, { timeout: 600 });
+    } else {
+      timeoutId = window.setTimeout(kick, 0);
+    }
+
+    return () => {
+      if (idleId !== null && typeof (window as any).cancelIdleCallback === "function") {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   }, [location.pathname]);
 
   return { status, report };
