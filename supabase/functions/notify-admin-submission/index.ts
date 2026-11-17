@@ -1,5 +1,6 @@
 // Sends an email to the project owner whenever a new contact/review submission arrives.
 // Always returns 200 so the caller's UI never hangs (per project resilience rule).
+import { isRateLimited } from "../_shared/ipRateLimit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,6 +30,8 @@ const esc = (s: unknown) =>
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+.replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 function buildHtml(p: Payload) {
   const isContact = p.submission_type === "contact";
@@ -79,14 +82,20 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+    if (req.method !== "POST") { return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
   try {
-    const apiKey = Deno.env.get("RESEND_API_KEY");
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || "unknown";
+ if (isRateLimited(`notify-admin:${clientIp}`, 5, 60_000)) { return new Response(JSON.stringify({ error: "Too many requests" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
+    // { 
+      const apiKey = Deno.env.get("RESEND_API_KEY");
     const payload: Payload = await req.json().catch(() => ({}));
     const isContact = payload.submission_type === "contact";
     const subjectLine = isContact
       ? `📨 New contact: ${payload.subject || payload.name || "Message"}`
       : `⭐ New ${payload.sender_role || "user"} review from ${payload.name || "anonymous"}`;
-
+if (payload.submission_type !== "contact" && payload.submission_type !== "review") { return new Response(JSON.stringify({ error: "Invalid submission_type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
+    const cleanName = typeof payload.name === "string" ? payload.name.trim() : ""; const cleanEmail = typeof payload.email === "string" ? payload.email.trim() : ""; const cleanMessage = typeof payload.message === "string" ? payload.message.trim() : ""; if (!cleanName || cleanName.length > 200 || !cleanEmail || cleanEmail.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail) || !cleanMessage || cleanMessage.length > 5000) { return new Response(JSON.stringify({ error: "Missing or invalid required fields" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }); } const stripCrLf = (s: string) => s.replace(/[\r\n]+/g, " ").trim();
+    
     // 1) In-app notification — insert one row per admin user.
     try {
       const adminRes = await fetch(
@@ -143,8 +152,8 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           from: "NITW Health Portal <onboarding@resend.dev>",
           to: [ADMIN_EMAIL],
-          reply_to: payload.email || undefined,
-          subject: subjectLine,
+          reply_to:stripCrLf(cleanEmail), //  payload.email || undefined,
+          subject: stripCrLf(subjectLine), // subjectLine,
           html: buildHtml(payload),
         }),
       });
