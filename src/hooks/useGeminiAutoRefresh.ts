@@ -104,7 +104,10 @@ export function useGeminiAutoRefresh() {
           queryClient.invalidateQueries();
           window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
         }
-
+ else {
+         queryClient.invalidateQueries({ refetchType: "active" });
+     window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
+ }
         schedule(INTERVAL_MS);
       } finally {
         runningRef.current = false;
