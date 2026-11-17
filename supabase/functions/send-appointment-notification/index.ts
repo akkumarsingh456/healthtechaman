@@ -112,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
         appointment_time,
         reason,
         status,
-        patient_id
+        patient_id, doctor_id
       `)
       .eq("id", appointmentId)
       .single();
@@ -124,7 +124,8 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
-
+    if (roles.includes('doctor') && !roles.includes('admin')) { const { data: officer, error: officerError } = await supabase.from('medical_officers').select('id').eq('user_id', userData.user.id).maybeSingle(); if (officerError || !officer || appointment.doctor_id !== officer.id) { return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }); } }
+    
     // Fetch student details - patient_id is the auth user_id, not the student table id
     const { data: student, error: studentError } = await supabase
       .from("students")
