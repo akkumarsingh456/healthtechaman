@@ -29,6 +29,7 @@ function ok(body: unknown, status = 200) {
 }
 
 function isEmail(v: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+function escapeHtml(v: unknown): string { return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -101,22 +102,22 @@ Deno.serve(async (req) => {
         <h2 style="margin:0;color:#065f46">Health Report Shared</h2>
         <p style="margin:4px 0 0;color:#374151;font-size:13px">NIT Warangal Health Centre Portal</p>
       </div>
-      <p>Dear ${r.name || r.role},</p>
-      <p><strong>${student.full_name}</strong> (Roll No: <strong>${student.roll_number}</strong>${student.branch ? `, ${student.branch}` : ""}) has shared their health documents with you for your review${r.role ? ` as their <strong>${r.role}</strong>` : ""}.</p>
+      <p>Dear ${escapeHtml(r.name || r.role)},</p>
+      <p><strong>${escapeHtml(student.full_name)}</strong> (Roll No: <strong>${student.roll_number}</strong>${student.branch ? `, ${student.branch}` : ""}) has shared their health documents with you for your review${r.role ? ` as their <strong>${escapeHtml(r.role)}</strong>` : ""}.</p>
       ${leave ? `
       <h3 style="margin-top:20px;color:#065f46;font-size:15px">Linked Medical Leave</h3>
       <table style="width:100%;border-collapse:collapse;font-size:13px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px">
-        <tr><td style="padding:6px 10px;color:#374151"><strong>Hospital:</strong></td><td style="padding:6px 10px">${leave.referral_hospital || "—"}</td></tr>
-        <tr><td style="padding:6px 10px;color:#374151"><strong>Condition:</strong></td><td style="padding:6px 10px">${leave.illness_description || "—"}</td></tr>
-        <tr><td style="padding:6px 10px;color:#374151"><strong>Duration:</strong></td><td style="padding:6px 10px">${leave.expected_duration || "—"}</td></tr>
-        <tr><td style="padding:6px 10px;color:#374151"><strong>From → To:</strong></td><td style="padding:6px 10px">${leave.leave_start_date || "—"} → ${leave.expected_return_date || "—"}</td></tr>
-        <tr><td style="padding:6px 10px;color:#374151"><strong>Status:</strong></td><td style="padding:6px 10px">${leave.status}</td></tr>
+        <tr><td style="padding:6px 10px;color:#374151"><strong>Hospital:</strong></td><td style="padding:6px 10px">${escapeHtml(leave.referral_hospital || "—")}</td></tr>
+        <tr><td style="padding:6px 10px;color:#374151"><strong>Condition:</strong></td><td style="padding:6px 10px">${escapeHtml(leave.illness_description || "—")}</td></tr>
+        <tr><td style="padding:6px 10px;color:#374151"><strong>Duration:</strong></td><td style="padding:6px 10px">${escapeHtml(leave.expected_duration || "—")}</td></tr>
+        <tr><td style="padding:6px 10px;color:#374151"><strong>From → To:</strong></td><td style="padding:6px 10px">${escapeHtml(leave.leave_start_date || "—")} → ${escapeHtml(leave.expected_return_date || "—")}</td></tr>
+        <tr><td style="padding:6px 10px;color:#374151"><strong>Status:</strong></td><td style="padding:6px 10px">${escapeHtml(leave.status)}</td></tr>
       </table>` : ""}
-      ${payload.message ? `<div style="margin-top:16px;padding:12px;background:#f9fafb;border-left:3px solid #6b7280;border-radius:4px"><strong>Message from student:</strong><br/>${payload.message.replace(/</g, "&lt;")}</div>` : ""}
+      ${payload.message ? `<div style="margin-top:16px;padding:12px;background:#f9fafb;border-left:3px solid #6b7280;border-radius:4px"><strong>Message from student:</strong><br/>${escapeHtml(payload.message)}</div>` : ""}
       ${fileLinks.length ? `
       <h3 style="margin-top:20px;color:#065f46;font-size:15px">Attached Documents</h3>
       <ul style="padding-left:18px">
-        ${fileLinks.map((f) => `<li><a href="${f.url}" style="color:#059669">${f.name}</a> <span style="color:#9ca3af;font-size:11px">(link valid 1 hour)</span></li>`).join("")}
+        ${fileLinks.map((f) => `<li><a href="${f.url}" style="color:#059669">${escapeHtml(f.name)}</a> <span style="color:#9ca3af;font-size:11px">(link valid 1 hour)</span></li>`).join("")}
       </ul>` : ""}
       ${payload.includeReferral && leave ? `<p style="margin-top:12px;color:#374151"><em>Doctor's referral letter is available on the student portal.</em></p>` : ""}
       ${payload.includeLeaveCertificate && leave ? `<p style="color:#374151"><em>Medical leave certificate is available on the student portal.</em></p>` : ""}
