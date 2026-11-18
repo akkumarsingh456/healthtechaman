@@ -29,13 +29,14 @@ export const saveIssuedDocument = async (opts: {
   try {
     const { data } = await supabase.auth.getUser();
     if (!data.user) return;
-    const { error } = await supabase.from("issued_documents").insert({
-      code: opts.code,
-      doc_type: opts.docType.slice(0, 80),
-      title: opts.title.slice(0, 300),
-      html: absolutize(opts.html),
-      source_id: opts.sourceId?.slice(0, 120) ?? null,
-      issued_by: data.user.id,
+    const { error } = await supabase.functions.invoke("issue-document", {
+      body: {
+        code: opts.code,
+        docType: opts.docType.slice(0, 80),
+        title: opts.title.slice(0, 300),
+        html: absolutize(opts.html),
+        sourceId: opts.sourceId?.slice(0, 120) ?? null,
+      },
     });
     if (error) console.warn("QR snapshot save failed", error.message);
   } catch (e) {
