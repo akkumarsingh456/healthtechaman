@@ -32,29 +32,29 @@ const DEMO_ROLES = [
   { label: "Pharmacy", query: "Give the pharmacy dummy login and password" },
 ];
 
-const DEMO_PASSWORD = "Contact Aman Kumar for demo access.";
+const DEMO_PASSWORD_HELP = "Passwords are not shared here. Contact Aman Kumar at akkumarsingh456@gmail.com for demo access.";
 
 // Instant, verified answers served locally — no model call, so these reply immediately.
 const INSTANT_ANSWERS: { match: RegExp; reply: string }[] = [
   {
     match: /\bstudent\b.*(login|password|credential)|(login|password|credential).*\bstudent\b/i,
-    reply: `**Student demo login**\n\n- Email: \`an25edi0049@student.nitw.ac.in\` (Annie, roll 25EDI0049)\n- Password: \`${DEMO_PASSWORD}\`\n\nYou can also sign up with your own official @student.nitw.ac.in email. \`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+    reply: `**Student demo login**\n\n- Email: \`an25edi0049@student.nitw.ac.in\` (Annie, roll 25EDI0049)\n- Password help: ${DEMO_PASSWORD_HELP}\n\nYou can also sign up with your own official @student.nitw.ac.in email. \`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
   },
   {
     match: /\bdoctor\b.*(login|password|credential)|(login|password|credential).*\bdoctor\b/i,
-    reply: `**Doctor demo login**\n\n- Email: \`doctor@nitw.ac.in\` (Dr. Anchoori Karthik) or \`sr25edi0050@student.nitw.ac.in\` (Dr. Test Doctor 2)\n- Password: \`${DEMO_PASSWORD}\`\n\nOther Gmail IDs are blocked for doctor login. \`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+    reply: `**Doctor demo login**\n\n- Email: \`doctor@nitw.ac.in\` (Dr. Anchoori Karthik) or \`sr25edi0050@student.nitw.ac.in\` (Dr. Test Doctor 2)\n- Password help: ${DEMO_PASSWORD_HELP}\n\nOther Gmail IDs are blocked for doctor login. \`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
   },
   {
     match: /(lab)\b.*(login|password|credential)|(login|password|credential).*\blab\b/i,
-    reply: `**Lab Officer demo login**\n\n- Email: \`labofficer@nitw.ac.in\`\n- Password: \`${DEMO_PASSWORD}\`\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+    reply: `**Lab Officer demo login**\n\n- Email: \`labofficer@nitw.ac.in\`\n- Password help: ${DEMO_PASSWORD_HELP}\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
   },
   {
     match: /pharmac/i,
-    reply: `**Pharmacy demo login**\n\n- Email: \`pharmacy@nitw.ac.in\`\n- Password: \`${DEMO_PASSWORD}\`\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+    reply: `**Pharmacy demo login**\n\n- Email: \`pharmacy@nitw.ac.in\`\n- Password help: ${DEMO_PASSWORD_HELP}\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
   },
   {
     match: /medical\s*staff/i,
-    reply: `**Medical Staff demo login**\n\n- Email: \`medicalstaff@nitw.ac.in\`\n- Password: \`${DEMO_PASSWORD}\`\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
+    reply: `**Medical Staff demo login**\n\n- Email: \`medicalstaff@nitw.ac.in\`\n- Password help: ${DEMO_PASSWORD_HELP}\n\n\`/auth\`\n\n_Source: Demo logins (portal knowledge base)_`,
   },
   {
     match: /\badmin\b/i,
