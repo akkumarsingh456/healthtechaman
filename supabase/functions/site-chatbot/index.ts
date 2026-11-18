@@ -1,4 +1,5 @@
 import { SITE_KNOWLEDGE } from "./knowledge.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { isRateLimited } from "../_shared/ipRateLimit.ts";
 
 const ALLOWED_ORIGIN_PATTERNS = [
@@ -68,6 +69,24 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
   if (origin && !isAllowedOrigin(origin)) return json({ error: "Origin not allowed" }, 403);
 
+  // Authenticate before processing user content or making a metered model call.
+  const authHeader = req.headers.get("authorization") ?? "";
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  let authenticated = false;
+  if (token && token !== authHeader && supabaseUrl && anonKey) {
+    try {
+      const authClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data, error } = await authClient.auth.getUser(token);
+      authenticated = !error && !!data.user;
+    } catch {
+      authenticated = false;
+    }
+  }
+
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("cf-connecting-ip") ??
@@ -76,6 +95,7 @@ Deno.serve(async (req) => {
 
   try {
     const { messages } = (await req.json()) as { messages?: ChatMsg[] };
+    if (!Array.isArray(messages) || messages.length > 20) return json({ error: "Invalid message history." }, 400);
     const safeMessages = (Array.isArray(messages) ? messages : [])
       // Assistant turns are caller-controlled and cannot be trusted as model
       // history; only accept visitor-authored questions from the request.
@@ -89,6 +109,10 @@ Deno.serve(async (req) => {
       parts: [{ text: m.content }],
     }));
     if (!history.length) return json({ error: "No message provided" }, 400);
+
+    if (!authenticated) {
+      return json({ reply: "Please sign in at `/auth` to use the AI assistant. Public information is available on the portal pages." });
+    }
 
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
