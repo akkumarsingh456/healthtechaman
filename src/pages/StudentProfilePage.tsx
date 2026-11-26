@@ -308,8 +308,9 @@ export default function StudentProfilePage() {
 
       // Run the account-scoped recovery before reading the profile. The edge
       // function only links a uniquely matching, unlinked row via verified email.
-      const { error: refreshError } = await supabase.functions.invoke("gemini-auto-refresh", { body: {} });
-      if (refreshError) console.warn("Profile recovery check did not complete:", refreshError.message);
+      const { data: syncResult, error: syncError } = await supabase.functions.invoke("student-data-sync", { body: {} });
+      if (syncError) console.warn("Student profile recovery check did not complete:", syncError.message);
+      if (syncResult && !syncResult.ok) console.warn("Student profile recovery report:", syncResult.issues || syncResult.error);
 
       const { data: studentData, error: studentErr } = await supabase
         .from('students')
