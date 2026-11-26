@@ -110,10 +110,39 @@ Deno.serve(async (req) => {
     // ---- Student ----
     let student: any = null;
     {
-      const { data } = await admin.from("students").select("*").eq("user_id", user.id).maybeSingle();
+      const { data, error } = await admin.from("students").select("*").eq("user_id", user.id).maybeSingle();
+      if (error) throw error;
       student = data;
-      // Student records are never discovered or reassigned by a caller-provided
-      // email or roll number. Only the existing auth ownership link is trusted.
+
+      // Safe recovery for legacy rows whose auth link was never written:
+      // only use Supabase-confirmed email, require exactly one candidate,
+      // and only claim a row that is currently unlinked. Never overwrite an owner.
+      if (!student && user.email && user.email_confirmed_at) {
+        const verifiedEmail = user.email.trim().toLowerCase();
+        const { data: candidates, error: candidateError } = await admin
+          .from("students")
+          .select("id, user_id")
+          .ilike("email", verifiedEmail)
+          .limit(2);
+        if (candidateError) throw candidateError;
+
+        if (candidates?.length === 1 && candidates[0].user_id == null) {
+          const { data: linked, error: linkError } = await admin
+            .from("students")
+            .update({ user_id: user.id, updated_at: new Date().toISOString() })
+            .eq("id", candidates[0].id)
+            .is("user_id", null)
+            .select("*")
+            .maybeSingle();
+          if (linkError) throw linkError;
+          if (linked) {
+            student = linked;
+            repairs.push("Reconnected your existing student record using your verified login email.");
+          }
+        } else if ((candidates?.length ?? 0) > 1) {
+          issues.push("More than one unlinked student record matches this verified email; administrator review is required.");
+        }
+      }
     }
 
     if (student) {
