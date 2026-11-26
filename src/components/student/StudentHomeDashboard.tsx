@@ -34,6 +34,10 @@ const StudentHomeDashboard = () => {
     queryKey: ["student-home-profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
+      // Recover a legacy student link before querying this account's dashboard.
+      const { data: syncResult, error: syncError } = await supabase.functions.invoke("student-data-sync", { body: {} });
+      if (syncError) console.warn("Student data sync did not complete:", syncError.message);
+      if (syncResult && !syncResult.ok) console.warn("Student data sync report:", syncResult.issues || syncResult.error);
       const { data } = await supabase
         .from("students")
         .select("id, full_name, roll_number, program, branch, batch, year_of_study, mentor_name, mentor_contact")
@@ -173,9 +177,7 @@ const StudentHomeDashboard = () => {
         </div>
 
         {/* Alert Banners */}
-        {student && (
-          <StudentDataSyncBanner rollNumberHint={student.roll_number} compact />
-        )}
+        <StudentDataSyncBanner rollNumberHint={student?.roll_number} compact />
         {activeLeave && (
           <Card className="border-warning/50 bg-warning/5">
             <CardContent className="py-4 flex items-center gap-4">
