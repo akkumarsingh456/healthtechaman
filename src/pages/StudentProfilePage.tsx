@@ -305,6 +305,12 @@ export default function StudentProfilePage() {
       // Make sure the login session is fully restored before reading data
       // (on a fresh browser the first request can otherwise run too early).
       await supabase.auth.getSession();
+
+      // Run the account-scoped recovery before reading the profile. The edge
+      // function only links a uniquely matching, unlinked row via verified email.
+      const { error: refreshError } = await supabase.functions.invoke("gemini-auto-refresh", { body: {} });
+      if (refreshError) console.warn("Profile recovery check did not complete:", refreshError.message);
+
       const { data: studentData, error: studentErr } = await supabase
         .from('students')
         .select(`
