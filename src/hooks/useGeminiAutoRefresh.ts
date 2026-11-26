@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,14 +22,7 @@ export interface RefreshReport {
 const CACHE_KEY = "gemini-auto-refresh:last";
 const INTERVAL_MS = 60_000;
 const ROUTE_COOLDOWN_MS = 15_000;
-const LAST_CHECK_KEY = "gemini-auto-refresh:last-check";
 
-/**
- * Always-on background refresh for every logged-in section.
- * Runs on every page load and on every route change, then keeps
- * refreshing every 60s. Powered by the project's own free Gemini API key
- * (edge function `gemini-auto-refresh`) — independent of Lovable credits.
- */
 export function useGeminiAutoRefresh() {
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -38,176 +31,93 @@ export function useGeminiAutoRefresh() {
     try {
       const raw = sessionStorage.getItem(CACHE_KEY);
       return raw ? (JSON.parse(raw) as RefreshReport) : null;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   });
-  const runningRef = useRef(false);
-  const attemptRef = useRef(0);
-  const timerRef = useRef<number | null>(null);
-const pendingRef = useRef(false);
-const runRef = useRef<(() => Promise<void>) | null>(null);
-const scheduleRef = useRef<((ms: number) => void) | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let running = false;
+    let pending = false;
+    let attempts = 0;
+    let lastRouteCheck = 0;
 
-    const clearTimer = () => {
-      if (timerRef.current !== null) {
-        window.clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-
-    const schedule = (ms: number) => {
+    const clearTimer = () => { if (timer) clearTimeout(timer); timer = null; };
+    const schedule = (delay: number) => {
       clearTimer();
-      if (!cancelled) timerRef.current = window.setTimeout(run, ms);
+      if (!cancelled) timer = setTimeout(() => void run(), delay);
     };
 
     const run = async () => {
       if (cancelled) return;
-if (runningRef.current) {
-pendingRef.current = true;
-return;
-}
-      runningRef.current = true;
-      let shouldRunPending = false;
+      if (running) { pending = true; return; }
+      running = true;
       try {
-        if (typeof navigator !== "undefined" && navigator.onLine === false) {
-          setStatus("offline");
-          schedule(5000);
-          return;
-        }
-
+        if (!navigator.onLine) { setStatus("offline"); schedule(5000); return; }
         const { data: sessionData } = await supabase.auth.getSession();
-        if (!sessionData.session) {
-          setStatus("signed-out");
-          schedule(INTERVAL_MS);
-          return;
-        }
+        if (cancelled) return;
+        if (!sessionData.session) { setStatus("signed-out"); schedule(INTERVAL_MS); return; }
 
-        setStatus((s) => (s === "idle" ? "checking" : s === "fresh" || s === "repaired" ? s : "checking"));
-
+        setStatus("checking");
         const { data, error } = await supabase.functions.invoke("gemini-auto-refresh", { body: {} });
         if (cancelled) return;
-
         if (error || !(data as RefreshReport)?.ok) {
-          attemptRef.current += 1;
+          attempts += 1;
           setStatus("retrying");
-          schedule(Math.min(1000 * 2 ** (attemptRef.current - 1), 30_000));
+          schedule(Math.min(1000 * 2 ** Math.min(attempts - 1, 5), 30_000));
           return;
         }
 
-        attemptRef.current = 0;
-        const res = data as RefreshReport;
-        setReport(res);
-        try {
-          sessionStorage.setItem(CACHE_KEY, JSON.stringify(res));
-        } catch {
-          /* ignore quota errors */
-        }
-        setStatus(res.synced ? "repaired" : "fresh");
-
-        if (res.synced) {
-          queryClient.invalidateQueries();
-          window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
-        }
- else {
-         queryClient.invalidateQueries({ refetchType: "active" });
-     window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: res }));
- }
+        attempts = 0;
+        const result = data as RefreshReport;
+        setReport(result);
+        try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(result)); } catch { /* storage unavailable */ }
+        setStatus(result.synced ? "repaired" : "fresh");
+        await queryClient.invalidateQueries({ refetchType: "active" });
+        window.dispatchEvent(new CustomEvent("app:data-refreshed", { detail: result }));
         schedule(INTERVAL_MS);
+      } catch {
+        if (!cancelled) {
+          attempts += 1;
+          setStatus("retrying");
+          schedule(Math.min(1000 * 2 ** Math.min(attempts - 1, 5), 30_000));
+        }
       } finally {
-      if (pendingRef.current && !cancelled) {
-        pendingRef.current = false;
-        shouldRunPending = true;
-      }
-        runningRef.current = false;
-      }
-      if (shouldRunPending && !cancelled) {
-        void run();
+        running = false;
+        if (pending && !cancelled) { pending = false; void run(); }
       }
     };
 
-   runRef.current = run;
-    scheduleRef.current = schedule;
-
-    const onOnline = () => {
-      attemptRef.current = 0;
-      run();
-    };
+    const onOnline = () => { attempts = 0; void run(); };
     const onOffline = () => setStatus("offline");
-    const onVisible = () => {
-      if (document.visibilityState === "visible") run();
-    };
+    const onVisible = () => { if (document.visibilityState === "visible") void run(); };
+    const authListener = supabase.auth.onAuthStateChange((event) => {
+      if (cancelled) return;
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+        attempts = 0; void run();
+      } else if (event === "SIGNED_OUT") { setStatus("signed-out"); setReport(null); }
+    });
 
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
     document.addEventListener("visibilitychange", onVisible);
-    const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
-      if (cancelled) return;
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
-        attemptRef.current = 0;
-        void run();
-      } else if (event === "SIGNED_OUT") {
-        setStatus("signed-out");
-        setReport(null);
-      }
-    });
+    void run();
 
     return () => {
-      cancelled = true;
-      clearTimer();
-      runRef.current = null;
-      scheduleRef.current = null;
-      authListener.subscription.unsubscribe();
+      cancelled = true; clearTimer();
+      authListener.data.subscription.unsubscribe();
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
       document.removeEventListener("visibilitychange", onVisible);
     };
-    // Re-run on every route change so each page loads verified data.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [queryClient]);
 
   useEffect(() => {
-    let idleId: number | null = null;
-    let timeoutId: number | null = null;
-
-    const kick = () => {
-      let checkedAt = 0;
-      try {
-        checkedAt = Number(sessionStorage.getItem(LAST_CHECK_KEY) || 0);
-      } catch {
-        checkedAt = 0;
-      }
-      if (Date.now() - checkedAt < ROUTE_COOLDOWN_MS) {
-        if (timerRef.current === null && !runningRef.current) {
-          scheduleRef.current?.(INTERVAL_MS);
-        }
-        return;
-      }
-      try {
-        sessionStorage.setItem(LAST_CHECK_KEY, String(Date.now()));
-      } catch {
-        /* ignore storage errors */
-      }
-      void runRef.current?.();
-    };
-
-    if (typeof (window as any).requestIdleCallback === "function") {
-      idleId = (window as any).requestIdleCallback(kick, { timeout: 600 });
-    } else {
-      timeoutId = window.setTimeout(kick, 0);
-    }
-
-    return () => {
-      if (idleId !== null && typeof (window as any).cancelIdleCallback === "function") {
-        (window as any).cancelIdleCallback(idleId);
-      }
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
-      }
-    };
+    const now = Date.now();
+    if (now - (window as any).__geminiAutoRefreshRouteCheck < ROUTE_COOLDOWN_MS) return;
+    (window as any).__geminiAutoRefreshRouteCheck = now;
+    // Route changes trigger a refresh, but the global timer remains single-instance.
+    window.dispatchEvent(new CustomEvent("app:auto-refresh-route"));
   }, [location.pathname]);
 
   return { status, report };
