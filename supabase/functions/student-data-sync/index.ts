@@ -50,22 +50,42 @@ Deno.serve(async (req) => {
     const issues: string[] = [];
     const repairs: string[] = [];
 
-    // 1. Try by user_id first
-    let { data: student } = await admin
-      .from("students")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (!student) {
-      return json({
-        ok: false,
-        synced: false,
-        issues: ["No student record found for this account."],
-        repairs,
-      });
+    // Resolve this student by the authenticated user id first.
+    let { data: student, error: studentLookupError } = await admin.from("students").select("*").eq("user_id", user.id).maybeSingle();
+    if (studentLookupError) throw studentLookupError;
+    // Recover legacy rows only through the caller's verified email.
+    // Never take a row from another active auth account.
+    if (!student && user.email && user.email_confirmed_at) {
+      const verifiedEmail = user.email.trim().toLowerCase();
+      const { data: candidates, error: candidateError } = await admin.from("students").select("id, user_id, email").ilike("email", verifiedEmail).limit(2);
+      if (candidateError) throw candidateError;
+      if (candidates?.length === 1) {
+        const candidate = candidates[0];
+        let canRecover = candidate.user_id == null;
+        if (candidate.user_id && candidate.user_id !== user.id) {
+          const { data: previousOwner, error: previousOwnerError } = await admin.auth.admin.getUserById(candidate.user_id);
+          if (previousOwner) issues.push("A matching student record is linked to another active login. No account link was changed.");
+          else if (previousOwnerError && previousOwnerError.status === 404) canRecover = true;
+          else if (previousOwnerError) throw previousOwnerError;
+        }
+        if (canRecover) {
+          let update = admin.from("students").update({ user_id: user.id, updated_at: new Date().toISOString() }).eq("id", candidate.id);
+          update = candidate.user_id == null ? update.is("user_id", null) : update.eq("user_id", candidate.user_id);
+          const { data: linked, error: linkError } = await update.select("*").maybeSingle();
+          if (linkError) throw linkError;
+          if (linked) { student = linked; repairs.push("Reconnected your existing student record to this verified login."); }
+        }
+      } else if ((candidates?.length ?? 0) > 1) issues.push("Multiple student records match this verified email. Administrator review is required.");
+      else issues.push("No student record matches this verified login email.");
     }
-
+    if (!student) return json({ ok: false, synced: false, issues: issues.length ? issues : ["No student record found for this account."], repairs });
+    const { data: existingRole, error: roleLookupError } = await admin.from("user_roles").select("user_id").eq("user_id", user.id).eq("role", "student").maybeSingle();
+    if (roleLookupError) throw roleLookupError;
+    if (!existingRole) {
+      const { error: roleInsertError } = await admin.from("user_roles").insert({ user_id: user.id, role: "student" });
+      if (roleInsertError && roleInsertError.code !== "23505") throw roleInsertError;
+      if (!roleInsertError) repairs.push("Restored the student role for this login.");
+    }
     // Pull related counts to surface visibility
     const [leavesRes, visitsRes, prescriptionsRes, labsRes, apptsRes, profileRes] =
       await Promise.all([
