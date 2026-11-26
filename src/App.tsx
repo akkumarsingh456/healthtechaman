@@ -85,9 +85,7 @@ const queryClient = new QueryClient({
       gcTime: 5 * 60 * 1000, // 5 min garbage collection
       retry: 1,
       refetchOnWindowFocus: true,
-      refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds
-      refetchIntervalInBackground: false, // Pause when tab is not active
-    },
+          },
   },
 });
 
