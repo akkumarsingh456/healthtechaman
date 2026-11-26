@@ -88,6 +88,7 @@ export function useGeminiAutoRefresh() {
       }
     };
 
+    const onRouteRefresh = () => void run();
     const onOnline = () => { attempts = 0; void run(); };
     const onOffline = () => setStatus("offline");
     const onVisible = () => { if (document.visibilityState === "visible") void run(); };
@@ -98,6 +99,7 @@ export function useGeminiAutoRefresh() {
       } else if (event === "SIGNED_OUT") { setStatus("signed-out"); setReport(null); }
     });
 
+    window.addEventListener("app:auto-refresh-route", onRouteRefresh);
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
     document.addEventListener("visibilitychange", onVisible);
@@ -106,6 +108,7 @@ export function useGeminiAutoRefresh() {
     return () => {
       cancelled = true; clearTimer();
       authListener.data.subscription.unsubscribe();
+      window.removeEventListener("app:auto-refresh-route", onRouteRefresh);
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
       document.removeEventListener("visibilitychange", onVisible);
