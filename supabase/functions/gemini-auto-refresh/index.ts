@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
         const { data: candidates, error: candidateError } = await admin
           .from("students")
           .select("id, user_id")
-          .ilike("email", verifiedEmail)
+          .eq("email", verifiedEmail)
           .limit(2);
         if (candidateError) throw candidateError;
 
